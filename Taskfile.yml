@@ -1,0 +1,82 @@
+version: "3"
+
+tasks:
+  setup:
+    desc: Enable builds
+    cmds:
+      - flutter config --enable-linux-desktop --enable-web
+
+  .tag-coverage-report:
+    internal: true
+    requires:
+      vars: [ tag ]
+    cmds:
+      - genhtml coverage/lcov.{{ .tag }}.info -o coverage/html
+      - echo "Coverage report generated at coverage/html/index.html"
+
+  .tag-test:
+    internal: true
+    requires:
+      vars: [ tag ]
+    cmds:
+      - flutter test --tags {{ .tag }} --branch-coverage --coverage-path coverage/lcov.{{ .tag }}.info
+      - task: .tag-coverage-report
+        vars:
+          tag: "{{ .tag }}"
+
+  test:unit:
+    desc: Run only unit tests
+    cmds:
+      - task: .tag-test
+        vars: { tag: unit }
+
+  test:widget:
+    desc: Run only widget tests
+    cmds:
+      - task: .tag-test
+        vars: { tag: widget }
+
+  test:integration:
+    desc: Run only integration tests
+    cmds:
+      - task: .tag-test
+        vars: { tag: integration }
+
+  test:all:
+    desc: Run all tests
+    cmds:
+      - flutter test --branch-coverage
+      - genhtml coverage/lcov.info -o coverage/html
+      - echo "Coverage report generated at coverage/html/index.html"
+
+  lint:
+    desc: Run linter
+    cmds:
+      - flutter analyze
+
+  format:
+    desc: Format code
+    cmds:
+      - dart format .
+  build:web:
+    desc: Build for web
+    cmds:
+      - flutter build web --wasm
+
+  build:linux:
+    desc: Build debug linux executable
+    deps:
+      - setup
+    cmds:
+      - flutter build linux --release --target-sysroot ./bin/linux
+
+  run:linux:
+    desc: Build debug linux executable
+    cmds:
+      - flutter run -d linux
+
+  run:web:
+    desc: Run on web
+    cmds:
+      - flutter run -d chrome
+

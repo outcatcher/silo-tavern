@@ -1,0 +1,162 @@
+import 'package:flutter/material.dart';
+import 'package:silo_tavern/domain/server.dart';
+import 'package:silo_tavern/ui/server_creation_page.dart';
+import 'package:silo_tavern/domain/server_service.dart';
+
+class ServerListPage extends StatefulWidget {
+  final ServerService serverService;
+
+  const ServerListPage({super.key, required this.serverService});
+
+  @override
+  State<ServerListPage> createState() => _ServerListPageState();
+}
+
+class _ServerListPageState extends State<ServerListPage> {
+  Future<void> _addServer() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ServerCreationPage()),
+    );
+
+    if (result != null && result is Server) {
+      setState(() {
+        widget.serverService.addServer(result);
+      });
+    }
+  }
+
+  Future<void> _editServer(Server server) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ServerCreationPage(initialServer: server),
+      ),
+    );
+
+    if (result != null && result is Server) {
+      setState(() {
+        widget.serverService.updateServer(result);
+      });
+    }
+  }
+
+  Future<bool> _showDeleteConfirmationDialog(
+    BuildContext context,
+    Server server,
+  ) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirm Deletion'),
+              content: RichText(
+                text: TextSpan(
+                  style: const TextStyle(color: Colors.black, fontSize: 16),
+                  children: [
+                    const TextSpan(text: 'Delete '),
+                    TextSpan(
+                      text: server.name,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        backgroundColor: Color(
+                          0xFFFFCCCC,
+                        ), // Lighter red background
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const TextSpan(text: '?'),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false), // Cancel
+                  child: const Text('CANCEL'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true), // Delete
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  child: const Text('DELETE'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('SiloTavern - Servers'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: ListView.builder(
+        itemCount: widget.serverService.serverCount,
+        itemBuilder: (context, index) {
+          final server = widget.serverService.servers[index];
+          return Dismissible(
+            key: Key(server.id),
+            dismissThresholds: const {
+              DismissDirection.endToStart: 0.2,
+              DismissDirection.startToEnd: 0.2,
+            },
+            confirmDismiss: (direction) async {
+              if (direction == DismissDirection.startToEnd) {
+                // Handle edit on left-to-right swipe
+                await _editServer(server);
+                // Return false to prevent dismissal
+                return false;
+              } else if (direction == DismissDirection.endToStart) {
+                // Show delete confirmation dialog for right-to-left swipe
+                final confirmDelete = await _showDeleteConfirmationDialog(
+                  context,
+                  server,
+                );
+                return confirmDelete;
+              }
+              // Default behavior
+              return false;
+            },
+            // Edit swipe background (left-to-right drag)
+            background: Container(
+              color: Colors.blue,
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.only(left: 20),
+              child: const Icon(Icons.edit, color: Colors.white),
+            ),
+            // Delete swipe background (right-to-left drag)
+            secondaryBackground: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 20),
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
+            child: Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: server.isActive ? Colors.green : Colors.grey,
+                  child: Icon(
+                    server.isActive ? Icons.check : Icons.close,
+                    color: Colors.white,
+                  ),
+                ),
+                title: Text(server.name),
+                subtitle: Text(server.address),
+              ),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addServer,
+        tooltip: 'Add Server',
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
