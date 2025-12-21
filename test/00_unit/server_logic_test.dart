@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silo_tavern/domain/server.dart';
+import 'package:silo_tavern/domain/server_service.dart';
 
 void main() {
   group('Server Model Tests', () {
@@ -144,6 +145,102 @@ void main() {
       expect(updatedServer.authentication.useCredentials, true);
       expect(updatedServer.authentication.username, 'original-user');
       expect(updatedServer.authentication.password, 'original-pass');
+    });
+  });
+
+  group('ServerService Tests', () {
+    late ServerService service;
+
+    setUp(() {
+      service = ServerService();
+    });
+
+    test('Initial server list is populated', () {
+      expect(service.serverCount, greaterThan(0));
+      expect(service.servers, isNotEmpty);
+    });
+
+    test('Get servers returns immutable list', () {
+      final servers1 = service.servers;
+      final servers2 = service.servers;
+
+      expect(servers1, isNot(same(servers2))); // Different instances
+      expect(servers1.length, servers2.length); // Same content
+    });
+
+    test('Add server increases server count', () {
+      final initialCount = service.serverCount;
+      final newServer = Server(
+        id: 'new-server',
+        name: 'New Server',
+        address: 'https://new.example.com',
+      );
+
+      service.addServer(newServer);
+
+      expect(service.serverCount, initialCount + 1);
+      expect(service.findServerById('new-server'), isNotNull);
+    });
+
+    test('Update server modifies existing server', () {
+      // Get first server
+      final originalServer = service.servers[0];
+      final originalId = originalServer.id;
+      final originalName = originalServer.name;
+
+      // Create updated server with same ID but different name
+      final updatedServer = Server(
+        id: originalId,
+        name: 'Updated Name',
+        address: originalServer.address,
+        isActive: originalServer.isActive,
+        authentication: originalServer.authentication,
+      );
+
+      service.updateServer(updatedServer);
+
+      final foundServer = service.findServerById(originalId);
+      expect(foundServer, isNotNull);
+      expect(foundServer!.name, 'Updated Name');
+      expect(foundServer.name, isNot(originalName));
+      expect(foundServer.id, originalId); // ID preserved
+    });
+
+    test('Remove server decreases server count', () {
+      final initialCount = service.serverCount;
+      final firstServerId = service.servers[0].id;
+
+      service.removeServer(firstServerId);
+
+      expect(service.serverCount, initialCount - 1);
+      expect(service.findServerById(firstServerId), isNull);
+    });
+
+    test('Find server by ID returns correct server', () {
+      final firstServer = service.servers[0];
+      final foundServer = service.findServerById(firstServer.id);
+
+      expect(foundServer, isNotNull);
+      expect(foundServer!.id, firstServer.id);
+      expect(foundServer.name, firstServer.name);
+    });
+
+    test('Find non-existent server returns null', () {
+      final foundServer = service.findServerById('non-existent-id');
+      expect(foundServer, isNull);
+    });
+
+    test('Update non-existent server does nothing', () {
+      final initialCount = service.serverCount;
+      final fakeServer = Server(
+        id: 'fake-id',
+        name: 'Fake Server',
+        address: 'https://fake.example.com',
+      );
+
+      service.updateServer(fakeServer);
+
+      expect(service.serverCount, initialCount); // No change
     });
   });
 }

@@ -537,4 +537,121 @@ void main() {
     // Verify the original server is gone
     expect(find.text('Production Server'), findsNothing);
   });
+
+  testWidgets('3.2 Edit form preserves authentication data', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const SiloTavernApp());
+
+    // Find the Production Server dismissible
+    final dismissibleFinder = find.ancestor(
+      of: find.text('Production Server'),
+      matching: find.byType(Dismissible),
+    );
+
+    // Perform left-to-right swipe (edit)
+    await tester.drag(dismissibleFinder, const Offset(300, 0));
+    await tester.pumpAndSettle();
+
+    // Verify that we're on the server edit page.
+    expect(find.text('Edit Server'), findsOneWidget);
+
+    // Verify form is pre-filled with existing data
+    expect(find.text('Production Server'), findsOneWidget);
+    expect(find.text('prod.example.com'), findsOneWidget);
+
+    // Modify only the name, keep other data the same
+    await tester.enterText(find.byType(TextFormField).at(0), 'Updated Production Server');
+
+    // Save the changes
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    // Verify the updated server appears
+    expect(find.text('Updated Production Server'), findsOneWidget);
+    // Original should be gone
+    expect(find.text('Production Server'), findsNothing);
+  });
+
+  testWidgets('3.2 Edit with credentials authentication preserves auth data', (WidgetTester tester) async {
+    // First, create a server with credentials
+    await tester.pumpWidget(const SiloTavernApp());
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    // Fill in server creation form with credentials
+    await tester.enterText(find.byType(TextFormField).at(0), 'Auth Server');
+    await tester.enterText(find.byType(TextFormField).at(1), 'https://auth.example.com');
+
+    // Select credentials authentication
+    await tester.tap(find.text('Credentials'));
+    await tester.pumpAndSettle();
+
+    // Fill in credentials
+    await tester.enterText(find.byType(TextFormField).at(2), 'testuser');
+    await tester.enterText(find.byType(TextFormField).at(3), 'testpass');
+
+    // Save the server
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    // Now edit the server
+    final dismissibleFinder = find.ancestor(
+      of: find.text('Auth Server'),
+      matching: find.byType(Dismissible),
+    );
+
+    // Perform left-to-right swipe (edit)
+    await tester.drag(dismissibleFinder, const Offset(300, 0));
+    await tester.pumpAndSettle();
+
+    // Verify we're on edit page
+    expect(find.text('Edit Server'), findsOneWidget);
+
+    // Verify form is pre-filled
+    expect(find.text('Auth Server'), findsOneWidget);
+    expect(find.text('https://auth.example.com'), findsOneWidget);
+    expect(find.text('testuser'), findsOneWidget);
+
+    // Modify the name
+    await tester.enterText(find.byType(TextFormField).at(0), 'Updated Auth Server');
+
+    // Save changes
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    // Verify update
+    expect(find.text('Updated Auth Server'), findsOneWidget);
+    expect(find.text('Auth Server'), findsNothing);
+  });
+
+  testWidgets('3.2 Edit cancel preserves original server', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const SiloTavernApp());
+
+    // Find the Production Server dismissible
+    final dismissibleFinder = find.ancestor(
+      of: find.text('Production Server'),
+      matching: find.byType(Dismissible),
+    );
+
+    // Perform left-to-right swipe (edit)
+    await tester.drag(dismissibleFinder, const Offset(300, 0));
+    await tester.pumpAndSettle();
+
+    // Verify that we're on the server edit page.
+    expect(find.text('Edit Server'), findsOneWidget);
+
+    // Modify the server name
+    await tester.enterText(find.byType(TextFormField).at(0), 'Temp Name');
+
+    // Cancel the edit (back button)
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+
+    // Verify original server still exists
+    expect(find.text('Production Server'), findsOneWidget);
+    // Updated name should not exist
+    expect(find.text('Temp Name'), findsNothing);
+  });
 }
+
