@@ -16,7 +16,7 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.16.0' # Use the version you're developing with
+        flutter-version-file: pubspec.yaml
         channel: 'stable'
     
     - name: Install dependencies
@@ -24,12 +24,24 @@ jobs:
     
     - name: Run tests
       run: flutter test --coverage
+
+  lint:
+    runs-on: ubuntu-latest
     
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
       with:
-        file: coverage/lcov.info
-        flags: unittests
-        name: codecov-umbrella
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        flutter-version-file: pubspec.yaml
+        channel: 'stable'
+    
+    - name: Install dependencies
+      run: flutter pub get
+    
+    - name: Run Flutter analyzer
+      run: flutter analyze
+    
+    - name: Check code formatting
+      run: dart format --output=none --set-exit-if-changed .

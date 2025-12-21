@@ -14,7 +14,7 @@ void main() {
         name: 'Test Server',
         address: 'https://test.example.com',
       );
-      
+
       expect(server.id, '1');
       expect(server.name, 'Test Server');
       expect(server.address, 'https://test.example.com');
@@ -28,7 +28,7 @@ void main() {
         username: 'testuser',
         password: 'testpass',
       );
-      
+
       final server = Server(
         id: '2',
         name: 'Custom Server',
@@ -36,7 +36,7 @@ void main() {
         isActive: true,
         authentication: auth,
       );
-      
+
       expect(server.id, '2');
       expect(server.name, 'Custom Server');
       expect(server.address, 'https://custom.example.com');
@@ -52,7 +52,7 @@ void main() {
         name: 'Test Server',
         address: 'https://test.example.com',
       );
-      
+
       final server2 = Server(
         id: '1',
         name: 'Test Server',
@@ -68,7 +68,7 @@ void main() {
   group('AuthenticationInfo Tests', () {
     test('None authentication creation', () {
       final auth = AuthenticationInfo.none();
-      
+
       expect(auth.useCredentials, false);
       expect(auth.username, '');
       expect(auth.password, '');
@@ -79,7 +79,7 @@ void main() {
         username: 'testuser',
         password: 'testpass',
       );
-      
+
       expect(auth.useCredentials, true);
       expect(auth.username, 'testuser');
       expect(auth.password, 'testpass');

@@ -7,7 +7,6 @@
 @Tags(['widget', 'servers'])
 library;
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -538,7 +537,9 @@ void main() {
     expect(find.text('Production Server'), findsNothing);
   });
 
-  testWidgets('3.2 Edit form preserves authentication data', (WidgetTester tester) async {
+  testWidgets('3.2 Edit form preserves authentication data', (
+    WidgetTester tester,
+  ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const SiloTavernApp());
 
@@ -560,7 +561,10 @@ void main() {
     expect(find.text('prod.example.com'), findsOneWidget);
 
     // Modify only the name, keep other data the same
-    await tester.enterText(find.byType(TextFormField).at(0), 'Updated Production Server');
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'Updated Production Server',
+    );
 
     // Save the changes
     await tester.tap(find.byIcon(Icons.check));
@@ -572,7 +576,9 @@ void main() {
     expect(find.text('Production Server'), findsNothing);
   });
 
-  testWidgets('3.2 Edit with credentials authentication preserves auth data', (WidgetTester tester) async {
+  testWidgets('3.2 Edit with credentials authentication preserves auth data', (
+    WidgetTester tester,
+  ) async {
     // First, create a server with credentials
     await tester.pumpWidget(const SiloTavernApp());
     await tester.tap(find.byIcon(Icons.add));
@@ -580,7 +586,10 @@ void main() {
 
     // Fill in server creation form with credentials
     await tester.enterText(find.byType(TextFormField).at(0), 'Auth Server');
-    await tester.enterText(find.byType(TextFormField).at(1), 'https://auth.example.com');
+    await tester.enterText(
+      find.byType(TextFormField).at(1),
+      'https://auth.example.com',
+    );
 
     // Select credentials authentication
     await tester.tap(find.text('Credentials'));
@@ -613,7 +622,10 @@ void main() {
     expect(find.text('testuser'), findsOneWidget);
 
     // Modify the name
-    await tester.enterText(find.byType(TextFormField).at(0), 'Updated Auth Server');
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'Updated Auth Server',
+    );
 
     // Save changes
     await tester.tap(find.byIcon(Icons.check));
@@ -624,7 +636,9 @@ void main() {
     expect(find.text('Auth Server'), findsNothing);
   });
 
-  testWidgets('3.2 Edit cancel preserves original server', (WidgetTester tester) async {
+  testWidgets('3.2 Edit cancel preserves original server', (
+    WidgetTester tester,
+  ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const SiloTavernApp());
 
@@ -654,4 +668,3 @@ void main() {
     expect(find.text('Temp Name'), findsNothing);
   });
 }
-
