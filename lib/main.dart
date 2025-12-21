@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/domain/server_service.dart';
+
 void main() {
   runApp(const SiloTavernApp());
 }
@@ -20,4 +21,3 @@ class SiloTavernApp extends StatelessWidget {
     );
   }
 }
-
