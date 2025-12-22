@@ -73,9 +73,6 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                         DateTime.now().millisecondsSinceEpoch.toString(),
                     name: _name,
                     address: _url,
-                    isActive:
-                        widget.initialServer?.isActive ??
-                        false, // Preserve active status for edits
                     authentication: _authType == AuthenticationType.credentials
                         ? AuthenticationInfo.credentials(
                             username: _username,

@@ -2,14 +2,12 @@ class Server {
   final String id;
   final String name;
   final String address;
-  final bool isActive;
   final AuthenticationInfo authentication;
 
   Server({
     required this.id,
     required this.name,
     required this.address,
-    this.isActive = false,
     this.authentication = const AuthenticationInfo.none(),
   });
 }

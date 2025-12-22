@@ -497,7 +497,7 @@ void main() {
     expect(find.text('Edit Server'), findsOneWidget);
     // Verify that existing server data is pre-filled
     expect(find.text('Production Server'), findsOneWidget);
-    expect(find.text('prod.example.com'), findsOneWidget);
+    expect(find.text('https://prod.example.com'), findsOneWidget);
   });
 
   testWidgets('3.1 Edit preserves server ID and status', (
@@ -558,7 +558,7 @@ void main() {
 
     // Verify form is pre-filled with existing data
     expect(find.text('Production Server'), findsOneWidget);
-    expect(find.text('prod.example.com'), findsOneWidget);
+    expect(find.text('https://prod.example.com'), findsOneWidget);
 
     // Modify only the name, keep other data the same
     await tester.enterText(

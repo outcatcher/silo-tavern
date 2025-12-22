@@ -8,6 +8,7 @@ tasks:
 
   .tag-coverage-report:
     internal: true
+    silent: true
     requires:
       vars: [ tag ]
     cmds:
@@ -16,6 +17,7 @@ tasks:
 
   .tag-test:
     internal: true
+    silent: true
     requires:
       vars: [ tag ]
     cmds:

@@ -18,7 +18,6 @@ void main() {
       expect(server.id, '1');
       expect(server.name, 'Test Server');
       expect(server.address, 'https://test.example.com');
-      expect(server.isActive, false);
       expect(server.authentication, isNotNull);
       expect(server.authentication.useCredentials, false);
     });
@@ -33,14 +32,12 @@ void main() {
         id: '2',
         name: 'Custom Server',
         address: 'https://custom.example.com',
-        isActive: true,
         authentication: auth,
       );
 
       expect(server.id, '2');
       expect(server.name, 'Custom Server');
       expect(server.address, 'https://custom.example.com');
-      expect(server.isActive, true);
       expect(server.authentication.useCredentials, true);
       expect(server.authentication.username, 'testuser');
       expect(server.authentication.password, 'testpass');
@@ -105,7 +102,6 @@ void main() {
         id: 'server-123',
         name: 'Original Server',
         address: 'https://original.example.com',
-        isActive: true,
       );
 
       // Simulate updating server data while preserving ID
@@ -113,11 +109,9 @@ void main() {
         id: originalServer.id, // Preserve ID
         name: 'Updated Server',
         address: 'https://updated.example.com',
-        isActive: originalServer.isActive, // Preserve status
       );
 
       expect(updatedServer.id, originalServer.id);
-      expect(updatedServer.isActive, originalServer.isActive);
       expect(updatedServer.name, isNot(originalServer.name));
     });
 
@@ -193,7 +187,6 @@ void main() {
         id: originalId,
         name: 'Updated Name',
         address: originalServer.address,
-        isActive: originalServer.isActive,
         authentication: originalServer.authentication,
       );
 

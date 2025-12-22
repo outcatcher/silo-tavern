@@ -139,14 +139,15 @@ class _ServerListPageState extends State<ServerListPage> {
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: server.isActive ? Colors.green : Colors.grey,
+                  backgroundColor: server.address.startsWith('https') ? Colors.grey[700] : Colors.grey[500],
                   child: Icon(
-                    server.isActive ? Icons.check : Icons.close,
+                    server.address.startsWith('https') ? Icons.lock : Icons.lock_open,
                     color: Colors.white,
                   ),
                 ),
                 title: Text(server.name),
                 subtitle: Text(server.address),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
               ),
             ),
           );

@@ -5,20 +5,17 @@ class ServerService {
     Server(
       id: '1',
       name: 'Production Server',
-      address: 'prod.example.com',
-      isActive: true,
+      address: 'https://prod.example.com',
     ),
     Server(
       id: '2',
       name: 'Staging Server',
-      address: 'staging.example.com',
-      isActive: false,
+      address: 'https://staging.example.com',
     ),
     Server(
       id: '3',
       name: 'Development Server',
-      address: 'dev.example.com',
-      isActive: true,
+      address: 'http://dev.example.com',
     ),
   ];
 
