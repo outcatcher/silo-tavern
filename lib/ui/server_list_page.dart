@@ -147,7 +147,7 @@ class _ServerListPageState extends State<ServerListPage> {
                 ),
                 title: Text(server.name),
                 subtitle: Text(server.address),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                trailing: const Icon(Icons.arrow_forward, size: 16, color: Colors.grey),
               ),
             ),
           );
