@@ -1,3 +1,5 @@
+import '../utils/network_utils.dart';
+
 class Server {
   final String id;
   final String name;
@@ -27,3 +29,4 @@ class AuthenticationInfo {
       username = '',
       password = '';
 }
+

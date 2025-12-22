@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:silo_tavern/domain/server.dart';
+import 'package:silo_tavern/utils/network_utils.dart';
 
 enum PageMode { create, edit }
 
@@ -65,10 +66,9 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                // Return the new server data to the previous screen
-                Navigator.of(context).pop(
-                  Server(
-                    id:
+                // Create temporary server to validate configuration
+                final tempServer = Server(
+                  id:
                         widget.initialServer?.id ??
                         DateTime.now().millisecondsSinceEpoch.toString(),
                     name: _name,
@@ -79,9 +79,38 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                             password: _password,
                           )
                         : const AuthenticationInfo.none(),
-                  ),
                 );
-              }
+
+                // Validate server configuration
+                if (!NetworkUtils.isServerConfigurationAllowed(tempServer)) {
+                  // Show error dialog
+                    if (mounted) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Configuration Not Allowed'),
+                        content: const Text(
+                          'HTTP servers without authentication are only allowed on local networks.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('OK'),
+          ),
+        ],
+    );
+                    },
+                  );
+  }
+                    return;
+}
+
+                  // Return the new server data to the previous screen
+                  if (mounted) {
+                    Navigator.of(context).pop(tempServer);
+                  }
+                  }
             },
             splashRadius: 24.0, // Increase touch target size
           ),
@@ -262,3 +291,4 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
     );
   }
 }
+

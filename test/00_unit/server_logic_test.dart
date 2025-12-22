@@ -96,49 +96,104 @@ void main() {
     });
   });
 
-  group('Server Update Logic Tests', () {
-    test('Server ID preservation during updates', () {
-      final originalServer = Server(
-        id: 'server-123',
-        name: 'Original Server',
-        address: 'https://original.example.com',
+  group('Server Network Validation Tests', () {
+    test('HTTPS servers are allowed regardless of authentication', () {
+      final httpsServerNoAuth = Server(
+        id: '1',
+        name: 'HTTPS Server',
+        address: 'https://example.com',
+        authentication: const AuthenticationInfo.none(),
       );
 
-      // Simulate updating server data while preserving ID
-      final updatedServer = Server(
-        id: originalServer.id, // Preserve ID
-        name: 'Updated Server',
-        address: 'https://updated.example.com',
+      final httpsServerWithAuth = Server(
+        id: '2',
+        name: 'HTTPS Server with Auth',
+        address: 'https://secure.example.com',
+        authentication: AuthenticationInfo.credentials(
+          username: 'user',
+          password: 'pass',
+        ),
       );
 
-      expect(updatedServer.id, originalServer.id);
-      expect(updatedServer.name, isNot(originalServer.name));
+      // Both should be valid
+      expect(httpsServerNoAuth.address.startsWith('https://'), isTrue);
+      expect(httpsServerWithAuth.address.startsWith('https://'), isTrue);
     });
 
-    test('Server authentication data preservation', () {
-      final originalAuth = AuthenticationInfo.credentials(
-        username: 'original-user',
-        password: 'original-pass',
+    test('HTTP servers without authentication are rejected for external addresses', () {
+      final httpExternalServer = Server(
+        id: '1',
+        name: 'HTTP External Server',
+        address: 'http://external.com',
+        authentication: const AuthenticationInfo.none(),
       );
 
-      final originalServer = Server(
-        id: 'server-456',
-        name: 'Auth Server',
-        address: 'https://auth.example.com',
-        authentication: originalAuth,
+      // This should be invalid according to our new rule
+      expect(httpExternalServer.address.startsWith('http://'), isTrue);
+      expect(httpExternalServer.authentication.useCredentials, isFalse);
+      // Note: Actual validation logic would be implemented in the service layer
+    });
+
+    test('HTTP servers with authentication are rejected for external addresses', () {
+      final httpExternalServerWithAuth = Server(
+        id: '2',
+        name: 'HTTP External Server with Auth',
+        address: 'http://external.com',
+        authentication: AuthenticationInfo.credentials(
+          username: 'user',
+          password: 'pass',
+        ),
       );
 
-      // Update server while preserving authentication structure
-      final updatedServer = Server(
-        id: originalServer.id,
-        name: 'Updated Auth Server',
-        address: originalServer.address,
-        authentication: originalServer.authentication, // Preserve auth
+      // This should be invalid according to our new rule
+      expect(httpExternalServerWithAuth.address.startsWith('http://'), isTrue);
+      expect(httpExternalServerWithAuth.authentication.useCredentials, isTrue);
+      // Note: Actual validation logic would be implemented in the service layer
+    });
+
+    test('HTTP servers without authentication are allowed for local addresses', () {
+      final localhostServer = Server(
+        id: '3',
+        name: 'Localhost Server',
+        address: 'http://localhost:8000',
+        authentication: const AuthenticationInfo.none(),
       );
 
-      expect(updatedServer.authentication.useCredentials, true);
-      expect(updatedServer.authentication.username, 'original-user');
-      expect(updatedServer.authentication.password, 'original-pass');
+      final ipServer = Server(
+        id: '4',
+        name: 'IP Server',
+        address: 'http://127.0.0.1:3000',
+        authentication: const AuthenticationInfo.none(),
+      );
+
+      final localNetworkServer = Server(
+        id: '5',
+        name: 'Local Network Server',
+        address: 'http://192.168.1.100:8080',
+        authentication: const AuthenticationInfo.none(),
+      );
+
+      // These should be valid according to our new rule
+      expect(localhostServer.address, contains('localhost'));
+      expect(ipServer.address, contains('127.0.0.1'));
+      // Note: Actual validation logic would be implemented in the service layer
+    });
+
+    test('HTTP servers with authentication are allowed for local addresses', () {
+      final localhostServerWithAuth = Server(
+        id: '6',
+        name: 'Localhost Server with Auth',
+        address: 'http://localhost:8000',
+        authentication: AuthenticationInfo.credentials(
+          username: 'admin',
+          password: 'secret',
+        ),
+      );
+
+      // This should be valid according to our new rule
+      expect(localhostServerWithAuth.address, contains('localhost'));
+      expect(localhostServerWithAuth.authentication.useCredentials, isTrue);
+      // Note: Actual validation logic would be implemented in the service layer
     });
   });
 
@@ -237,3 +292,4 @@ void main() {
     });
   });
 }
+

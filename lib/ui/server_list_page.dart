@@ -20,9 +20,29 @@ class _ServerListPageState extends State<ServerListPage> {
     );
 
     if (result != null && result is Server) {
-      setState(() {
+      try {
         widget.serverService.addServer(result);
-      });
+      setState(() {});
+      } catch (e) {
+        if (mounted) {
+          // Show error dialog
+          showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+                title: const Text('Server Not Added'),
+                content: Text(e.toString()),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK'),
+                  ),
+                  ],
+              );
+            },
+            );
+  }
+      }
     }
   }
 
@@ -31,13 +51,33 @@ class _ServerListPageState extends State<ServerListPage> {
       context,
       MaterialPageRoute(
         builder: (context) => ServerCreationPage(initialServer: server),
-      ),
-    );
+            ),
+          );
 
     if (result != null && result is Server) {
-      setState(() {
+      try {
         widget.serverService.updateServer(result);
-      });
+      setState(() {});
+      } catch (e) {
+        if (mounted) {
+          // Show error dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Server Not Updated'),
+                content: Text(e.toString()),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK'),
+      ),
+                ],
+    );
+            },
+          );
+  }
+}
     }
   }
 
@@ -161,3 +201,4 @@ class _ServerListPageState extends State<ServerListPage> {
     );
   }
 }
+
