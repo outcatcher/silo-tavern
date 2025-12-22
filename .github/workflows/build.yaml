@@ -23,7 +23,7 @@ jobs:
       run: flutter build web --release
     
     - name: Upload Web Build
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v6
       with:
         name: web-build
         path: build/web/
@@ -50,7 +50,7 @@ jobs:
       run: flutter build linux --release
     
     - name: Upload Linux Build
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v6
       with:
         name: linux-build
         path: build/linux/
