@@ -667,5 +667,97 @@ void main() {
     // Updated name should not exist
     expect(find.text('Temp Name'), findsNothing);
   });
-}
 
+  testWidgets('Server addition shows error dialog for invalid configuration', (
+    WidgetTester tester,
+  ) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const SiloTavernApp());
+
+    // Tap the '+' icon to open the creation page.
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    // Verify that we're on the server creation page.
+    expect(find.text('Add New Server'), findsOneWidget);
+
+    // Fill in form with invalid configuration (HTTP without auth on external)
+    await tester.enterText(find.byType(TextFormField).at(0), 'Invalid Server');
+    await tester.enterText(
+      find.byType(TextFormField).at(1),
+      'http://external-example.com',
+    );
+
+    // Tap the save button (checkmark icon).
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    // Verify error dialog is shown
+    expect(find.text('Server Not Added'), findsOneWidget);
+    expect(
+      find.text(
+        'HTTP servers without authentication are only allowed on local networks. All HTTP servers should use authentication.',
+      ),
+      findsOneWidget,
+    );
+
+    // Tap OK button
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    // Verify we're back on the server list page
+    expect(find.text('SiloTavern - Servers'), findsOneWidget);
+    // Verify the invalid server was not added
+    expect(find.text('Invalid Server'), findsNothing);
+  });
+
+  testWidgets('Server update shows error dialog for invalid configuration', (
+    WidgetTester tester,
+  ) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const SiloTavernApp());
+
+    // Find the Production Server dismissible
+    final dismissibleFinder = find.ancestor(
+      of: find.text('Production Server'),
+      matching: find.byType(Dismissible),
+    );
+
+    // Perform left-to-right swipe (edit)
+    await tester.drag(dismissibleFinder, const Offset(300, 0));
+    await tester.pumpAndSettle();
+
+    // Verify that we're on the server edit page.
+    expect(find.text('Edit Server'), findsOneWidget);
+
+    // Change the URL to an invalid configuration (HTTP without auth on external)
+    await tester.enterText(
+      find.byType(TextFormField).at(1),
+      'http://external-example.com',
+    );
+
+    // Save the changes
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    // Verify error dialog is shown
+    expect(find.text('Server Not Updated'), findsOneWidget);
+    expect(
+      find.text(
+        'HTTP servers without authentication are only allowed on local networks. All HTTP servers should use authentication.',
+      ),
+      findsOneWidget,
+    );
+
+    // Tap OK button
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    // Verify we're back on the server list page
+    expect(find.text('SiloTavern - Servers'), findsOneWidget);
+    // Verify the original server still exists with original URL
+    expect(find.text('https://prod.example.com'), findsOneWidget);
+    // Verify the invalid update was not applied
+    expect(find.text('http://external-example.com'), findsNothing);
+  });
+}

@@ -69,48 +69,48 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 // Create temporary server to validate configuration
                 final tempServer = Server(
                   id:
-                        widget.initialServer?.id ??
-                        DateTime.now().millisecondsSinceEpoch.toString(),
-                    name: _name,
-                    address: _url,
-                    authentication: _authType == AuthenticationType.credentials
-                        ? AuthenticationInfo.credentials(
-                            username: _username,
-                            password: _password,
-                          )
-                        : const AuthenticationInfo.none(),
+                      widget.initialServer?.id ??
+                      DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: _name,
+                  address: _url,
+                  authentication: _authType == AuthenticationType.credentials
+                      ? AuthenticationInfo.credentials(
+                          username: _username,
+                          password: _password,
+                        )
+                      : const AuthenticationInfo.none(),
                 );
 
                 // Validate server configuration
                 if (!NetworkUtils.isServerConfigurationAllowed(tempServer)) {
                   // Show error dialog
-                    if (mounted) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Configuration Not Allowed'),
-                        content: const Text(
-                          'HTTP servers without authentication are only allowed on local networks.',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('OK'),
-          ),
-        ],
-    );
-                    },
-                  );
-  }
-                    return;
-}
-
-                  // Return the new server data to the previous screen
                   if (mounted) {
-                    Navigator.of(context).pop(tempServer);
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Configuration Not Allowed'),
+                          content: const Text(
+                            'HTTP servers without authentication are only allowed on local networks. All HTTP servers should use authentication.',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   }
-                  }
+                  return;
+                }
+
+                // Return the new server data to the previous screen
+                if (mounted) {
+                  Navigator.of(context).pop(tempServer);
+                }
+              }
             },
             splashRadius: 24.0, // Increase touch target size
           ),
@@ -291,4 +291,3 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
     );
   }
 }
-

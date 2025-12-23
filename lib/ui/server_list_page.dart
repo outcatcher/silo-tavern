@@ -22,26 +22,28 @@ class _ServerListPageState extends State<ServerListPage> {
     if (result != null && result is Server) {
       try {
         widget.serverService.addServer(result);
-      setState(() {});
+        setState(() {});
       } catch (e) {
         if (mounted) {
           // Show error dialog
           showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
                 title: const Text('Server Not Added'),
-                content: Text(e.toString()),
+                content: const Text(
+                  'HTTP servers without authentication are only allowed on local networks. All HTTP servers should use authentication.',
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: const Text('OK'),
                   ),
-                  ],
+                ],
               );
             },
-            );
-  }
+          );
+        }
       }
     }
   }
@@ -51,13 +53,13 @@ class _ServerListPageState extends State<ServerListPage> {
       context,
       MaterialPageRoute(
         builder: (context) => ServerCreationPage(initialServer: server),
-            ),
-          );
+      ),
+    );
 
     if (result != null && result is Server) {
       try {
         widget.serverService.updateServer(result);
-      setState(() {});
+        setState(() {});
       } catch (e) {
         if (mounted) {
           // Show error dialog
@@ -66,18 +68,20 @@ class _ServerListPageState extends State<ServerListPage> {
             builder: (BuildContext context) {
               return AlertDialog(
                 title: const Text('Server Not Updated'),
-                content: Text(e.toString()),
+                content: const Text(
+                  'HTTP servers without authentication are only allowed on local networks. All HTTP servers should use authentication.',
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: const Text('OK'),
-      ),
+                  ),
                 ],
-    );
+              );
             },
           );
-  }
-}
+        }
+      }
     }
   }
 
@@ -179,15 +183,23 @@ class _ServerListPageState extends State<ServerListPage> {
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: server.address.startsWith('https') ? Colors.grey[700] : Colors.grey[500],
+                  backgroundColor: server.address.startsWith('https')
+                      ? Colors.grey[700]
+                      : Colors.grey[500],
                   child: Icon(
-                    server.address.startsWith('https') ? Icons.lock : Icons.lock_open,
+                    server.address.startsWith('https')
+                        ? Icons.lock
+                        : Icons.lock_open,
                     color: Colors.white,
                   ),
                 ),
                 title: Text(server.name),
                 subtitle: Text(server.address),
-                trailing: const Icon(Icons.arrow_forward, size: 16, color: Colors.grey),
+                trailing: const Icon(
+                  Icons.arrow_forward,
+                  size: 16,
+                  color: Colors.grey,
+                ),
               ),
             ),
           );
@@ -201,4 +213,3 @@ class _ServerListPageState extends State<ServerListPage> {
     );
   }
 }
-
