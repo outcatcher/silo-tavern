@@ -91,7 +91,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                         return AlertDialog(
                           title: const Text('Configuration Not Allowed'),
                           content: const Text(
-                            'HTTP servers without authentication are only allowed on local networks. All HTTP servers should use authentication.',
+                            'Remote servers must use HTTPS and authentication. Local servers can use any configuration.',
                           ),
                           actions: [
                             TextButton(

@@ -20,31 +20,8 @@ class _ServerListPageState extends State<ServerListPage> {
     );
 
     if (result != null && result is Server) {
-      try {
-        widget.serverService.addServer(result);
-        setState(() {});
-      } catch (e) {
-        if (mounted) {
-          // Show error dialog
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Server Not Added'),
-                content: const Text(
-                  'HTTP servers without authentication are only allowed on local networks. All HTTP servers should use authentication.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      }
+      widget.serverService.addServer(result);
+      setState(() {});
     }
   }
 
@@ -57,31 +34,8 @@ class _ServerListPageState extends State<ServerListPage> {
     );
 
     if (result != null && result is Server) {
-      try {
-        widget.serverService.updateServer(result);
-        setState(() {});
-      } catch (e) {
-        if (mounted) {
-          // Show error dialog
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Server Not Updated'),
-                content: const Text(
-                  'HTTP servers without authentication are only allowed on local networks. All HTTP servers should use authentication.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      }
+      widget.serverService.updateServer(result);
+      setState(() {});
     }
   }
 

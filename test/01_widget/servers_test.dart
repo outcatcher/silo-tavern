@@ -106,6 +106,14 @@ void main() {
       'https://test.example.com',
     );
 
+    // Select credentials authentication since remote HTTPS requires auth
+    await tester.tap(find.text('Credentials'));
+    await tester.pumpAndSettle();
+
+    // Fill in credentials
+    await tester.enterText(find.byType(TextFormField).at(2), 'testuser');
+    await tester.enterText(find.byType(TextFormField).at(3), 'testpass');
+
     // Tap the save button (checkmark icon).
     await tester.tap(find.byIcon(Icons.check));
     await tester.pumpAndSettle();
@@ -693,10 +701,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify error dialog is shown
-    expect(find.text('Server Not Added'), findsOneWidget);
+    expect(find.text('Configuration Not Allowed'), findsOneWidget);
     expect(
       find.text(
-        'HTTP servers without authentication are only allowed on local networks. All HTTP servers should use authentication.',
+        'Remote servers must use HTTPS and authentication. Local servers can use any configuration.',
       ),
       findsOneWidget,
     );
@@ -705,10 +713,8 @@ void main() {
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
-    // Verify we're back on the server list page
-    expect(find.text('SiloTavern - Servers'), findsOneWidget);
-    // Verify the invalid server was not added
-    expect(find.text('Invalid Server'), findsNothing);
+    // Verify we're still on the add server page
+    expect(find.text('Add New Server'), findsOneWidget);
   });
 
   testWidgets('Server update shows error dialog for invalid configuration', (
@@ -741,10 +747,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify error dialog is shown
-    expect(find.text('Server Not Updated'), findsOneWidget);
+    expect(find.text('Configuration Not Allowed'), findsOneWidget);
     expect(
       find.text(
-        'HTTP servers without authentication are only allowed on local networks. All HTTP servers should use authentication.',
+        'Remote servers must use HTTPS and authentication. Local servers can use any configuration.',
       ),
       findsOneWidget,
     );
@@ -753,11 +759,7 @@ void main() {
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
-    // Verify we're back on the server list page
-    expect(find.text('SiloTavern - Servers'), findsOneWidget);
-    // Verify the original server still exists with original URL
-    expect(find.text('https://prod.example.com'), findsOneWidget);
-    // Verify the invalid update was not applied
-    expect(find.text('http://external-example.com'), findsNothing);
+    // Verify we're still on the edit page
+    expect(find.text('Edit Server'), findsOneWidget);
   });
 }
