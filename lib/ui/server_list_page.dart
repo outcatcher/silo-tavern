@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:silo_tavern/domain/server.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
@@ -37,6 +39,11 @@ class _ServerListPageState extends State<ServerListPage> {
       widget.serverService.updateServer(result);
       setState(() {});
     }
+  }
+
+  void _deleteServer(Server server) {
+    widget.serverService.removeServer(server.id);
+    setState(() {});
   }
 
   Future<bool> _showDeleteConfirmationDialog(
@@ -85,6 +92,59 @@ class _ServerListPageState extends State<ServerListPage> {
         false;
   }
 
+  void _showContextMenu(
+    BuildContext context,
+    Server server,
+    Offset position,
+  ) async {
+    final result = await showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy,
+        MediaQuery.of(context).size.width - position.dx,
+        MediaQuery.of(context).size.height - position.dy,
+      ),
+      items: [
+        PopupMenuItem(
+          value: 'edit',
+          child: Row(
+            children: [
+              const Icon(Icons.edit, size: 20),
+              const SizedBox(width: 8),
+              const Text('Edit'),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'delete',
+          child: Row(
+            children: [
+              const Icon(Icons.delete, size: 20, color: Colors.red),
+              const SizedBox(width: 8),
+              const Text('Delete', style: TextStyle(color: Colors.red)),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    switch (result) {
+      case 'edit':
+        await _editServer(server);
+        break;
+      case 'delete':
+        final confirmDelete = await _showDeleteConfirmationDialog(
+          context,
+          server,
+        );
+        if (confirmDelete && mounted) {
+          _deleteServer(server);
+        }
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,63 +156,75 @@ class _ServerListPageState extends State<ServerListPage> {
         itemCount: widget.serverService.serverCount,
         itemBuilder: (context, index) {
           final server = widget.serverService.servers[index];
-          return Dismissible(
-            key: Key(server.id),
-            dismissThresholds: const {
-              DismissDirection.endToStart: 0.2,
-              DismissDirection.startToEnd: 0.2,
+          return GestureDetector(
+            onLongPressStart: (details) {
+              _showContextMenu(context, server, details.globalPosition);
             },
-            confirmDismiss: (direction) async {
-              if (direction == DismissDirection.startToEnd) {
-                // Handle edit on left-to-right swipe
-                await _editServer(server);
-                // Return false to prevent dismissal
+            onSecondaryTap: () {},
+            onSecondaryTapDown: (details) {
+              _showContextMenu(context, server, details.globalPosition);
+            },
+            onSecondaryTapUp: (details) {
+              
+            },
+            child: Dismissible(
+              key: Key(server.id),
+              dismissThresholds: const {
+                DismissDirection.endToStart: 0.2,
+                DismissDirection.startToEnd: 0.2,
+              },
+              confirmDismiss: (direction) async {
+                if (direction == DismissDirection.startToEnd) {
+                  // Handle edit on left-to-right swipe
+                  await _editServer(server);
+                  // Return false to prevent dismissal
+                  return false;
+                } else if (direction == DismissDirection.endToStart) {
+                  // Show delete confirmation dialog for right-to-left swipe
+                  final confirmDelete = await _showDeleteConfirmationDialog(
+                    context,
+                    server,
+                  );
+                  return confirmDelete;
+                }
+                // Default behavior
                 return false;
-              } else if (direction == DismissDirection.endToStart) {
-                // Show delete confirmation dialog for right-to-left swipe
-                final confirmDelete = await _showDeleteConfirmationDialog(
-                  context,
-                  server,
-                );
-                return confirmDelete;
-              }
-              // Default behavior
-              return false;
-            },
-            // Edit swipe background (left-to-right drag)
-            background: Container(
-              color: Colors.blue,
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.only(left: 20),
-              child: const Icon(Icons.edit, color: Colors.white),
-            ),
-            // Delete swipe background (right-to-left drag)
-            secondaryBackground: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 20),
-              child: const Icon(Icons.delete, color: Colors.white),
-            ),
-            child: Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: server.address.startsWith('https')
-                      ? Colors.grey[700]
-                      : Colors.grey[500],
-                  child: Icon(
-                    server.address.startsWith('https')
-                        ? Icons.lock
-                        : Icons.lock_open,
-                    color: Colors.white,
+              },
+              // Edit swipe background (left-to-right drag)
+              background: Container(
+                color: Colors.blue,
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 20),
+                child: const Icon(Icons.edit, color: Colors.white),
+              ),
+              // Delete swipe background (right-to-left drag)
+              secondaryBackground: Container(
+                color: Colors.red,
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                child: const Icon(Icons.delete, color: Colors.white),
+              ),
+              child: Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: server.address.startsWith('https')
+                        ? Colors.grey[700]
+                        : Colors.grey[500],
+                    child: Icon(
+                      server.address.startsWith('https')
+                          ? Icons.lock
+                          : Icons.lock_open,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                title: Text(server.name),
-                subtitle: Text(server.address),
-                trailing: const Icon(
-                  Icons.arrow_forward,
-                  size: 16,
-                  color: Colors.grey,
+                  title: Text(server.name),
+                  subtitle: Text(server.address),
+                  trailing: const Icon(
+                    Icons.arrow_forward,
+                    size: 16,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ),

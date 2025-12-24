@@ -7,6 +7,7 @@
 @Tags(['widget', 'servers'])
 library;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -761,5 +762,152 @@ void main() {
 
     // Verify we're still on the edit page
     expect(find.text('Edit Server'), findsOneWidget);
+  });
+
+  testWidgets('Long press shows context menu', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const SiloTavernApp());
+
+    // Find a server card
+    final serverCard = find.text('Production Server');
+    expect(serverCard, findsOneWidget);
+
+    // Long press on the server card
+    await tester.longPress(serverCard);
+    await tester.pumpAndSettle();
+
+    // Verify context menu is shown
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Delete'), findsOneWidget);
+  });
+
+  testWidgets('Context menu edit action navigates to edit page', (
+    WidgetTester tester,
+  ) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const SiloTavernApp());
+
+    // Find a server card
+    final serverCard = find.text('Production Server');
+    expect(serverCard, findsOneWidget);
+
+    // Long press on the server card
+    await tester.longPress(serverCard);
+    await tester.pumpAndSettle();
+
+    // Tap Edit option
+    await tester.tap(find.text('Edit'));
+    await tester.pumpAndSettle();
+
+    // Verify we're on the edit page with pre-filled data
+    expect(find.text('Edit Server'), findsOneWidget);
+    expect(find.text('Production Server'), findsOneWidget);
+    expect(find.text('https://prod.example.com'), findsOneWidget);
+  });
+
+  testWidgets('Context menu delete action shows confirmation dialog', (
+    WidgetTester tester,
+  ) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const SiloTavernApp());
+
+    // Find a server card
+    final serverCard = find.text('Production Server');
+    expect(serverCard, findsOneWidget);
+
+    // Long press on the server card
+    await tester.longPress(serverCard);
+    await tester.pumpAndSettle();
+
+    // Tap Delete option
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+
+    // Verify confirmation dialog is shown
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text('Confirm Deletion'), findsOneWidget);
+    expect(find.text('DELETE'), findsOneWidget);
+    expect(find.text('CANCEL'), findsOneWidget);
+  });
+
+  testWidgets('Context menu delete confirmation cancels deletion', (
+    WidgetTester tester,
+  ) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const SiloTavernApp());
+
+    // Verify initial server exists
+    expect(find.text('Production Server'), findsOneWidget);
+    final initialServerCount = tester
+        .widgetList(find.byType(Dismissible))
+        .length;
+
+    // Long press on the server card
+    await tester.longPress(find.text('Production Server'));
+    await tester.pumpAndSettle();
+
+    // Tap Delete option
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+
+    // Tap CANCEL button
+    await tester.tap(find.text('CANCEL'));
+    await tester.pumpAndSettle();
+
+    // Verify server still exists
+    expect(find.text('Production Server'), findsOneWidget);
+    expect(
+      tester.widgetList(find.byType(Dismissible)).length,
+      initialServerCount,
+    );
+  });
+
+  testWidgets('Context menu delete confirmation deletes server', (
+    WidgetTester tester,
+  ) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const SiloTavernApp());
+
+    // Verify initial server exists
+    expect(find.text('Production Server'), findsOneWidget);
+    final initialServerCount = tester
+        .widgetList(find.byType(Dismissible))
+        .length;
+
+    // Long press on the server card
+    await tester.longPress(find.text('Production Server'));
+    await tester.pumpAndSettle();
+
+    // Tap Delete option
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+
+    // Tap DELETE button
+    await tester.tap(find.text('DELETE'));
+    await tester.pumpAndSettle();
+
+    // Verify server is removed
+    expect(find.text('Production Server'), findsNothing);
+    expect(
+      tester.widgetList(find.byType(Dismissible)).length,
+      initialServerCount - 1,
+    );
+  });
+
+  testWidgets('Right-click shows context menu', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const SiloTavernApp());
+
+    // Find a server card
+    final serverCard = find.text('Production Server');
+    expect(serverCard, findsOneWidget);
+
+    // Right-click on the server card
+    await tester.tap(serverCard, buttons: kSecondaryMouseButton);
+    await tester.pumpAndSettle();
+
+    // Verify context menu is shown
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Delete'), findsOneWidget);
   });
 }
