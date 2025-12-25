@@ -15,19 +15,60 @@ class ServerListPage extends StatefulWidget {
 }
 
 class _ServerListPageState extends State<ServerListPage> {
-  Future<void> _addServer() async {
+  late List<Server> _servers;
+
+  @override
+  void initState() {
+    super.initState();
+    _servers = List.from(widget.serverService.servers);
+  }
+
+  void _addServer() async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const ServerCreationPage()),
     );
 
     if (result != null && result is Server) {
-      widget.serverService.addServer(result);
-      setState(() {});
+      // Optimistic update - add to local list immediately
+      setState(() {
+        _servers.add(result);
+      });
+
+      // Actually add to service (non-blocking)
+      widget.serverService.addServer(result).catchError((error) {
+        // Revert optimistic update on error
+        if (mounted) {
+          setState(() {
+            _servers.remove(result);
+          });
+
+          // Show error dialog (non-blocking)
+          if (context.mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Error'),
+                  content: const Text(
+                    'Failed to add server. Please try again.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            });
+          }
+        }
+      });
     }
   }
 
-  Future<void> _editServer(Server server) async {
+  void _editServer(Server server) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -36,14 +77,103 @@ class _ServerListPageState extends State<ServerListPage> {
     );
 
     if (result != null && result is Server) {
-      widget.serverService.updateServer(result);
-      setState(() {});
+      // Find the index of the server to edit
+      final index = _servers.indexWhere((s) => s.id == server.id);
+      if (index == -1) return;
+
+      // Store original server for potential rollback
+      final originalServer = _servers[index];
+
+      // Optimistic update - update local list immediately
+      setState(() {
+        _servers[index] = result;
+      });
+
+      // Actually update in service (non-blocking)
+      widget.serverService.updateServer(result).catchError((error) {
+        // Find the index again (in case it changed)
+        final currentIndex = _servers.indexWhere((s) => s.id == server.id);
+        if (currentIndex != -1) {
+          // Revert optimistic update on error
+          if (mounted) {
+            setState(() {
+              _servers[currentIndex] =
+                  originalServer; // Restore original server
+            });
+
+            // Show error dialog (non-blocking)
+            if (context.mounted) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Error'),
+                    content: const Text(
+                      'Failed to update server. Please try again.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            }
+          }
+        }
+      });
     }
   }
 
   void _deleteServer(Server server) {
-    widget.serverService.removeServer(server.id);
-    setState(() {});
+    // Optimistic update - remove from local list immediately
+    setState(() {
+      _servers.remove(server);
+    });
+
+    // Actually delete from service (non-blocking)
+    widget.serverService.removeServer(server.id).catchError((error) {
+      // Find the insertion point to restore the server
+      final insertIndex = _servers.indexWhere(
+        (s) => s.id.compareTo(server.id) > 0,
+      );
+
+      // Revert optimistic update on error
+      if (mounted) {
+        setState(() {
+          if (insertIndex == -1) {
+            // Insert at the end if no suitable position found
+            _servers.add(server);
+          } else {
+            // Insert at the correct position to maintain order
+            _servers.insert(insertIndex, server);
+          }
+        });
+
+        // Show error dialog (non-blocking)
+        if (context.mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Error'),
+                content: const Text(
+                  'Failed to delete server. Please try again.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            );
+          });
+        }
+      }
+    });
   }
 
   Future<bool> _showDeleteConfirmationDialog(
@@ -131,17 +261,15 @@ class _ServerListPageState extends State<ServerListPage> {
 
     switch (result) {
       case 'edit':
-        await _editServer(server);
+        _editServer(server);
         break;
       case 'delete':
         if (context.mounted) {
-          final confirmDelete = await _showDeleteConfirmationDialog(
-            context,
-            server,
-          );
-          if (confirmDelete) {
-            _deleteServer(server);
-          }
+          _showDeleteConfirmationDialog(context, server).then((confirmed) {
+            if (confirmed) {
+              _deleteServer(server);
+            }
+          });
           break;
         }
     }
@@ -154,93 +282,81 @@ class _ServerListPageState extends State<ServerListPage> {
         title: const Text('SiloTavern - Servers'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: FutureBuilder(
-        future: Future.value(widget.serverService.servers),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final servers = snapshot.data!;
-          return ListView.builder(
-            itemCount: servers.length,
-            itemBuilder: (context, index) {
-              final server = servers[index];
-              return GestureDetector(
-                onLongPressStart: (details) {
-                  _showContextMenu(context, server, details.globalPosition);
-                },
-                onSecondaryTap: () {},
-                onSecondaryTapDown: (details) {
-                  _showContextMenu(context, server, details.globalPosition);
-                },
-                onSecondaryTapUp: (details) {},
-                child: Dismissible(
-                  key: Key(server.id),
-                  dismissThresholds: const {
-                    DismissDirection.endToStart: 0.2,
-                    DismissDirection.startToEnd: 0.2,
-                  },
-                  confirmDismiss: (direction) async {
-                    if (direction == DismissDirection.startToEnd) {
-                      // Handle edit on left-to-right swipe
-                      await _editServer(server);
-                      // Return false to prevent dismissal
-                      return false;
-                    } else if (direction == DismissDirection.endToStart) {
-                      // Show delete confirmation dialog for right-to-left swipe
-                      final confirmDelete = await _showDeleteConfirmationDialog(
-                        context,
-                        server,
-                      );
-                      return confirmDelete;
-                    }
-                    // Default behavior
-                    return false;
-                  },
-                  // Edit swipe background (left-to-right drag)
-                  background: Container(
-                    color: Colors.blue,
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.only(left: 20),
-                    child: const Icon(Icons.edit, color: Colors.white),
-                  ),
-                  // Delete swipe background (right-to-left drag)
-                  secondaryBackground: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+      body: ListView.builder(
+        itemCount: _servers.length,
+        itemBuilder: (context, index) {
+          final server = _servers[index];
+          return GestureDetector(
+            onLongPressStart: (details) {
+              _showContextMenu(context, server, details.globalPosition);
+            },
+            onSecondaryTapDown: (details) {
+              _showContextMenu(context, server, details.globalPosition);
+            },
+            child: Dismissible(
+              key: Key(server.id),
+              dismissThresholds: const {
+                DismissDirection.endToStart: 0.2,
+                DismissDirection.startToEnd: 0.2,
+              },
+              onDismissed: (direction) {
+                _deleteServer(server);
+              },
+              confirmDismiss: (direction) async {
+                if (direction == DismissDirection.startToEnd) {
+                  // Handle edit on left-to-right swipe
+                  _editServer(server);
+                  // Return false to prevent dismissal
+                  return false;
+                } else if (direction == DismissDirection.endToStart) {
+                  // Show delete confirmation dialog for right-to-left swipe
+                  final confirmDelete = await _showDeleteConfirmationDialog(
+                    context,
+                    server,
+                  );
+                  return confirmDelete;
+                }
+                // Default behavior
+                return false;
+              },
+              // Edit swipe background (left-to-right drag)
+              background: Container(
+                color: Colors.blue,
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 20),
+                child: const Icon(Icons.edit, color: Colors.white),
+              ),
+              // Delete swipe background (right-to-left drag)
+              secondaryBackground: Container(
+                color: Colors.red,
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                child: const Icon(Icons.delete, color: Colors.white),
+              ),
+              child: Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: server.address.startsWith('https')
+                        ? Colors.grey[700]
+                        : Colors.grey[500],
+                    child: Icon(
+                      server.address.startsWith('https')
+                          ? Icons.lock
+                          : Icons.lock_open,
+                      color: Colors.white,
                     ),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: server.address.startsWith('https')
-                            ? Colors.grey[700]
-                            : Colors.grey[500],
-                        child: Icon(
-                          server.address.startsWith('https')
-                              ? Icons.lock
-                              : Icons.lock_open,
-                          color: Colors.white,
-                        ),
-                      ),
-                      title: Text(server.name),
-                      subtitle: Text(server.address),
-                      trailing: const Icon(
-                        Icons.arrow_forward,
-                        size: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
+                  ),
+                  title: Text(server.name),
+                  subtitle: Text(server.address),
+                  trailing: const Icon(
+                    Icons.arrow_forward,
+                    size: 16,
+                    color: Colors.grey,
                   ),
                 ),
-              );
-            },
+              ),
+            ),
           );
         },
       ),

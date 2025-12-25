@@ -36,13 +36,13 @@ void main() {
       'name': 'Production Server',
       'address': 'https://prod.example.com',
     });
-    
+
     prefsData['servers/2'] = jsonEncode({
       'id': '2',
       'name': 'Staging Server',
       'address': 'https://staging.example.com',
     });
-    
+
     prefsData['servers/3'] = jsonEncode({
       'id': '3',
       'name': 'Development Server',
@@ -50,7 +50,8 @@ void main() {
     });
 
     // Add credentials with the correct key format
-    credentials['servers/1'] = '{"username": "testuser", "password": "testpassword"}';
+    credentials['servers/1'] =
+        '{"username": "testuser", "password": "testpassword"}';
 
     SharedPreferences.setMockInitialValues(prefsData);
     FlutterSecureStorage.setMockInitialValues(credentials);
