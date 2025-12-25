@@ -9,23 +9,22 @@ class _ServiceServer {
 
   _ServiceServer({required this.id, required this.name, required this.address});
 
-  /// Convert from domain Server to service Server
-  factory _ServiceServer.fromDomain(Server server, String? credentialsId) {
-    return _ServiceServer(
-      id: server.id,
-      name: server.name,
-      address: server.address,
-    );
-  }
-
-  /// Create a copy with new credentialsId
-  _ServiceServer copyWith({String? credentialsId}) {
-    return _ServiceServer(id: id, name: name, address: address);
-  }
-
   /// Convert to map for JSON serialization
   Map<String, dynamic> toJson() {
     return {'id': id, 'name': name, 'address': address};
+  }
+
+  /// Convert to map for JSON serialization
+  Server toDomain(AuthenticationInfo auth) {
+    return Server(address: address, id: id, name: name, authentication: auth);
+  }
+
+  factory _ServiceServer.fromDomain(Server server) {
+    return _ServiceServer(
+      id: server.id,
+      address: server.address,
+      name: server.name,
+    );
   }
 
   /// Create from JSON map

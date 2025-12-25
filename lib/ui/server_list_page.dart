@@ -158,7 +158,7 @@ class _ServerListPageState extends State<ServerListPage> {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           final servers = snapshot.data!;
           return ListView.builder(
             itemCount: servers.length,
@@ -172,9 +172,7 @@ class _ServerListPageState extends State<ServerListPage> {
                 onSecondaryTapDown: (details) {
                   _showContextMenu(context, server, details.globalPosition);
                 },
-                onSecondaryTapUp: (details) {
-                  
-                },
+                onSecondaryTapUp: (details) {},
                 child: Dismissible(
                   key: Key(server.id),
                   dismissThresholds: const {
@@ -213,7 +211,10 @@ class _ServerListPageState extends State<ServerListPage> {
                     child: const Icon(Icons.delete, color: Colors.white),
                   ),
                   child: Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: server.address.startsWith('https')

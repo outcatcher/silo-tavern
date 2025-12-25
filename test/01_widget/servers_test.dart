@@ -27,15 +27,13 @@ class TestFlutterSecureStoragePlatform extends FlutterSecureStoragePlatform {
   Future<bool> containsKey({
     required String key,
     required Map<String, String> options,
-  }) async =>
-      data.containsKey(key);
+  }) async => data.containsKey(key);
 
   @override
   Future<void> delete({
     required String key,
     required Map<String, String> options,
-  }) async =>
-      data.remove(key);
+  }) async => data.remove(key);
 
   @override
   Future<void> deleteAll({required Map<String, String> options}) async =>
@@ -45,22 +43,19 @@ class TestFlutterSecureStoragePlatform extends FlutterSecureStoragePlatform {
   Future<String?> read({
     required String key,
     required Map<String, String> options,
-  }) async =>
-      data[key];
+  }) async => data[key];
 
   @override
   Future<Map<String, String>> readAll({
     required Map<String, String> options,
-  }) async =>
-      data;
+  }) async => data;
 
   @override
   Future<void> write({
     required String key,
     required String value,
     required Map<String, String> options,
-  }) async =>
-      data[key] = value;
+  }) async => data[key] = value;
 }
 
 void main() {
@@ -85,29 +80,23 @@ void main() {
         'address': 'http://localhost:8080',
       },
     ];
-    
-    SharedPreferences.setMockInitialValues({
-      'servers': jsonEncode(servers),
-    });
-    
+
+    SharedPreferences.setMockInitialValues({'servers': jsonEncode(servers)});
+
     // Set up mock secure storage
     final secureStorageData = <String, String>{
-      'auth_cred1': jsonEncode({
-        'username': 'admin',
-        'password': 'secret',
-      }),
-      'auth_cred2': jsonEncode({
-        'username': 'stager',
-        'password': 'stagepass',
-      }),
+      'auth_cred1': jsonEncode({'username': 'admin', 'password': 'secret'}),
+      'auth_cred2': jsonEncode({'username': 'stager', 'password': 'stagepass'}),
     };
-    
-    FlutterSecureStoragePlatform.instance = TestFlutterSecureStoragePlatform(secureStorageData);
+
+    FlutterSecureStoragePlatform.instance = TestFlutterSecureStoragePlatform(
+      secureStorageData,
+    );
   });
   testWidgets('1.1 Server list basic display', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
-    
+
     // Wait for any async operations to complete
     await tester.pumpAndSettle();
 
@@ -327,7 +316,9 @@ void main() {
     '5.2 Credentials authentication validates correctly with valid data',
     (WidgetTester tester) async {
       // Build our app and trigger a frame.
-      await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+      await tester.pumpWidget(
+        SiloTavernApp(serverService: ServerService.test()),
+      );
       await tester.pumpAndSettle();
 
       // Tap the '+' icon to open the creation page.

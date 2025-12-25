@@ -5,13 +5,13 @@ import 'package:silo_tavern/domain/server_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final serverService = await ServerService.initialize();
-  
+
   runApp(SiloTavernApp(serverService: serverService));
 }
 
 class SiloTavernApp extends StatelessWidget {
   final ServerService serverService;
-  
+
   const SiloTavernApp({super.key, required this.serverService});
 
   @override
