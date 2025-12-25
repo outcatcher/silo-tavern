@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/server.dart';
 import 'package:silo_tavern/utils/network_utils.dart';
 import 'package:silo_tavern/domain/server_service.dart';
+import 'package:uuid/v7.dart';
 
 import 'utils.dart' as utils;
 
@@ -73,9 +74,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 _formKey.currentState!.save();
                 // Create temporary server to validate configuration
                 final tempServer = Server(
-                  id:
-                      widget.initialServer?.id ??
-                      DateTime.now().millisecondsSinceEpoch.toString(),
+                  id: widget.initialServer?.id ?? UuidV7().generate(),
                   name: _name,
                   address: _url,
                   authentication: _authType == AuthenticationType.credentials

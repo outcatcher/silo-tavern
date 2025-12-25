@@ -30,41 +30,7 @@ class _ServerListPageState extends State<ServerListPage> {
   }
 
   void _editServer(Server server) async {
-    final result = await context.push('/servers/edit/${server.id}');
-
-    if (result != null && result is Server) {
-      // Find the index of the server to edit
-      final index = _servers.indexWhere((s) => s.id == server.id);
-      if (index == -1) return;
-
-      // Store original server for potential rollback
-      final originalServer = _servers[index];
-
-      // Optimistic update - update local list immediately
-      setState(() {
-        _servers[index] = result;
-      });
-
-      // Actually update in service (non-blocking)
-      widget.serverService.updateServer(result).catchError((error) {
-        // Find the index again (in case it changed)
-        final currentIndex = _servers.indexWhere((s) => s.id == server.id);
-        if (currentIndex != -1) {
-          // Revert optimistic update on error
-          if (mounted) {
-            setState(() {
-              _servers[currentIndex] =
-                  originalServer; // Restore original server
-            });
-
-            utils.showErrorDialog(
-              context,
-              'Failed to update server. Please try again.',
-            );
-          }
-        }
-      });
-    }
+    context.go('/servers/edit/${server.id}');
   }
 
   void _deleteServer(Server server) {
