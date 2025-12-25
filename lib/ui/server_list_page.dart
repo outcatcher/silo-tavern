@@ -23,6 +23,26 @@ class _ServerListPageState extends State<ServerListPage> {
     _servers = List.from(widget.serverService.servers);
   }
 
+  void _showErrorDialog(String message) {
+    if (context.mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      });
+    }
+  }
+
   void _addServer() async {
     final result = await Navigator.push(
       context,
@@ -44,25 +64,7 @@ class _ServerListPageState extends State<ServerListPage> {
           });
 
           // Show error dialog (non-blocking)
-          if (context.mounted) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Error'),
-                  content: const Text(
-                    'Failed to add server. Please try again.',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('OK'),
-                    ),
-                  ],
-                ),
-              );
-            });
-          }
+          _showErrorDialog('Failed to add server. Please try again.');
         }
       });
     }
@@ -102,25 +104,7 @@ class _ServerListPageState extends State<ServerListPage> {
             });
 
             // Show error dialog (non-blocking)
-            if (context.mounted) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Error'),
-                    content: const Text(
-                      'Failed to update server. Please try again.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
-              });
-            }
+            _showErrorDialog('Failed to update server. Please try again.');
           }
         }
       });
@@ -153,25 +137,7 @@ class _ServerListPageState extends State<ServerListPage> {
         });
 
         // Show error dialog (non-blocking)
-        if (context.mounted) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Error'),
-                content: const Text(
-                  'Failed to delete server. Please try again.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
-          });
-        }
+        _showErrorDialog('Failed to delete server. Please try again.');
       }
     });
   }
