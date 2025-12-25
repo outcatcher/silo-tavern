@@ -1,4 +1,6 @@
 import 'package:mutex/mutex.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../services/server_storage.dart';
 import '../utils/network_utils.dart';
@@ -8,6 +10,13 @@ class ServerOptions {
   final ServerStorage storage;
 
   ServerOptions(this.storage);
+
+  factory ServerOptions.fromRawStorage(
+    SharedPreferencesAsync prefs,
+    FlutterSecureStorage sec,
+  ) {
+    return ServerOptions(ServerStorage.fromRawStorage(prefs, sec));
+  }
 }
 
 class ServerService {
@@ -18,7 +27,7 @@ class ServerService {
 
   ServerService(ServerOptions options) : _storage = options.storage;
 
-  // Factory constructor for async initialization
+  // Initialize the service by loading servers
   Future<void> initialize() async {
     await _reLoadServers();
   }
@@ -56,7 +65,7 @@ class ServerService {
   Future<void> updateServer(Server updatedServer) async {
     final index = _servers.indexWhere((s) => s.id == updatedServer.id);
     if (index == -1) {
-      return;
+      throw ArgumentError('Server with ID "${updatedServer.id}" does\'t exist');
     }
 
     // Only add server if configuration is allowed

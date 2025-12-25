@@ -170,20 +170,20 @@ void main() {
           );
 
           expect(
-            NetworkUtils.isServerConfigurationAllowed(httpLocalNoAuth),
-            isTrue,
+            () => NetworkUtils.validateServerConfiguration(httpLocalNoAuth),
+            returnsNormally,
           );
           expect(
-            NetworkUtils.isServerConfigurationAllowed(httpLocalWithAuth),
-            isTrue,
+            () => NetworkUtils.validateServerConfiguration(httpLocalWithAuth),
+            returnsNormally,
           );
           expect(
-            NetworkUtils.isServerConfigurationAllowed(httpsLocalNoAuth),
-            isTrue,
+            () => NetworkUtils.validateServerConfiguration(httpsLocalNoAuth),
+            returnsNormally,
           );
           expect(
-            NetworkUtils.isServerConfigurationAllowed(httpsLocalWithAuth),
-            isTrue,
+            () => NetworkUtils.validateServerConfiguration(httpsLocalWithAuth),
+            returnsNormally,
           );
         },
       );
@@ -200,8 +200,8 @@ void main() {
         );
 
         expect(
-          NetworkUtils.isServerConfigurationAllowed(httpsRemoteWithAuth),
-          isTrue,
+          () => NetworkUtils.validateServerConfiguration(httpsRemoteWithAuth),
+          returnsNormally,
         );
       });
 
@@ -214,8 +214,8 @@ void main() {
         );
 
         expect(
-          NetworkUtils.isServerConfigurationAllowed(httpsRemoteNoAuth),
-          isFalse,
+          () => NetworkUtils.validateServerConfiguration(httpsRemoteNoAuth),
+          throwsA(isA<ArgumentError>()),
         );
       });
 
@@ -231,8 +231,8 @@ void main() {
         );
 
         expect(
-          NetworkUtils.isServerConfigurationAllowed(httpRemoteWithAuth),
-          isFalse,
+          () => NetworkUtils.validateServerConfiguration(httpRemoteWithAuth),
+          throwsA(isA<ArgumentError>()),
         );
       });
 
@@ -245,8 +245,8 @@ void main() {
         );
 
         expect(
-          NetworkUtils.isServerConfigurationAllowed(httpRemoteNoAuth),
-          isFalse,
+          () => NetworkUtils.validateServerConfiguration(httpRemoteNoAuth),
+          throwsA(isA<ArgumentError>()),
         );
       });
 
@@ -259,8 +259,9 @@ void main() {
           authentication: const AuthenticationInfo.none(),
         );
         expect(
-          NetworkUtils.isServerConfigurationAllowed(httpBoundaryLocalNoAuth),
-          isTrue,
+          () =>
+              NetworkUtils.validateServerConfiguration(httpBoundaryLocalNoAuth),
+          returnsNormally,
         );
 
         // HTTP server on IPv6 localhost without auth - should be allowed
@@ -271,8 +272,8 @@ void main() {
           authentication: const AuthenticationInfo.none(),
         );
         expect(
-          NetworkUtils.isServerConfigurationAllowed(httpIPv6LocalNoAuth),
-          isTrue,
+          () => NetworkUtils.validateServerConfiguration(httpIPv6LocalNoAuth),
+          returnsNormally,
         );
 
         // HTTPS server on external IPv4 without auth - should be forbidden
@@ -283,8 +284,9 @@ void main() {
           authentication: const AuthenticationInfo.none(),
         );
         expect(
-          NetworkUtils.isServerConfigurationAllowed(httpsExternalIPv4NoAuth),
-          isFalse,
+          () =>
+              NetworkUtils.validateServerConfiguration(httpsExternalIPv4NoAuth),
+          throwsA(isA<ArgumentError>()),
         );
 
         // HTTPS server on external IPv6 with auth - should be allowed
@@ -298,8 +300,10 @@ void main() {
           ),
         );
         expect(
-          NetworkUtils.isServerConfigurationAllowed(httpsExternalIPv6WithAuth),
-          isTrue,
+          () => NetworkUtils.validateServerConfiguration(
+            httpsExternalIPv6WithAuth,
+          ),
+          returnsNormally,
         );
 
         // HTTP server on external IPv6 with auth - should be forbidden
@@ -313,8 +317,10 @@ void main() {
           ),
         );
         expect(
-          NetworkUtils.isServerConfigurationAllowed(httpExternalIPv6WithAuth),
-          isFalse,
+          () => NetworkUtils.validateServerConfiguration(
+            httpExternalIPv6WithAuth,
+          ),
+          throwsA(isA<ArgumentError>()),
         );
       });
     });

@@ -1,35 +1,45 @@
 library;
 
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../domain/server.dart';
+import '../utils/app_storage.dart';
 
 part 'server_models.dart';
 
 class ServerStorage {
   static const String _serversKeyPrefix = 'servers';
 
-  final SharedPreferencesAsync _prefs;
-  final FlutterSecureStorage _secureStorage;
+  final JsonStorage _storage;
+  final JsonSecureStorage _secureStorage;
 
-  ServerStorage(this._prefs, this._secureStorage);
+  ServerStorage(JsonStorage prefs, JsonSecureStorage secureStorage)
+    : _storage = prefs,
+      _secureStorage = secureStorage;
+
+  factory ServerStorage.fromRawStorage(
+    SharedPreferencesAsync prefs,
+    FlutterSecureStorage sec,
+  ) {
+    return ServerStorage(
+      JsonStorage(prefs, _serversKeyPrefix),
+      JsonSecureStorage(sec, _serversKeyPrefix),
+    );
+  }
 
   /// Load all servers from persistent storage
   Future<List<Server>> listServers() async {
-    final serversRaw = await _prefs.getAll();
-    final serverIDs = await _prefs.getKeys();
-    final authsRaw = await _secureStorage.readAll();
+    final serversData = await _storage.list();
 
     final List<Server> servers = [];
 
-    for (final id in serverIDs) {
-      final serverAuth = authFromJson(authsRaw[id]);
-      final server = _ServiceServer.fromJson(
-        serversRaw[id] as Map<String, dynamic>,
-      );
+    for (final serverData in serversData) {
+      final id = serverData['id'] as String;
+      final authData = await _secureStorage.get(id);
+      final auth = _authFromJson(authData);
 
-      servers.add(server.toDomain(serverAuth));
+      final server = _ServiceServer.fromJson(serverData);
+      servers.add(server.toDomain(auth));
     }
 
     return servers;
@@ -37,88 +47,65 @@ class ServerStorage {
 
   /// Get a specific server by ID
   Future<Server?> getServer(String id) async {
-    final auth = await _getAuth(id);
-    final server = (await _getServer(id)).toDomain(auth);
+    final serverData = await _storage.get(id);
+    if (serverData == null) {
+      return null;
+    }
 
-    return server;
+    final authData = await _secureStorage.get(id);
+    final auth = _authFromJson(authData);
+    final server = _ServiceServer.fromJson(serverData);
+
+    return server.toDomain(auth);
   }
 
   /// Create a new server
   Future<void> createServer(Server server) async {
-    if (await _prefs.containsKey(server.id)) {
+    final existing = await _storage.get(server.id);
+    if (existing != null) {
       throw Exception('Server with ID ${server.id} already exists');
     }
 
     final serviceServer = _ServiceServer.fromDomain(server);
+    await _storage.set(server.id, serviceServer.toJson());
 
-    final serverJson = jsonEncode(serviceServer.toJson());
-    await _prefs.setString(server.id, serverJson);
-
-    await _setAuth(server.id, server.authentication);
+    if (server.authentication.useCredentials) {
+      await _secureStorage.set(server.id, server.authentication.toJson());
+    }
   }
 
   /// Update an existing server
   Future<void> updateServer(Server server) async {
-    final _ = await _getServer(server.id); // throws error if not found
+    final existing = await _storage.get(server.id);
+    if (existing == null) {
+      throw Exception('Server with ID ${server.id} not found');
+    }
 
-    final serviceServer = _ServiceServer(
-      id: server.id,
-      name: server.name,
-      address: server.address,
-    );
+    final serviceServer = _ServiceServer.fromDomain(server);
+    await _storage.set(server.id, serviceServer.toJson());
 
-    final serverJson = jsonEncode(serviceServer.toJson());
-    await _prefs.setString(server.id, serverJson);
-
-    await _setAuth(server.id, server.authentication);
+    if (server.authentication.useCredentials) {
+      await _secureStorage.set(server.id, server.authentication.toJson());
+    } else {
+      // If not using credentials, delete any existing auth data
+      await _secureStorage.delete(server.id);
+    }
   }
 
   /// Delete a server and its credentials from storage
   Future<void> deleteServer(String serverId) async {
-    await _secureStorage.delete(key: serverId);
-    await _prefs.remove(serverId);
+    await _storage.delete(serverId);
+    await _secureStorage.delete(serverId);
   }
 
-  /// Get service server by ID (throws exception if not found)
-  Future<_ServiceServer> _getServer(String serverId) async {
-    final existingJSON = await _prefs.getString(serverId);
-
-    if (existingJSON == null) {
-      throw Exception('Server with ID $serverId not found');
-    }
-
-    return _ServiceServer.fromJson(
-      jsonDecode(existingJSON) as Map<String, dynamic>,
-    );
-  }
-
-  /// Set authentication for a server
-  Future<void> _setAuth(String id, AuthenticationInfo auth) async {
-    if (!auth.useCredentials) {
-      return;
-    }
-
-    final authData = {'username': auth.username, 'password': auth.password};
-    final authJSON = jsonEncode(authData);
-    await _secureStorage.write(key: id, value: authJSON);
-  }
-
-  /// Set authentication for a server
-  Future<AuthenticationInfo> _getAuth(String id) async {
-    final authJSON = await _secureStorage.read(key: id);
-
-    return authFromJson(authJSON);
-  }
-
-  AuthenticationInfo authFromJson(String? raw) {
-    if (raw == null) {
+  AuthenticationInfo _authFromJson(Map<String, dynamic>? data) {
+    if (data == null) {
       return AuthenticationInfo.none();
     }
 
-    final Map<String, dynamic> authMap = jsonDecode(raw);
     return AuthenticationInfo.credentials(
-      username: authMap['username'],
-      password: authMap['password'],
+      username: data['username'] as String,
+      password: data['password'] as String,
     );
   }
 }

@@ -82,7 +82,9 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 );
 
                 // Validate server configuration
-                if (!NetworkUtils.isServerConfigurationAllowed(tempServer)) {
+                try {
+                  NetworkUtils.validateServerConfiguration(tempServer);
+                } catch (e) {
                   // Show error dialog
                   if (mounted) {
                     showDialog(

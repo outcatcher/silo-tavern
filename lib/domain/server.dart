@@ -26,4 +26,8 @@ class AuthenticationInfo {
     : useCredentials = false,
       username = '',
       password = '';
+
+  Map<String, dynamic> toJson() {
+    return {'username': username, 'password': password};
+  }
 }

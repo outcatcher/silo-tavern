@@ -173,4 +173,147 @@ void main() {
       verify(mockPrefs.remove('testPrefix/$key')).called(1);
     });
   });
+  group('JsonSecureStorage tests', () {
+    late MockFlutterSecureStorage mockSecureStorage;
+    late JsonSecureStorage storage;
+
+    setUp(() {
+      mockSecureStorage = MockFlutterSecureStorage();
+      storage = JsonSecureStorage(mockSecureStorage, "testPrefix");
+    });
+
+    test('get returns decoded JSON when key exists', () async {
+      final Map<String, dynamic> expected = {"testField": "testValue"};
+      when(
+        mockSecureStorage.read(key: 'testPrefix/123'),
+      ).thenAnswer((realInvocation) async => '{"testField": "testValue"}');
+
+      final actual = await storage.get("123");
+
+      expect(actual, expected);
+      verify(mockSecureStorage.read(key: 'testPrefix/123')).called(1);
+    });
+
+    test('get returns null when key does not exist', () async {
+      when(
+        mockSecureStorage.read(key: 'testPrefix/nonexistent'),
+      ).thenAnswer((realInvocation) async => null);
+
+      final actual = await storage.get("nonexistent");
+
+      expect(actual, null);
+      verify(mockSecureStorage.read(key: 'testPrefix/nonexistent')).called(1);
+    });
+
+    test('get returns null when JSON is malformed', () async {
+      when(
+        mockSecureStorage.read(key: 'testPrefix/badjson'),
+      ).thenAnswer((realInvocation) async => '{"invalid": json}');
+
+      final actual = await storage.get("badjson");
+
+      expect(actual, null);
+      verify(mockSecureStorage.read(key: 'testPrefix/badjson')).called(1);
+    });
+
+    test('list returns all items with prefix', () async {
+      final allData = <String, String>{
+        'testPrefix/key1': '{"field1": "value1"}',
+        'testPrefix/key2': '{"field2": "value2"}',
+        'other/key3': '{"field3": "value3"}',
+      };
+
+      when(mockSecureStorage.readAll()).thenAnswer((_) async => allData);
+
+      final result = await storage.list();
+
+      expect(result, [
+        {'field1': 'value1'},
+        {'field2': 'value2'},
+      ]);
+      verify(mockSecureStorage.readAll()).called(1);
+    });
+
+    test('list returns empty list when no items with prefix', () async {
+      final allData = <String, String>{
+        'other/key1': '{"field1": "value1"}',
+        'another/key2': '{"field2": "value2"}',
+      };
+
+      when(mockSecureStorage.readAll()).thenAnswer((_) async => allData);
+
+      final result = await storage.list();
+
+      expect(result, []);
+      verify(mockSecureStorage.readAll()).called(1);
+    });
+
+    test('list skips malformed JSON entries', () async {
+      final allData = <String, String>{
+        'testPrefix/key1': '{"field1": "value1"}',
+        'testPrefix/key2': '{"invalid": json}',
+        'testPrefix/key3': '{"field3": "value3"}',
+      };
+
+      when(mockSecureStorage.readAll()).thenAnswer((_) async => allData);
+
+      final result = await storage.list();
+
+      expect(result, [
+        {'field1': 'value1'},
+        {'field3': 'value3'},
+      ]);
+      verify(mockSecureStorage.readAll()).called(1);
+    });
+
+    test('set encodes and stores JSON', () async {
+      const key = 'testKey';
+      final value = {'field': 'value'};
+      const encodedValue = '{"field":"value"}';
+
+      when(
+        mockSecureStorage.write(key: 'testPrefix/$key', value: encodedValue),
+      ).thenAnswer((_) async => ());
+
+      await storage.set(key, value);
+
+      verify(
+        mockSecureStorage.write(key: 'testPrefix/$key', value: encodedValue),
+      ).called(1);
+    });
+
+    test('set handles encoding errors gracefully', () async {
+      const key = 'testKey';
+      final value = {
+        'field': DateTime.now(),
+      }; // DateTime is not JSON serializable by default
+
+      when(
+        mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')),
+      ).thenAnswer((_) async => ());
+
+      // This should not throw an exception
+      await storage.set(key, value);
+
+      // When encoding fails, write should not be called
+      verifyNever(
+        mockSecureStorage.write(
+          key: 'testPrefix/$key',
+          value: anyNamed('value'),
+        ),
+      );
+    });
+
+    test('delete removes item', () async {
+      const key = 'testKey';
+
+      when(
+        mockSecureStorage.delete(key: 'testPrefix/$key'),
+      ).thenAnswer((_) async => ());
+
+      await storage.delete(key);
+
+      verify(mockSecureStorage.delete(key: 'testPrefix/$key')).called(1);
+    });
+  });
 }
