@@ -49,6 +49,27 @@ tasks:
       - task: .tag-test
         vars: { tag: integration }
 
+  test:e2e:web:
+    preconditions:
+      - npx @puppeteer/browsers install chromedriver@stable
+    desc: Run e2e tests on web
+    dotenv:
+      - .env
+    cmds:
+      - chromedriver --port=4444 &
+      - flutter drive
+        --driver=integration_test/driver.dart
+        --target=integration_test/app_test.dart
+        -d web
+
+  test:e2e:linux:
+    desc: Run e2e tests on Linux
+    cmds:
+      - flutter drive
+        --driver=test/02_integration/driver.dart
+        --target=test/02_integration/server_list_e2e_test.dart
+        -d linux
+
   test:all:
     desc: Run all tests
     cmds:

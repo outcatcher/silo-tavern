@@ -2,5 +2,6 @@ tags:
   unit: {}
   widget: {}
   integration: {}
+  e2e: {}
   servers: {}
   storage: {}
