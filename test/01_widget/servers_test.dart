@@ -5,64 +5,92 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 @Tags(['widget', 'servers'])
+@GenerateNiceMocks([MockSpec<ServerService>()])
 library;
-
-import 'dart:convert';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:silo_tavern/domain/server.dart';
 import 'package:silo_tavern/domain/server_service.dart';
 import 'package:silo_tavern/main.dart';
-import 'package:silo_tavern/utils/testing_storage.dart';
+
+import 'servers_test.mocks.dart';
 
 void main() {
-  late ServerService serverService;
+  late MockServerService serverService;
 
-  setUp(() async {
+  setUp(() {
     // Ensure test binding is initialized
     TestWidgetsFlutterBinding.ensureInitialized();
 
-    // Set up mock initial values for SharedPreferences
-    // The storage system uses a prefix pattern: 'servers/{id}'
-    final Map<String, String> prefsData = {};
-    final Map<String, String> credentials = {};
+    // Create mock server service
+    final mockService = MockServerService();
 
-    // Add servers with the correct key format
-    prefsData['servers/1'] = jsonEncode({
-      'id': '1',
-      'name': 'Production Server',
-      'address': 'https://prod.example.com',
+    // Create a mutable list of servers for the mock
+    final serversList = [
+      Server(
+        id: '1',
+        name: 'Production Server',
+        address: 'https://prod.example.com',
+        authentication: AuthenticationInfo.credentials(
+          username: 'testuser',
+          password: 'testpassword',
+        ),
+      ),
+      Server(
+        id: '2',
+        name: 'Staging Server',
+        address: 'https://staging.example.com',
+        authentication: const AuthenticationInfo.none(),
+      ),
+      Server(
+        id: '3',
+        name: 'Development Server',
+        address: 'http://localhost:8080',
+        authentication: const AuthenticationInfo.none(),
+      ),
+    ];
+
+    // Set up mock to return initial servers
+    when(mockService.servers).thenAnswer((_) => serversList);
+
+    // Mock service methods to properly handle state changes
+    when(mockService.addServer(any)).thenAnswer((invocation) async {
+      final server = invocation.positionalArguments[0] as Server;
+      // Check for duplicates
+      if (serversList.any((s) => s.id == server.id)) {
+        throw ArgumentError('Server with ID "${server.id}" already exists');
+      }
+      serversList.add(server);
     });
 
-    prefsData['servers/2'] = jsonEncode({
-      'id': '2',
-      'name': 'Staging Server',
-      'address': 'https://staging.example.com',
+    when(mockService.updateServer(any)).thenAnswer((invocation) async {
+      final server = invocation.positionalArguments[0] as Server;
+      final index = serversList.indexWhere((s) => s.id == server.id);
+      if (index == -1) {
+        throw ArgumentError('Server with ID "${server.id}" does\'t exist');
+      }
+      serversList[index] = server;
     });
 
-    prefsData['servers/3'] = jsonEncode({
-      'id': '3',
-      'name': 'Development Server',
-      'address': 'http://localhost:8080',
+    when(mockService.removeServer(any)).thenAnswer((invocation) async {
+      final id = invocation.positionalArguments[0] as String;
+      serversList.removeWhere((server) => server.id == id);
     });
 
-    // Add credentials with the correct key format
-    credentials['servers/1'] =
-        '{"username": "testuser", "password": "testpassword"}';
+    when(mockService.findServerById(any)).thenAnswer((invocation) {
+      final id = invocation.positionalArguments[0] as String;
+      try {
+        return serversList.firstWhere((server) => server.id == id);
+      } catch (e) {
+        return null;
+      }
+    });
 
-    SharedPreferences.setMockInitialValues(prefsData);
-    FlutterSecureStorage.setMockInitialValues(credentials);
-
-    final FlutterSecureStorage secureStorage = FlutterSecureStorage();
-    final SharedPreferencesAsync prefs = SharedPreferencesAsyncAdapter(
-      await SharedPreferences.getInstance(),
-    );
-    final options = ServerOptions.fromRawStorage(prefs, secureStorage);
-    serverService = ServerService(options);
-    await serverService.initialize();
+    serverService = mockService;
   });
   testWidgets('1.1 Server list basic display', (WidgetTester tester) async {
     // Build our app and trigger a frame.
@@ -990,5 +1018,63 @@ void main() {
     // Verify context menu is shown
     expect(find.text('Edit'), findsOneWidget);
     expect(find.text('Delete'), findsOneWidget);
+  });
+
+  testWidgets('Delete server shows error dialog and restores server on failure', (
+    WidgetTester tester,
+  ) async {
+    // Configure the mock to throw an exception when removing a server
+    when(serverService.removeServer(any)).thenAnswer((invocation) async {
+      throw Exception('Simulated delete failure');
+    });
+
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpAndSettle();
+
+    // Verify initial server exists.
+    expect(find.text('Production Server'), findsOneWidget);
+    final initialServerCount = tester
+        .widgetList(find.byType(Dismissible))
+        .length;
+
+    // Long press on the server card to show context menu
+    await tester.longPress(find.text('Production Server'));
+    await tester.pumpAndSettle();
+
+    // Tap Delete option
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+
+    // Tap DELETE button in confirmation dialog
+    await tester.tap(find.text('DELETE'));
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 100),
+    ); // Small delay for error handling
+
+    // Verify error dialog is shown
+    expect(
+      find.text('Failed to delete server. Please try again.'),
+      findsOneWidget,
+    );
+
+    // Tap OK on the error dialog
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    // Verify server is restored (still exists in the list)
+    expect(find.text('Production Server'), findsOneWidget);
+
+    // Verify the number of servers is the same as before
+    expect(
+      tester.widgetList(find.byType(Dismissible)).length,
+      initialServerCount,
+    );
+
+    // Verify the server is in its correct position (should still be the first server)
+    final serverCards = tester.widgetList(find.byType(ListTile));
+    final firstServerCard = serverCards.first as ListTile;
+    expect(firstServerCard.title, isA<Text>());
+    expect((firstServerCard.title as Text).data, 'Production Server');
   });
 }
