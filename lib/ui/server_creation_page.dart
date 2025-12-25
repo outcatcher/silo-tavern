@@ -1,13 +1,24 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/server.dart';
 import 'package:silo_tavern/utils/network_utils.dart';
+import 'package:silo_tavern/domain/server_service.dart';
+
+import 'utils.dart' as utils;
 
 enum PageMode { create, edit }
 
 class ServerCreationPage extends StatefulWidget {
+  final ServerService serverService;
   final Server? initialServer;
 
-  const ServerCreationPage({super.key, this.initialServer});
+  const ServerCreationPage({
+    super.key,
+    required this.serverService,
+    this.initialServer,
+  });
 
   @override
   State<ServerCreationPage> createState() => _ServerCreationPageState();
@@ -17,11 +28,11 @@ enum AuthenticationType { none, credentials }
 
 class _ServerCreationPageState extends State<ServerCreationPage> {
   final _formKey = GlobalKey<FormState>();
-  late String _name;
-  late String _url;
+  late String _name = '';
+  late String _url = '';
   AuthenticationType _authType = AuthenticationType.none;
-  late String _username;
-  late String _password;
+  late String _username = '';
+  late String _password = '';
 
   @override
   void initState() {
@@ -36,12 +47,6 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
           : AuthenticationType.none;
       _username = server.authentication.username;
       _password = server.authentication.password;
-    } else {
-      // Default values for new server
-      _name = '';
-      _url = '';
-      _username = '';
-      _password = '';
     }
   }
 
@@ -56,14 +61,14 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pop(); // Cancel
+            context.go('/servers');
           },
           splashRadius: 24.0, // Increase touch target size
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.check, color: Colors.green),
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
                 // Create temporary server to validate configuration
@@ -87,30 +92,38 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 } catch (e) {
                   // Show error dialog
                   if (mounted) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Configuration Not Allowed'),
-                          content: const Text(
-                            'Remote servers must use HTTPS and authentication. Local servers can use any configuration.',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
+                    utils.showErrorDialog(
+                      context,
+                      'Remote servers must use HTTPS and authentication. Local servers can use any configuration.',
+                      title: 'Configuration Not Allowed',
                     );
                   }
                   return;
                 }
 
-                // Return the new server data to the previous screen
-                if (mounted) {
-                  Navigator.of(context).pop(tempServer);
+                // Save the server data directly
+                try {
+                  if (widget.initialServer != null) {
+                    // Update existing server
+                    await widget.serverService.updateServer(tempServer);
+                  } else {
+                    // Add new server
+                    await widget.serverService.addServer(tempServer);
+                  }
+
+                  // Navigate back to the server list after successful save
+                  if (context.mounted) {
+                    context.go('/servers');
+                  }
+                } catch (error) {
+                  log('failed to save server', error: error);
+
+                  if (context.mounted) {
+                    utils.showErrorDialog(
+                      context,
+                      'Failed to save server. Please try again.',
+                    );
+                  }
                 }
               }
             },

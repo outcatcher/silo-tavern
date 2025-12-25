@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/server.dart';
-import 'package:silo_tavern/ui/server_creation_page.dart';
 import 'package:silo_tavern/domain/server_service.dart';
+
+import 'utils.dart' as utils;
 
 class ServerListPage extends StatefulWidget {
   final ServerService serverService;
@@ -23,60 +25,12 @@ class _ServerListPageState extends State<ServerListPage> {
     _servers = List.from(widget.serverService.servers);
   }
 
-  void _showErrorDialog(String message) {
-    if (context.mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Error'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-      });
-    }
-  }
-
-  void _addServer() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ServerCreationPage()),
-    );
-
-    if (result != null && result is Server) {
-      // Optimistic update - add to local list immediately
-      setState(() {
-        _servers.add(result);
-      });
-
-      // Actually add to service (non-blocking)
-      widget.serverService.addServer(result).catchError((error) {
-        // Revert optimistic update on error
-        if (mounted) {
-          setState(() {
-            _servers.remove(result);
-          });
-
-          // Show error dialog (non-blocking)
-          _showErrorDialog('Failed to add server. Please try again.');
-        }
-      });
-    }
+  void _addServer() {
+    context.go('/servers/create');
   }
 
   void _editServer(Server server) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ServerCreationPage(initialServer: server),
-      ),
-    );
+    final result = await context.push('/servers/edit/${server.id}');
 
     if (result != null && result is Server) {
       // Find the index of the server to edit
@@ -103,8 +57,10 @@ class _ServerListPageState extends State<ServerListPage> {
                   originalServer; // Restore original server
             });
 
-            // Show error dialog (non-blocking)
-            _showErrorDialog('Failed to update server. Please try again.');
+            utils.showErrorDialog(
+              context,
+              'Failed to update server. Please try again.',
+            );
           }
         }
       });
@@ -136,8 +92,10 @@ class _ServerListPageState extends State<ServerListPage> {
           }
         });
 
-        // Show error dialog (non-blocking)
-        _showErrorDialog('Failed to delete server. Please try again.');
+        utils.showErrorDialog(
+          context,
+          'Failed to delete server. Please try again.',
+        );
       }
     });
   }
