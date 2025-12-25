@@ -8,34 +8,15 @@
 library;
 
 import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-import 'package:silo_tavern/main.dart';
 import 'package:silo_tavern/domain/server_service.dart';
-
-// Test implementation for FlutterSecureStorage
-class TestFlutterSecureStorage {
-  final Map<String, String> data;
-
-  TestFlutterSecureStorage(this.data);
-
-  Future<bool> containsKey(String key) async => data.containsKey(key);
-
-  Future<void> delete(String key) async => data.remove(key);
-
-  Future<void> deleteAll() async => data.clear();
-
-  Future<String?> read(String key) async => data[key];
-
-  Future<Map<String, String>> readAll() async => data;
-
-  Future<void> write(String key, String value) async => data[key] = value;
-}
+import 'package:silo_tavern/main.dart';
+import 'package:silo_tavern/utils/testing_storage.dart';
 
 void main() {
   late ServerService serverService;
@@ -45,36 +26,39 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
 
     // Set up mock initial values for SharedPreferences
-    final servers = [
-      {
-        'id': '1',
-        'name': 'Production Server',
-        'address': 'https://prod.example.com',
-        'credentialsId': 'cred1',
-      },
-      {
-        'id': '2',
-        'name': 'Staging Server',
-        'address': 'https://staging.example.com',
-        'credentialsId': 'cred2',
-      },
-      {
-        'id': '3',
-        'name': 'Development Server',
-        'address': 'http://localhost:8080',
-      },
-    ];
+    // The storage system uses a prefix pattern: 'servers/{id}'
+    final Map<String, String> prefsData = {};
+    final Map<String, String> credentials = {};
 
-    SharedPreferences.setMockInitialValues({'servers': jsonEncode(servers)});
+    // Add servers with the correct key format
+    prefsData['servers/1'] = jsonEncode({
+      'id': '1',
+      'name': 'Production Server',
+      'address': 'https://prod.example.com',
+    });
+    
+    prefsData['servers/2'] = jsonEncode({
+      'id': '2',
+      'name': 'Staging Server',
+      'address': 'https://staging.example.com',
+    });
+    
+    prefsData['servers/3'] = jsonEncode({
+      'id': '3',
+      'name': 'Development Server',
+      'address': 'http://localhost:8080',
+    });
 
-    // Set up mock secure storage
-    // We'll use the TestFlutterSecureStorage directly in our tests
+    // Add credentials with the correct key format
+    credentials['servers/1'] = '{"username": "testuser", "password": "testpassword"}';
 
-    // Create ServerService with mock storage
-    final prefsInstance = await SharedPreferences.getInstance();
-    await prefsInstance.clear();
-    final prefs = SharedPreferencesAsync();
-    final secureStorage = FlutterSecureStorage();
+    SharedPreferences.setMockInitialValues(prefsData);
+    FlutterSecureStorage.setMockInitialValues(credentials);
+
+    final FlutterSecureStorage secureStorage = FlutterSecureStorage();
+    final SharedPreferencesAsync prefs = SharedPreferencesAsyncAdapter(
+      await SharedPreferences.getInstance(),
+    );
     final options = ServerOptions.fromRawStorage(prefs, secureStorage);
     serverService = ServerService(options);
     await serverService.initialize();

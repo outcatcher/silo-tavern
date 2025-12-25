@@ -22,16 +22,16 @@ void main() {
 
     setUp(() {
       mockPrefs = MockSharedPreferencesAsync();
-      storage = JsonStorage(mockPrefs, "testPrefix");
+      storage = JsonStorage(mockPrefs, 'testPrefix');
     });
 
     test('get returns decoded JSON when key exists', () async {
-      final Map<String, dynamic> expected = {"testField": "testValue"};
+      final Map<String, dynamic> expected = {'testField': 'testValue'};
       when(
         mockPrefs.getString('testPrefix/123'),
       ).thenAnswer((realInvocation) async => '{"testField": "testValue"}');
 
-      final actual = await storage.get("123");
+      final actual = await storage.get('123');
 
       expect(actual, expected);
       verify(mockPrefs.getString('testPrefix/123')).called(1);
@@ -42,7 +42,7 @@ void main() {
         mockPrefs.getString('testPrefix/nonexistent'),
       ).thenAnswer((realInvocation) async => null);
 
-      final actual = await storage.get("nonexistent");
+      final actual = await storage.get('nonexistent');
 
       expect(actual, null);
       verify(mockPrefs.getString('testPrefix/nonexistent')).called(1);
@@ -53,7 +53,7 @@ void main() {
         mockPrefs.getString('testPrefix/badjson'),
       ).thenAnswer((realInvocation) async => '{"invalid": json}');
 
-      final actual = await storage.get("badjson");
+      final actual = await storage.get('badjson');
 
       expect(actual, null);
       verify(mockPrefs.getString('testPrefix/badjson')).called(1);
@@ -179,16 +179,16 @@ void main() {
 
     setUp(() {
       mockSecureStorage = MockFlutterSecureStorage();
-      storage = JsonSecureStorage(mockSecureStorage, "testPrefix");
+      storage = JsonSecureStorage(mockSecureStorage, 'testPrefix');
     });
 
     test('get returns decoded JSON when key exists', () async {
-      final Map<String, dynamic> expected = {"testField": "testValue"};
+      final Map<String, dynamic> expected = {'testField': 'testValue'};
       when(
         mockSecureStorage.read(key: 'testPrefix/123'),
       ).thenAnswer((realInvocation) async => '{"testField": "testValue"}');
 
-      final actual = await storage.get("123");
+      final actual = await storage.get('123');
 
       expect(actual, expected);
       verify(mockSecureStorage.read(key: 'testPrefix/123')).called(1);
@@ -199,7 +199,7 @@ void main() {
         mockSecureStorage.read(key: 'testPrefix/nonexistent'),
       ).thenAnswer((realInvocation) async => null);
 
-      final actual = await storage.get("nonexistent");
+      final actual = await storage.get('nonexistent');
 
       expect(actual, null);
       verify(mockSecureStorage.read(key: 'testPrefix/nonexistent')).called(1);
@@ -210,7 +210,7 @@ void main() {
         mockSecureStorage.read(key: 'testPrefix/badjson'),
       ).thenAnswer((realInvocation) async => '{"invalid": json}');
 
-      final actual = await storage.get("badjson");
+      final actual = await storage.get('badjson');
 
       expect(actual, null);
       verify(mockSecureStorage.read(key: 'testPrefix/badjson')).called(1);

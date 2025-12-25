@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:silo_tavern/domain/server.dart';
 import 'package:silo_tavern/services/server_storage.dart';
+import 'package:silo_tavern/utils/testing_storage.dart';
 
 void main() {
   group('ServerStorage integration tests', () {
@@ -15,17 +16,18 @@ void main() {
     setUp(() async {
       TestWidgetsFlutterBinding.ensureInitialized();
       SharedPreferences.setMockInitialValues({});
+      FlutterSecureStorage.setMockInitialValues({});
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
 
-      final asyncPrefs = SharedPreferencesAsync();
+      final asyncPrefs = SharedPreferencesAsyncAdapter(prefs);
       final secureStorage = const FlutterSecureStorage();
 
       storage = ServerStorage.fromRawStorage(asyncPrefs, secureStorage);
     });
 
-    testWidgets('ServerStorage CRUD operations', (WidgetTester tester) async {
+    test('ServerStorage CRUD operations', () async {
       // Create a server without authentication
       final server1 = Server(
         id: 'server1',
@@ -103,7 +105,7 @@ void main() {
       expect(deletedServer, isNull);
     });
 
-    testWidgets('ServerStorage save operations', (WidgetTester tester) async {
+    test('ServerStorage save operations', () async {
       // Test createServer with new server
       final newServer = Server(
         id: 'new-server',
@@ -133,7 +135,7 @@ void main() {
       expect(updatedRetrieved!.name, 'Updated Server');
     });
 
-    testWidgets('ServerStorage delete operations', (WidgetTester tester) async {
+    test('ServerStorage delete operations', () async {
       // Add some servers
       final server1 = Server(
         id: 'clear1',

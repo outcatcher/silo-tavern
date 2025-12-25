@@ -134,14 +134,16 @@ class _ServerListPageState extends State<ServerListPage> {
         await _editServer(server);
         break;
       case 'delete':
-        final confirmDelete = await _showDeleteConfirmationDialog(
-          context,
-          server,
-        );
-        if (confirmDelete) {
-          _deleteServer(server);
+        if (context.mounted) {
+          final confirmDelete = await _showDeleteConfirmationDialog(
+            context,
+            server,
+          );
+          if (confirmDelete) {
+            _deleteServer(server);
+          }
+          break;
         }
-        break;
     }
   }
 

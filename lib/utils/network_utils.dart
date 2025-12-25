@@ -83,7 +83,7 @@ class NetworkUtils {
   /// Validates if a server configuration is allowed based on security rules
   /// Local servers are always allowed
   /// Remote servers must be HTTPS and have authentication
-  static validateServerConfiguration(Server server) {
+  static void validateServerConfiguration(Server server) {
     final isHttps = server.address.startsWith('https://');
     final hasAuthentication = server.authentication.useCredentials;
     final isLocal = isLocalAddress(server.address);
