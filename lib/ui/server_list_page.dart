@@ -138,7 +138,7 @@ class _ServerListPageState extends State<ServerListPage> {
           context,
           server,
         );
-        if (confirmDelete && mounted) {
+        if (confirmDelete) {
           _deleteServer(server);
         }
         break;
@@ -152,82 +152,92 @@ class _ServerListPageState extends State<ServerListPage> {
         title: const Text('SiloTavern - Servers'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: ListView.builder(
-        itemCount: widget.serverService.serverCount,
-        itemBuilder: (context, index) {
-          final server = widget.serverService.servers[index];
-          return GestureDetector(
-            onLongPressStart: (details) {
-              _showContextMenu(context, server, details.globalPosition);
-            },
-            onSecondaryTap: () {},
-            onSecondaryTapDown: (details) {
-              _showContextMenu(context, server, details.globalPosition);
-            },
-            onSecondaryTapUp: (details) {
-              
-            },
-            child: Dismissible(
-              key: Key(server.id),
-              dismissThresholds: const {
-                DismissDirection.endToStart: 0.2,
-                DismissDirection.startToEnd: 0.2,
-              },
-              confirmDismiss: (direction) async {
-                if (direction == DismissDirection.startToEnd) {
-                  // Handle edit on left-to-right swipe
-                  await _editServer(server);
-                  // Return false to prevent dismissal
-                  return false;
-                } else if (direction == DismissDirection.endToStart) {
-                  // Show delete confirmation dialog for right-to-left swipe
-                  final confirmDelete = await _showDeleteConfirmationDialog(
-                    context,
-                    server,
-                  );
-                  return confirmDelete;
-                }
-                // Default behavior
-                return false;
-              },
-              // Edit swipe background (left-to-right drag)
-              background: Container(
-                color: Colors.blue,
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(left: 20),
-                child: const Icon(Icons.edit, color: Colors.white),
-              ),
-              // Delete swipe background (right-to-left drag)
-              secondaryBackground: Container(
-                color: Colors.red,
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 20),
-                child: const Icon(Icons.delete, color: Colors.white),
-              ),
-              child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: server.address.startsWith('https')
-                        ? Colors.grey[700]
-                        : Colors.grey[500],
-                    child: Icon(
-                      server.address.startsWith('https')
-                          ? Icons.lock
-                          : Icons.lock_open,
-                      color: Colors.white,
+      body: FutureBuilder(
+        future: Future.value(widget.serverService.servers),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          final servers = snapshot.data!;
+          return ListView.builder(
+            itemCount: servers.length,
+            itemBuilder: (context, index) {
+              final server = servers[index];
+              return GestureDetector(
+                onLongPressStart: (details) {
+                  _showContextMenu(context, server, details.globalPosition);
+                },
+                onSecondaryTap: () {},
+                onSecondaryTapDown: (details) {
+                  _showContextMenu(context, server, details.globalPosition);
+                },
+                onSecondaryTapUp: (details) {
+                  
+                },
+                child: Dismissible(
+                  key: Key(server.id),
+                  dismissThresholds: const {
+                    DismissDirection.endToStart: 0.2,
+                    DismissDirection.startToEnd: 0.2,
+                  },
+                  confirmDismiss: (direction) async {
+                    if (direction == DismissDirection.startToEnd) {
+                      // Handle edit on left-to-right swipe
+                      await _editServer(server);
+                      // Return false to prevent dismissal
+                      return false;
+                    } else if (direction == DismissDirection.endToStart) {
+                      // Show delete confirmation dialog for right-to-left swipe
+                      final confirmDelete = await _showDeleteConfirmationDialog(
+                        context,
+                        server,
+                      );
+                      return confirmDelete;
+                    }
+                    // Default behavior
+                    return false;
+                  },
+                  // Edit swipe background (left-to-right drag)
+                  background: Container(
+                    color: Colors.blue,
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(left: 20),
+                    child: const Icon(Icons.edit, color: Colors.white),
+                  ),
+                  // Delete swipe background (right-to-left drag)
+                  secondaryBackground: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: server.address.startsWith('https')
+                            ? Colors.grey[700]
+                            : Colors.grey[500],
+                        child: Icon(
+                          server.address.startsWith('https')
+                              ? Icons.lock
+                              : Icons.lock_open,
+                          color: Colors.white,
+                        ),
+                      ),
+                      title: Text(server.name),
+                      subtitle: Text(server.address),
+                      trailing: const Icon(
+                        Icons.arrow_forward,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
-                  title: Text(server.name),
-                  subtitle: Text(server.address),
-                  trailing: const Icon(
-                    Icons.arrow_forward,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
                 ),
-              ),
-            ),
+              );
+            },
           );
         },
       ),

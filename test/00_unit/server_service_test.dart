@@ -11,7 +11,8 @@ void main() {
     late ServerService service;
 
     setUp(() {
-      service = ServerService();
+      // Use the test constructor for unit tests
+      service = ServerService.test();
     });
 
     test('Initial server list is populated', () {

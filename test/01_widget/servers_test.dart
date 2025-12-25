@@ -7,16 +7,109 @@
 @Tags(['widget', 'servers'])
 library;
 
+import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
 
 import 'package:silo_tavern/main.dart';
+import 'package:silo_tavern/domain/server_service.dart';
+
+// Test implementation for FlutterSecureStorage
+class TestFlutterSecureStoragePlatform extends FlutterSecureStoragePlatform {
+  final Map<String, String> data;
+
+  TestFlutterSecureStoragePlatform(this.data);
+
+  @override
+  Future<bool> containsKey({
+    required String key,
+    required Map<String, String> options,
+  }) async =>
+      data.containsKey(key);
+
+  @override
+  Future<void> delete({
+    required String key,
+    required Map<String, String> options,
+  }) async =>
+      data.remove(key);
+
+  @override
+  Future<void> deleteAll({required Map<String, String> options}) async =>
+      data.clear();
+
+  @override
+  Future<String?> read({
+    required String key,
+    required Map<String, String> options,
+  }) async =>
+      data[key];
+
+  @override
+  Future<Map<String, String>> readAll({
+    required Map<String, String> options,
+  }) async =>
+      data;
+
+  @override
+  Future<void> write({
+    required String key,
+    required String value,
+    required Map<String, String> options,
+  }) async =>
+      data[key] = value;
+}
 
 void main() {
+  setUp(() async {
+    // Set up mock initial values for SharedPreferences
+    final servers = [
+      {
+        'id': '1',
+        'name': 'Production Server',
+        'address': 'https://prod.example.com',
+        'credentialsId': 'cred1',
+      },
+      {
+        'id': '2',
+        'name': 'Staging Server',
+        'address': 'https://staging.example.com',
+        'credentialsId': 'cred2',
+      },
+      {
+        'id': '3',
+        'name': 'Development Server',
+        'address': 'http://localhost:8080',
+      },
+    ];
+    
+    SharedPreferences.setMockInitialValues({
+      'servers': jsonEncode(servers),
+    });
+    
+    // Set up mock secure storage
+    final secureStorageData = <String, String>{
+      'auth_cred1': jsonEncode({
+        'username': 'admin',
+        'password': 'secret',
+      }),
+      'auth_cred2': jsonEncode({
+        'username': 'stager',
+        'password': 'stagepass',
+      }),
+    };
+    
+    FlutterSecureStoragePlatform.instance = TestFlutterSecureStoragePlatform(secureStorageData);
+  });
   testWidgets('1.1 Server list basic display', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    
+    // Wait for any async operations to complete
+    await tester.pumpAndSettle();
 
     // Verify that the app title is correct.
     expect(find.text('SiloTavern - Servers'), findsOneWidget);
@@ -34,7 +127,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
     await tester.tap(find.byIcon(Icons.add));
@@ -62,7 +156,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
     await tester.tap(find.byIcon(Icons.add));
@@ -91,7 +186,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
     await tester.tap(find.byIcon(Icons.add));
@@ -130,7 +226,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
     await tester.tap(find.byIcon(Icons.add));
@@ -158,7 +255,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
     await tester.tap(find.byIcon(Icons.add));
@@ -193,7 +291,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
     await tester.tap(find.byIcon(Icons.add));
@@ -228,7 +327,8 @@ void main() {
     '5.2 Credentials authentication validates correctly with valid data',
     (WidgetTester tester) async {
       // Build our app and trigger a frame.
-      await tester.pumpWidget(const SiloTavernApp());
+      await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+      await tester.pumpAndSettle();
 
       // Tap the '+' icon to open the creation page.
       await tester.tap(find.byIcon(Icons.add));
@@ -265,7 +365,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Verify that servers are displayed with Dismissible widgets.
     expect(find.byType(Dismissible), findsWidgets);
@@ -278,7 +379,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Verify initial server exists.
     expect(find.text('Production Server'), findsOneWidget);
@@ -308,7 +410,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
     final dismissibleFinder = find.ancestor(
@@ -334,7 +437,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
     final dismissibleFinder = find.ancestor(
@@ -360,7 +464,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Verify initial server exists.
     expect(find.text('Production Server'), findsOneWidget);
@@ -389,7 +494,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Verify initial server exists.
     expect(find.text('Production Server'), findsOneWidget);
@@ -426,7 +532,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Verify initial server exists.
     expect(find.text('Production Server'), findsOneWidget);
@@ -460,7 +567,8 @@ void main() {
 
   testWidgets('6.2 Back button cancels creation', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
     await tester.tap(find.byIcon(Icons.add));
@@ -490,7 +598,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
     final dismissibleFinder = find.ancestor(
@@ -513,7 +622,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
     final dismissibleFinder = find.ancestor(
@@ -550,7 +660,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
     final dismissibleFinder = find.ancestor(
@@ -589,7 +700,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // First, create a server with credentials
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
 
@@ -649,7 +761,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
     final dismissibleFinder = find.ancestor(
@@ -681,7 +794,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
     await tester.tap(find.byIcon(Icons.add));
@@ -722,7 +836,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
     final dismissibleFinder = find.ancestor(
@@ -766,7 +881,8 @@ void main() {
 
   testWidgets('Long press shows context menu', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Find a server card
     final serverCard = find.text('Production Server');
@@ -785,7 +901,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Find a server card
     final serverCard = find.text('Production Server');
@@ -809,7 +926,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Find a server card
     final serverCard = find.text('Production Server');
@@ -834,7 +952,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Verify initial server exists
     expect(find.text('Production Server'), findsOneWidget);
@@ -866,7 +985,8 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Verify initial server exists
     expect(find.text('Production Server'), findsOneWidget);
@@ -896,7 +1016,8 @@ void main() {
 
   testWidgets('Right-click shows context menu', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SiloTavernApp());
+    await tester.pumpWidget(SiloTavernApp(serverService: ServerService.test()));
+    await tester.pumpAndSettle();
 
     // Find a server card
     final serverCard = find.text('Production Server');

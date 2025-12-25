@@ -6,11 +6,16 @@ tasks:
     cmds:
       - flutter config --enable-linux-desktop --enable-web
 
+  generate-mocks:
+    desc: Generate mocks
+    cmds:
+      - dart run build_runner build
+
   .tag-coverage-report:
     internal: true
     silent: true
     requires:
-      vars: [ tag ]
+      vars: [tag]
     cmds:
       - genhtml coverage/lcov.{{ .tag }}.info -o coverage/html
       - echo "Coverage report generated at coverage/html/index.html"
@@ -19,7 +24,7 @@ tasks:
     internal: true
     silent: true
     requires:
-      vars: [ tag ]
+      vars: [tag]
     cmds:
       - flutter test --tags {{ .tag }} --branch-coverage --coverage-path coverage/lcov.{{ .tag }}.info
       - task: .tag-coverage-report
@@ -81,4 +86,3 @@ tasks:
     desc: Run on web
     cmds:
       - flutter run -d chrome
-

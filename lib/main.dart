@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/domain/server_service.dart';
 
-void main() {
-  runApp(const SiloTavernApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final serverService = await ServerService.initialize();
+  
+  runApp(SiloTavernApp(serverService: serverService));
 }
 
 class SiloTavernApp extends StatelessWidget {
-  const SiloTavernApp({super.key});
+  final ServerService serverService;
+  
+  const SiloTavernApp({super.key, required this.serverService});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +22,7 @@ class SiloTavernApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: ServerListPage(serverService: ServerService()),
+      home: ServerListPage(serverService: serverService),
     );
   }
 }

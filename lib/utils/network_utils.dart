@@ -83,23 +83,24 @@ class NetworkUtils {
   /// Validates if a server configuration is allowed based on security rules
   /// Local servers are always allowed
   /// Remote servers must be HTTPS and have authentication
-  static bool isServerConfigurationAllowed(Server server) {
+  static validateServerConfiguration(Server server) {
     final isHttps = server.address.startsWith('https://');
     final hasAuthentication = server.authentication.useCredentials;
     final isLocal = isLocalAddress(server.address);
 
     // Local addresses are always allowed
     if (isLocal) {
-      return true;
+      return;
     }
 
     // For remote addresses: must be HTTPS AND have authentication
-    if (isHttps && hasAuthentication) {
-      return true;
+    if (!isHttps) {
+      throw ArgumentError('HTTPS must be used for external servers');
     }
 
-    // All other remote configurations are forbidden
-    return false;
+    if (!hasAuthentication) {
+      throw ArgumentError('Authentication must be used for external servers');
+    }
   }
 }
 
