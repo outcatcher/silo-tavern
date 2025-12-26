@@ -18,6 +18,7 @@ class ServerListPage extends StatefulWidget {
 
 class _ServerListPageState extends State<ServerListPage> {
   late List<Server> _servers;
+  final Set<String> _deletingServers = {};
 
   @override
   void initState() {
@@ -37,10 +38,25 @@ class _ServerListPageState extends State<ServerListPage> {
     // Optimistic update - remove from local list immediately
     setState(() {
       _servers.remove(server);
+      _deletingServers.add(server.id);
     });
 
     // Actually delete from service (non-blocking)
-    widget.serverService.removeServer(server.id).catchError((error) {
+    widget.serverService.removeServer(server.id).then((_) {
+      // Remove from deleting set on success
+      if (mounted) {
+        setState(() {
+          _deletingServers.remove(server.id);
+        });
+        
+        // Show success message
+        utils.showSuccessDialog(
+          context,
+          'Server "${server.name}" has been successfully deleted.',
+          title: 'Server Deleted',
+        );
+      }
+    }).catchError((error) {
       // Find the insertion point to restore the server
       final insertIndex = _servers.indexWhere(
         (s) => s.id.compareTo(server.id) > 0,
@@ -49,6 +65,7 @@ class _ServerListPageState extends State<ServerListPage> {
       // Revert optimistic update on error
       if (mounted) {
         setState(() {
+          _deletingServers.remove(server.id);
           if (insertIndex == -1) {
             // Insert at the end if no suitable position found
             _servers.add(server);
@@ -60,7 +77,8 @@ class _ServerListPageState extends State<ServerListPage> {
 
         utils.showErrorDialog(
           context,
-          'Failed to delete server. Please try again.',
+          'Failed to delete server "${server.name}". Please try again.',
+          title: 'Deletion Failed',
         );
       }
     });
@@ -290,78 +308,35 @@ class _ServerListPageState extends State<ServerListPage> {
   }
 
   Widget _buildServerCard(BuildContext context, Server server) {
+    final isDeleting = _deletingServers.contains(server.id);
+    
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: server.address.startsWith('https')
-                    ? Colors.green.withValues(alpha: 0.1)
-                    : Colors.orange.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                server.address.startsWith('https') ? Icons.lock : Icons.lock_open,
-                color: server.address.startsWith('https') ? Colors.green : Colors.orange,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    server.name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    server.address,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  if (server.authentication.useCredentials) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        'Credentials Auth',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.blue,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ],
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: server.address.startsWith('https')
+              ? Colors.grey[700]
+              : Colors.grey[500],
+          child: Icon(
+            server.address.startsWith('https')
+                ? Icons.lock
+                : Icons.lock_open,
+            color: Colors.white,
+          ),
         ),
+        title: Text(server.name),
+        subtitle: Text(server.address),
+        trailing: isDeleting
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(
+                Icons.arrow_forward,
+                size: 16,
+                color: Colors.grey,
+              ),
       ),
     );
   }

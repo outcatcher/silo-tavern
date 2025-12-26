@@ -105,22 +105,31 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                   if (widget.initialServer != null) {
                     // Update existing server
                     await widget.serverService.updateServer(tempServer);
+                    // Navigate back to the server list after successful update
+                    if (context.mounted) {
+                      context.go('/servers');
+                    }
                   } else {
                     // Add new server
                     await widget.serverService.addServer(tempServer);
-                  }
-
-                  // Navigate back to the server list after successful save
-                  if (context.mounted) {
-                    context.go('/servers');
+                    if (context.mounted) {
+                      utils.showSuccessDialog(
+                        context,
+                        'Server "${tempServer.name}" has been successfully added.',
+                        title: 'Server Added',
+                      );
+                      context.go('/servers');
+                    }
                   }
                 } catch (error) {
                   log('failed to save server', error: error);
-
+                  
                   if (context.mounted) {
+                    final action = widget.initialServer != null ? 'update' : 'add';
                     utils.showErrorDialog(
                       context,
-                      'Failed to save server. Please try again.',
+                      'Failed to $action server "${tempServer.name}". Please try again.',
+                      title: 'Server ${widget.initialServer != null ? 'Update' : 'Add'} Failed',
                     );
                   }
                 }

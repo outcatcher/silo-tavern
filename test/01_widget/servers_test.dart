@@ -1054,7 +1054,7 @@ void main() {
 
     // Verify error dialog is shown
     expect(
-      find.text('Failed to delete server. Please try again.'),
+      find.text('Failed to delete server "Production Server". Please try again.'),
       findsOneWidget,
     );
 
