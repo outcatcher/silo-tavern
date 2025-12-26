@@ -5,7 +5,6 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 @Tags(['widget', 'servers'])
-@GenerateNiceMocks([MockSpec<ServerService>()])
 library;
 
 import 'package:flutter/gestures.dart';
@@ -19,6 +18,7 @@ import 'package:silo_tavern/main.dart';
 
 import 'servers_test.mocks.dart';
 
+@GenerateNiceMocks([MockSpec<ServerService>()])
 void main() {
   late MockServerService serverService;
 
