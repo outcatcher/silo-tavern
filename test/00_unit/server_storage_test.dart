@@ -116,9 +116,9 @@ void main() {
       when(
         mockSecureStorage.read(key: 'servers/test-server-1'),
       ).thenAnswer((_) async => null);
-      when(
-        mockSecureStorage.read(key: 'servers/test-server-2'),
-      ).thenAnswer((_) async {
+      when(mockSecureStorage.read(key: 'servers/test-server-2')).thenAnswer((
+        _,
+      ) async {
         final authData = {'username': 'user2', 'password': 'pass2'};
         return jsonEncode(authData);
       });
@@ -189,9 +189,9 @@ void main() {
         (_) async =>
             '{"id":"test-server","name":"Test Server","address":"https://test.example.com"}',
       );
-      when(
-        mockSecureStorage.read(key: 'servers/test-server'),
-      ).thenAnswer((_) async {
+      when(mockSecureStorage.read(key: 'servers/test-server')).thenAnswer((
+        _,
+      ) async {
         final authData = {'username': 'testuser', 'password': 'testpass'};
         return jsonEncode(authData);
       });
@@ -223,8 +223,9 @@ void main() {
     test('Create server with credentials saves to secure storage', () async {
       when(mockPrefs.getString('servers')).thenAnswer((_) async => null);
       when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
-      when(mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')))
-          .thenAnswer((_) async {});
+      when(
+        mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')),
+      ).thenAnswer((_) async {});
 
       final newServer = Server(
         id: 'new-server',
@@ -238,8 +239,9 @@ void main() {
 
       await expectLater(storage.createServer(newServer), completes);
       verify(mockPrefs.setString(any, any)).called(1);
-      verify(mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')))
-          .called(1);
+      verify(
+        mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')),
+      ).called(1);
     });
 
     test('Create server throws exception when ID already exists', () async {
@@ -310,8 +312,9 @@ void main() {
         mockSecureStorage.read(key: 'servers/update-server'),
       ).thenAnswer((_) async => null);
       when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
-      when(mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')))
-          .thenAnswer((_) async {});
+      when(
+        mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')),
+      ).thenAnswer((_) async {});
 
       final updatedServer = Server(
         id: 'update-server',
@@ -325,8 +328,9 @@ void main() {
 
       await expectLater(storage.updateServer(updatedServer), completes);
       verify(mockPrefs.setString(any, any)).called(1);
-      verify(mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')))
-          .called(1);
+      verify(
+        mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')),
+      ).called(1);
     });
 
     test('Update server throws exception when server not found', () async {
@@ -352,31 +356,36 @@ void main() {
       );
     });
 
-    test('Update server to remove credentials deletes from secure storage', () async {
-      when(mockPrefs.getString('servers/update-server')).thenAnswer(
-        (_) async =>
-            '{"id":"update-server","name":"Old Name","address":"https://old.example.com"}',
-      );
-      when(
-        mockSecureStorage.read(key: 'servers/update-server'),
-      ).thenAnswer((_) async {
-        final authData = {'username': 'user', 'password': 'pass'};
-        return jsonEncode(authData);
-      });
-      when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
-      when(mockSecureStorage.delete(key: anyNamed('key'))).thenAnswer((_) async {});
+    test(
+      'Update server to remove credentials deletes from secure storage',
+      () async {
+        when(mockPrefs.getString('servers/update-server')).thenAnswer(
+          (_) async =>
+              '{"id":"update-server","name":"Old Name","address":"https://old.example.com"}',
+        );
+        when(mockSecureStorage.read(key: 'servers/update-server')).thenAnswer((
+          _,
+        ) async {
+          final authData = {'username': 'user', 'password': 'pass'};
+          return jsonEncode(authData);
+        });
+        when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
+        when(
+          mockSecureStorage.delete(key: anyNamed('key')),
+        ).thenAnswer((_) async {});
 
-      final updatedServer = Server(
-        id: 'update-server',
-        name: 'New Name',
-        address: 'https://new.example.com',
-        authentication: const AuthenticationInfo.none(),
-      );
+        final updatedServer = Server(
+          id: 'update-server',
+          name: 'New Name',
+          address: 'https://new.example.com',
+          authentication: const AuthenticationInfo.none(),
+        );
 
-      await expectLater(storage.updateServer(updatedServer), completes);
-      verify(mockPrefs.setString(any, any)).called(1);
-      verify(mockSecureStorage.delete(key: anyNamed('key'))).called(1);
-    });
+        await expectLater(storage.updateServer(updatedServer), completes);
+        verify(mockPrefs.setString(any, any)).called(1);
+        verify(mockSecureStorage.delete(key: anyNamed('key'))).called(1);
+      },
+    );
 
     test('Delete server removes server from list', () async {
       final existingServerData = {

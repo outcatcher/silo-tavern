@@ -12,8 +12,9 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('End-to-end test', () {
-    testWidgets('Smoke test: App loads and basic navigation works', 
-    (WidgetTester tester) async {
+    testWidgets('Smoke test: App loads and basic navigation works', (
+      WidgetTester tester,
+    ) async {
       // Start the app with isolated E2E storage
       app.main();
       await tester.pumpAndSettle();
@@ -46,10 +47,13 @@ void main() {
       await tester.pumpAndSettle();
 
       // Fill in basic server details
-      await tester.enterText(find.byType(TextFormField).at(0), 'Unique Test Server');
       await tester.enterText(
-        find.byType(TextFormField).at(1), 
-        'http://localhost:8080'
+        find.byType(TextFormField).at(0),
+        'Unique Test Server',
+      );
+      await tester.enterText(
+        find.byType(TextFormField).at(1),
+        'http://localhost:8080',
       );
 
       // Save the server
@@ -61,7 +65,9 @@ void main() {
       expect(find.text('Unique Test Server').first, findsOneWidget);
     });
 
-    testWidgets('Full workflow: Create, Edit, Delete server', (WidgetTester tester) async {
+    testWidgets('Full workflow: Create, Edit, Delete server', (
+      WidgetTester tester,
+    ) async {
       // Start the app with isolated E2E storage
       app.main();
       await tester.pumpAndSettle();
@@ -70,10 +76,13 @@ void main() {
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byType(TextFormField).at(0), 'Workflow Test Server');
       await tester.enterText(
-        find.byType(TextFormField).at(1), 
-        'https://workflow.example.com'
+        find.byType(TextFormField).at(0),
+        'Workflow Test Server',
+      );
+      await tester.enterText(
+        find.byType(TextFormField).at(1),
+        'https://workflow.example.com',
       );
 
       // Select credentials authentication
@@ -106,8 +115,8 @@ void main() {
 
       // Modify the server name
       await tester.enterText(
-        find.byType(TextFormField).at(0), 
-        'Updated Workflow Server'
+        find.byType(TextFormField).at(0),
+        'Updated Workflow Server',
       );
 
       // Save changes

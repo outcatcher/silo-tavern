@@ -9,28 +9,26 @@ import 'package:silo_tavern/utils/app_storage.dart';
 // Custom ServerStorage that uses E2E-specific prefixes
 class E2EServerStorage extends ServerStorage {
   E2EServerStorage(SharedPreferencesAsync prefs, FlutterSecureStorage sec)
-      : super(
-          JsonStorage(prefs, 'e2e_servers'),
-          JsonSecureStorage(sec, 'e2e_servers'),
-        );
+    : super(
+        JsonStorage(prefs, 'e2e_servers'),
+        JsonSecureStorage(sec, 'e2e_servers'),
+      );
 }
 
 // Custom ServerOptions for E2E tests
 class E2EServerOptions extends ServerOptions {
   E2EServerOptions(SharedPreferencesAsync prefs, FlutterSecureStorage sec)
-      : super(E2EServerStorage(prefs, sec));
+    : super(E2EServerStorage(prefs, sec));
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   final prefs = SharedPreferencesAsync();
   final secureStorage = const FlutterSecureStorage();
 
   // Use isolated storage for E2E tests with different prefixes
-  final serverService = ServerService(
-    E2EServerOptions(prefs, secureStorage),
-  );
+  final serverService = ServerService(E2EServerOptions(prefs, secureStorage));
   await serverService.initialize();
 
   runApp(SiloTavernApp(serverService: serverService));
