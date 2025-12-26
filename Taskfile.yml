@@ -1,5 +1,8 @@
 version: "3"
 
+dotenv:
+  - .env
+
 tasks:
   setup:
     desc: Enable builds
@@ -46,15 +49,14 @@ tasks:
   test:integration:
     desc: Run only integration tests
     cmds:
-      - task: .tag-test
+      - flutter test --tags integration --exclude-tags e2e --branch-coverage --coverage-path coverage/lcov.integration.info
+      - task: .tag-coverage-report
         vars: { tag: integration }
 
   test:e2e:web:
     preconditions:
       - npx @puppeteer/browsers install chromedriver@stable
     desc: Run e2e tests on web
-    dotenv:
-      - .env
     cmds:
       - chromedriver --port=4444 &
       - flutter drive
@@ -73,8 +75,10 @@ tasks:
   test:all:
     desc: Run all tests
     cmds:
-      - flutter test --branch-coverage
-      - genhtml coverage/lcov.info -o coverage/html
+      - task: test:unit
+      - task: test:widget
+      - task: test:integration
+      - genhtml $(ls $(find . -name 'lcov.*.info')) -o coverage/html
       - echo "Coverage report generated at coverage/html/index.html"
 
   lint:

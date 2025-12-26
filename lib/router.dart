@@ -11,7 +11,7 @@ class AppRouter {
 
   late final GoRouter router = GoRouter(
     routes: [
-      GoRoute(path: '/', redirect: (_, __) => '/servers'),
+      GoRoute(path: '/', redirect: (_, _) => '/servers'),
       GoRoute(
         path: '/servers',
         name: 'servers',

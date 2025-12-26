@@ -1,3 +1,6 @@
+@Tags(['integration', 'e2e', 'servers'])
+library;
+
 // True end-to-end test that runs the entire app on a platform
 // This test interacts with the real app as a user would
 import 'package:flutter/material.dart';
