@@ -687,53 +687,41 @@ void main() {
   testWidgets('3.2 Edit with credentials authentication preserves auth data', (
     WidgetTester tester,
   ) async {
-    // First, create a server with credentials
+    // Build our app and trigger a frame.
     await tester.pumpWidget(SiloTavernApp(serverService: serverService));
     await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
 
-    // Fill in server creation form with credentials
-    await tester.enterText(find.byType(TextFormField).at(0), 'Auth Server');
-    await tester.enterText(
-      find.byType(TextFormField).at(1),
-      'https://auth.example.com',
+    // Edit an existing server (Production Server) using context menu
+    final serverText = find.text('Production Server');
+    expect(serverText, findsOneWidget);
+    
+    // Find the ListTile ancestor of the server text
+    final serverCard = find.ancestor(
+      of: serverText,
+      matching: find.byType(ListTile),
     );
+    expect(serverCard, findsOneWidget);
 
-    // Select credentials authentication
-    await tester.tap(find.text('Credentials'));
+    // Long press on the server card to show context menu
+    await tester.longPress(serverCard);
     await tester.pumpAndSettle();
 
-    // Fill in credentials
-    await tester.enterText(find.byType(TextFormField).at(2), 'testuser');
-    await tester.enterText(find.byType(TextFormField).at(3), 'testpass');
-
-    // Save the server
-    await tester.tap(find.byIcon(Icons.check));
-    await tester.pumpAndSettle();
-
-    // Now edit the server
-    final dismissibleFinder = find.ancestor(
-      of: find.text('Auth Server'),
-      matching: find.byType(Dismissible),
-    );
-
-    // Perform left-to-right swipe (edit)
-    await tester.drag(dismissibleFinder, const Offset(300, 0));
+    // Tap Edit option
+    await tester.tap(find.text('Edit'));
     await tester.pumpAndSettle();
 
     // Verify we're on edit page
     expect(find.text('Edit Server'), findsOneWidget);
 
-    // Verify form is pre-filled
-    expect(find.text('Auth Server'), findsOneWidget);
-    expect(find.text('https://auth.example.com'), findsOneWidget);
+    // Verify form is pre-filled with existing server data
+    expect(find.text('Production Server'), findsOneWidget);
+    expect(find.text('https://prod.example.com'), findsOneWidget);
     expect(find.text('testuser'), findsOneWidget);
 
     // Modify the name
     await tester.enterText(
       find.byType(TextFormField).at(0),
-      'Updated Auth Server',
+      'Updated Production Server',
     );
 
     // Save changes
@@ -741,8 +729,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify update
-    expect(find.text('Updated Auth Server'), findsOneWidget);
-    expect(find.text('Auth Server'), findsNothing);
+    expect(find.text('Updated Production Server'), findsOneWidget);
+    expect(find.text('Production Server'), findsNothing);
   });
 
   testWidgets('3.2 Edit cancel preserves original server', (
@@ -752,14 +740,23 @@ void main() {
     await tester.pumpWidget(SiloTavernApp(serverService: serverService));
     await tester.pumpAndSettle();
 
-    // Find the Production Server dismissible
-    final dismissibleFinder = find.ancestor(
-      of: find.text('Production Server'),
-      matching: find.byType(Dismissible),
+    // Edit an existing server (Production Server) using context menu
+    final serverText = find.text('Production Server');
+    expect(serverText, findsOneWidget);
+    
+    // Find the ListTile ancestor of the server text
+    final serverCard = find.ancestor(
+      of: serverText,
+      matching: find.byType(ListTile),
     );
+    expect(serverCard, findsOneWidget);
 
-    // Perform left-to-right swipe (edit)
-    await tester.drag(dismissibleFinder, const Offset(300, 0));
+    // Long press on the server card to show context menu
+    await tester.longPress(serverCard);
+    await tester.pumpAndSettle();
+
+    // Tap Edit option
+    await tester.tap(find.text('Edit'));
     await tester.pumpAndSettle();
 
     // Verify that we're on the server edit page.
@@ -1073,5 +1070,238 @@ void main() {
 
     // Verify the server is in its correct position (should still be the first server)
     expect(find.text('Production Server'), findsOneWidget);
+  });
+
+  testWidgets('Empty state shows when no servers are configured', (
+    WidgetTester tester,
+  ) async {
+    // Create a mock service with an empty server list
+    final mockService = MockServerService();
+    final emptyServersList = <Server>[];
+    
+    // Set up mock to return empty list
+    when(mockService.servers).thenAnswer((_) => emptyServersList);
+    
+    // Mock other methods to handle empty state
+    when(mockService.addServer(any)).thenAnswer((invocation) async {
+      final server = invocation.positionalArguments[0] as Server;
+      // Check for duplicates
+      if (emptyServersList.any((s) => s.id == server.id)) {
+        throw ArgumentError('Server with ID "${server.id}" already exists');
+      }
+      emptyServersList.add(server);
+    });
+    
+    when(mockService.removeServer(any)).thenAnswer((invocation) async {
+      final id = invocation.positionalArguments[0] as String;
+      emptyServersList.removeWhere((server) => server.id == id);
+    });
+    
+    when(mockService.findServerById(any)).thenAnswer((invocation) {
+      final id = invocation.positionalArguments[0] as String;
+      try {
+        return emptyServersList.firstWhere((server) => server.id == id);
+      } catch (e) {
+        return null;
+      }
+    });
+
+    // Build our app with empty server list and trigger a frame.
+    await tester.pumpWidget(SiloTavernApp(serverService: mockService));
+    await tester.pumpAndSettle();
+
+    // Verify that the empty state is displayed
+    expect(find.text('No servers configured'), findsOneWidget);
+    expect(find.text('Add your first server to get started'), findsOneWidget);
+    
+    // Verify that the "Add Server" button is present in the empty state
+    expect(find.text('Add Server'), findsOneWidget);
+    
+    // Verify that there are no server cards/dismissible widgets
+    expect(find.byType(Dismissible), findsNothing);
+    expect(find.text('Production Server'), findsNothing);
+    expect(find.text('Staging Server'), findsNothing);
+    expect(find.text('Development Server'), findsNothing);
+    
+    // Tap the "Add Server" button to verify navigation works
+    await tester.tap(find.text('Add Server'));
+    await tester.pumpAndSettle();
+    
+    // Verify we're on the server creation page
+    expect(find.text('Add New Server'), findsOneWidget);
+  });
+
+  testWidgets('Server creation shows error dialog when save fails', (
+    WidgetTester tester,
+  ) async {
+    // Create a mock service that throws an error when adding a server
+    final mockService = MockServerService();
+    final serversList = <Server>[];
+    
+    // Set up mock to return initial empty list
+    when(mockService.servers).thenAnswer((_) => serversList);
+    
+    // Mock addServer to throw an exception
+    when(mockService.addServer(any)).thenAnswer((invocation) async {
+      throw Exception('Simulated save failure');
+    });
+    
+    // Mock other methods
+    when(mockService.removeServer(any)).thenAnswer((invocation) async {
+      final id = invocation.positionalArguments[0] as String;
+      serversList.removeWhere((server) => server.id == id);
+    });
+    
+    when(mockService.findServerById(any)).thenAnswer((invocation) {
+      final id = invocation.positionalArguments[0] as String;
+      try {
+        return serversList.firstWhere((server) => server.id == id);
+      } catch (e) {
+        return null;
+      }
+    });
+
+    // Build our app with the mock service and trigger a frame.
+    await tester.pumpWidget(SiloTavernApp(serverService: mockService));
+    await tester.pumpAndSettle();
+
+    // Tap the '+' icon to open the creation page.
+    await tester.tap(find.descendant(
+      of: find.byType(AppBar),
+      matching: find.byIcon(Icons.add),
+    ));
+    await tester.pumpAndSettle();
+
+    // Verify that we're on the server creation page.
+    expect(find.text('Add New Server'), findsOneWidget);
+
+    // Fill in the form with valid HTTPS URL and authentication
+    await tester.enterText(find.byType(TextFormField).at(0), 'Test Server');
+    await tester.enterText(find.byType(TextFormField).at(1), 'https://test.example.com');
+    
+    // Select credentials authentication
+    await tester.tap(find.text('Credentials'));
+    await tester.pumpAndSettle();
+    
+    // Fill in credentials
+    await tester.enterText(find.byType(TextFormField).at(2), 'testuser');
+    await tester.enterText(find.byType(TextFormField).at(3), 'testpass');
+
+    // Submit the form
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    // Give time for the post-frame callback to execute and show the dialog
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pumpAndSettle();
+
+    // Verify error dialog is shown
+    expect(find.text('Server Add Failed'), findsOneWidget);
+    expect(find.text('Failed to add server "Test Server". Please try again.'), findsOneWidget);
+    
+    // Tap OK on the error dialog
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    
+    // Verify we're still on the creation page (not navigated away)
+    expect(find.text('Add New Server'), findsOneWidget);
+  });
+
+  testWidgets('Server update shows error dialog when save fails', (
+    WidgetTester tester,
+  ) async {
+    // Create a mock service that throws an error when updating a server
+    final mockService = MockServerService();
+    final serversList = [
+      Server(
+        id: '1',
+        name: 'Existing Server',
+        address: 'https://existing.example.com',
+        authentication: AuthenticationInfo.credentials(
+          username: 'existinguser',
+          password: 'existingpass',
+        ),
+      ),
+    ];
+    
+    // Set up mock to return initial server list
+    when(mockService.servers).thenAnswer((_) => serversList);
+    
+    // Mock updateServer to throw an exception
+    when(mockService.updateServer(any)).thenAnswer((invocation) async {
+      throw Exception('Simulated update failure');
+    });
+    
+    // Mock other methods
+    when(mockService.addServer(any)).thenAnswer((invocation) async {
+      final server = invocation.positionalArguments[0] as Server;
+      // Check for duplicates
+      if (serversList.any((s) => s.id == server.id)) {
+        throw ArgumentError('Server with ID "${server.id}" already exists');
+      }
+      serversList.add(server);
+    });
+    
+    when(mockService.removeServer(any)).thenAnswer((invocation) async {
+      final id = invocation.positionalArguments[0] as String;
+      serversList.removeWhere((server) => server.id == id);
+    });
+    
+    when(mockService.findServerById(any)).thenAnswer((invocation) {
+      final id = invocation.positionalArguments[0] as String;
+      try {
+        return serversList.firstWhere((server) => server.id == id);
+      } catch (e) {
+        return null;
+      }
+    });
+
+    // Build our app with the mock service and trigger a frame.
+    await tester.pumpWidget(SiloTavernApp(serverService: mockService));
+    await tester.pumpAndSettle();
+
+    // Find the existing server and edit it using context menu
+    final serverCard = find.text('Existing Server');
+    expect(serverCard, findsOneWidget);
+    
+    // Find the ListTile ancestor of the server text
+    final listItem = find.ancestor(
+      of: serverCard,
+      matching: find.byType(ListTile),
+    );
+    expect(listItem, findsOneWidget);
+
+    // Long press on the server card to show context menu
+    await tester.longPress(listItem);
+    await tester.pumpAndSettle();
+
+    // Tap Edit option
+    await tester.tap(find.text('Edit'));
+    await tester.pumpAndSettle();
+
+    // Verify that we're on the server edit page.
+    expect(find.text('Edit Server'), findsOneWidget);
+
+    // Modify the server name
+    await tester.enterText(find.byType(TextFormField).at(0), 'Updated Server Name');
+
+    // Submit the form
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    // Give time for the post-frame callback to execute and show the dialog
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pumpAndSettle();
+
+    // Verify error dialog is shown
+    expect(find.text('Server Update Failed'), findsOneWidget);
+    expect(find.text('Failed to update server "Updated Server Name". Please try again.'), findsOneWidget);
+    
+    // Tap OK on the error dialog
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    
+    // Verify we're still on the edit page (not navigated away)
+    expect(find.text('Edit Server'), findsOneWidget);
   });
 }
