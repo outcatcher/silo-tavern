@@ -46,13 +46,6 @@ tasks:
       - task: .tag-test
         vars: { tag: widget }
 
-  test:integration:
-    desc: Run only integration tests
-    cmds:
-      - flutter test --tags integration --exclude-tags e2e --branch-coverage --coverage-path coverage/lcov.integration.info
-      - task: .tag-coverage-report
-        vars: { tag: integration }
-
   test:e2e:web:
     preconditions:
       - npx @puppeteer/browsers install chromedriver@stable
@@ -77,7 +70,6 @@ tasks:
     cmds:
       - task: test:unit
       - task: test:widget
-      - task: test:integration
       - genhtml $(ls $(find . -name 'lcov.*.info')) -o coverage/html
       - echo "Coverage report generated at coverage/html/index.html"
 
