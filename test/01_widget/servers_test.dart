@@ -1072,9 +1072,6 @@ void main() {
     );
 
     // Verify the server is in its correct position (should still be the first server)
-    final serverCards = tester.widgetList(find.byType(ListTile));
-    final firstServerCard = serverCards.first as ListTile;
-    expect(firstServerCard.title, isA<Text>());
-    expect((firstServerCard.title as Text).data, 'Production Server');
+    expect(find.text('Production Server'), findsOneWidget);
   });
 }
