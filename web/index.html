@@ -31,6 +31,13 @@
 
   <title>silo_tavern</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- We're going to use right click in the app, so disabling it on the page -->
+  <script>
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
