@@ -40,7 +40,7 @@ class _SiloTavernAppState extends State<SiloTavernApp> {
     return MaterialApp.router(
       title: 'SiloTavern',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       routerConfig: _appRouter.router,
