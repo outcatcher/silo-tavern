@@ -42,46 +42,49 @@ class _ServerListPageState extends State<ServerListPage> {
     });
 
     // Actually delete from service (non-blocking)
-    widget.serverService.removeServer(server.id).then((_) {
-      // Remove from deleting set on success
-      if (mounted) {
-        setState(() {
-          _deletingServers.remove(server.id);
-        });
-        
-        // Show success message
-        utils.showSuccessDialog(
-          context,
-          'Server "${server.name}" has been successfully deleted.',
-          title: 'Server Deleted',
-        );
-      }
-    }).catchError((error) {
-      // Find the insertion point to restore the server
-      final insertIndex = _servers.indexWhere(
-        (s) => s.id.compareTo(server.id) > 0,
-      );
+    widget.serverService
+        .removeServer(server.id)
+        .then((_) {
+          // Remove from deleting set on success
+          if (mounted) {
+            setState(() {
+              _deletingServers.remove(server.id);
+            });
 
-      // Revert optimistic update on error
-      if (mounted) {
-        setState(() {
-          _deletingServers.remove(server.id);
-          if (insertIndex == -1) {
-            // Insert at the end if no suitable position found
-            _servers.add(server);
-          } else {
-            // Insert at the correct position to maintain order
-            _servers.insert(insertIndex, server);
+            // Show success message
+            utils.showSuccessDialog(
+              context,
+              'Server "${server.name}" has been successfully deleted.',
+              title: 'Server Deleted',
+            );
+          }
+        })
+        .catchError((error) {
+          // Find the insertion point to restore the server
+          final insertIndex = _servers.indexWhere(
+            (s) => s.id.compareTo(server.id) > 0,
+          );
+
+          // Revert optimistic update on error
+          if (mounted) {
+            setState(() {
+              _deletingServers.remove(server.id);
+              if (insertIndex == -1) {
+                // Insert at the end if no suitable position found
+                _servers.add(server);
+              } else {
+                // Insert at the correct position to maintain order
+                _servers.insert(insertIndex, server);
+              }
+            });
+
+            utils.showErrorDialog(
+              context,
+              'Failed to delete server "${server.name}". Please try again.',
+              title: 'Deletion Failed',
+            );
           }
         });
-
-        utils.showErrorDialog(
-          context,
-          'Failed to delete server "${server.name}". Please try again.',
-          title: 'Deletion Failed',
-        );
-      }
-    });
   }
 
   Future<bool> _showDeleteConfirmationDialog(
@@ -209,10 +212,18 @@ class _ServerListPageState extends State<ServerListPage> {
                     final server = _servers[index];
                     return GestureDetector(
                       onLongPressStart: (details) {
-                        _showContextMenu(context, server, details.globalPosition);
+                        _showContextMenu(
+                          context,
+                          server,
+                          details.globalPosition,
+                        );
                       },
                       onSecondaryTapDown: (details) {
-                        _showContextMenu(context, server, details.globalPosition);
+                        _showContextMenu(
+                          context,
+                          server,
+                          details.globalPosition,
+                        );
                       },
                       child: Dismissible(
                         key: Key(server.id),
@@ -233,9 +244,9 @@ class _ServerListPageState extends State<ServerListPage> {
                             // Show delete confirmation dialog for right-to-left swipe
                             final confirmDelete =
                                 await _showDeleteConfirmationDialog(
-                              context,
-                              server,
-                            );
+                                  context,
+                                  server,
+                                );
                             return confirmDelete;
                           }
                           // Default behavior
@@ -279,18 +290,12 @@ class _ServerListPageState extends State<ServerListPage> {
           const SizedBox(height: 24),
           const Text(
             'No servers configured',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 8),
           const Text(
             'Add your first server to get started',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
           const SizedBox(height: 32),
           ElevatedButton.icon(
@@ -309,7 +314,7 @@ class _ServerListPageState extends State<ServerListPage> {
 
   Widget _buildServerCard(BuildContext context, Server server) {
     final isDeleting = _deletingServers.contains(server.id);
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
@@ -318,25 +323,31 @@ class _ServerListPageState extends State<ServerListPage> {
               ? Colors.grey[700]
               : Colors.grey[500],
           child: Icon(
-            server.address.startsWith('https')
-                ? Icons.lock
-                : Icons.lock_open,
+            server.address.startsWith('https') ? Icons.lock : Icons.lock_open,
             color: Colors.white,
           ),
         ),
-        title: Text(server.name),
-        subtitle: Text(server.address),
+        title: Text(
+          server.name,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        subtitle: Text(
+          server.address,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+          ),
+        ),
         trailing: isDeleting
             ? const SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : const Icon(
-                Icons.arrow_forward,
-                size: 16,
-                color: Colors.grey,
-              ),
+            : const Icon(Icons.arrow_forward, size: 16, color: Colors.grey),
       ),
     );
   }

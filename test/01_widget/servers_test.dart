@@ -694,7 +694,7 @@ void main() {
     // Edit an existing server (Production Server) using context menu
     final serverText = find.text('Production Server');
     expect(serverText, findsOneWidget);
-    
+
     // Find the ListTile ancestor of the server text
     final serverCard = find.ancestor(
       of: serverText,
@@ -743,7 +743,7 @@ void main() {
     // Edit an existing server (Production Server) using context menu
     final serverText = find.text('Production Server');
     expect(serverText, findsOneWidget);
-    
+
     // Find the ListTile ancestor of the server text
     final serverCard = find.ancestor(
       of: serverText,
@@ -1051,7 +1051,9 @@ void main() {
 
     // Verify error dialog is shown
     expect(
-      find.text('Failed to delete server "Production Server". Please try again.'),
+      find.text(
+        'Failed to delete server "Production Server". Please try again.',
+      ),
       findsOneWidget,
     );
 
@@ -1078,10 +1080,10 @@ void main() {
     // Create a mock service with an empty server list
     final mockService = MockServerService();
     final emptyServersList = <Server>[];
-    
+
     // Set up mock to return empty list
     when(mockService.servers).thenAnswer((_) => emptyServersList);
-    
+
     // Mock other methods to handle empty state
     when(mockService.addServer(any)).thenAnswer((invocation) async {
       final server = invocation.positionalArguments[0] as Server;
@@ -1091,12 +1093,12 @@ void main() {
       }
       emptyServersList.add(server);
     });
-    
+
     when(mockService.removeServer(any)).thenAnswer((invocation) async {
       final id = invocation.positionalArguments[0] as String;
       emptyServersList.removeWhere((server) => server.id == id);
     });
-    
+
     when(mockService.findServerById(any)).thenAnswer((invocation) {
       final id = invocation.positionalArguments[0] as String;
       try {
@@ -1113,20 +1115,20 @@ void main() {
     // Verify that the empty state is displayed
     expect(find.text('No servers configured'), findsOneWidget);
     expect(find.text('Add your first server to get started'), findsOneWidget);
-    
+
     // Verify that the "Add Server" button is present in the empty state
     expect(find.text('Add Server'), findsOneWidget);
-    
+
     // Verify that there are no server cards/dismissible widgets
     expect(find.byType(Dismissible), findsNothing);
     expect(find.text('Production Server'), findsNothing);
     expect(find.text('Staging Server'), findsNothing);
     expect(find.text('Development Server'), findsNothing);
-    
+
     // Tap the "Add Server" button to verify navigation works
     await tester.tap(find.text('Add Server'));
     await tester.pumpAndSettle();
-    
+
     // Verify we're on the server creation page
     expect(find.text('Add New Server'), findsOneWidget);
   });
@@ -1137,21 +1139,21 @@ void main() {
     // Create a mock service that throws an error when adding a server
     final mockService = MockServerService();
     final serversList = <Server>[];
-    
+
     // Set up mock to return initial empty list
     when(mockService.servers).thenAnswer((_) => serversList);
-    
+
     // Mock addServer to throw an exception
     when(mockService.addServer(any)).thenAnswer((invocation) async {
       throw Exception('Simulated save failure');
     });
-    
+
     // Mock other methods
     when(mockService.removeServer(any)).thenAnswer((invocation) async {
       final id = invocation.positionalArguments[0] as String;
       serversList.removeWhere((server) => server.id == id);
     });
-    
+
     when(mockService.findServerById(any)).thenAnswer((invocation) {
       final id = invocation.positionalArguments[0] as String;
       try {
@@ -1166,10 +1168,12 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
-    await tester.tap(find.descendant(
-      of: find.byType(AppBar),
-      matching: find.byIcon(Icons.add),
-    ));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byIcon(Icons.add),
+      ),
+    );
     await tester.pumpAndSettle();
 
     // Verify that we're on the server creation page.
@@ -1177,12 +1181,15 @@ void main() {
 
     // Fill in the form with valid HTTPS URL and authentication
     await tester.enterText(find.byType(TextFormField).at(0), 'Test Server');
-    await tester.enterText(find.byType(TextFormField).at(1), 'https://test.example.com');
-    
+    await tester.enterText(
+      find.byType(TextFormField).at(1),
+      'https://test.example.com',
+    );
+
     // Select credentials authentication
     await tester.tap(find.text('Credentials'));
     await tester.pumpAndSettle();
-    
+
     // Fill in credentials
     await tester.enterText(find.byType(TextFormField).at(2), 'testuser');
     await tester.enterText(find.byType(TextFormField).at(3), 'testpass');
@@ -1197,12 +1204,15 @@ void main() {
 
     // Verify error dialog is shown
     expect(find.text('Server Add Failed'), findsOneWidget);
-    expect(find.text('Failed to add server "Test Server". Please try again.'), findsOneWidget);
-    
+    expect(
+      find.text('Failed to add server "Test Server". Please try again.'),
+      findsOneWidget,
+    );
+
     // Tap OK on the error dialog
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
-    
+
     // Verify we're still on the creation page (not navigated away)
     expect(find.text('Add New Server'), findsOneWidget);
   });
@@ -1223,15 +1233,15 @@ void main() {
         ),
       ),
     ];
-    
+
     // Set up mock to return initial server list
     when(mockService.servers).thenAnswer((_) => serversList);
-    
+
     // Mock updateServer to throw an exception
     when(mockService.updateServer(any)).thenAnswer((invocation) async {
       throw Exception('Simulated update failure');
     });
-    
+
     // Mock other methods
     when(mockService.addServer(any)).thenAnswer((invocation) async {
       final server = invocation.positionalArguments[0] as Server;
@@ -1241,12 +1251,12 @@ void main() {
       }
       serversList.add(server);
     });
-    
+
     when(mockService.removeServer(any)).thenAnswer((invocation) async {
       final id = invocation.positionalArguments[0] as String;
       serversList.removeWhere((server) => server.id == id);
     });
-    
+
     when(mockService.findServerById(any)).thenAnswer((invocation) {
       final id = invocation.positionalArguments[0] as String;
       try {
@@ -1263,7 +1273,7 @@ void main() {
     // Find the existing server and edit it using context menu
     final serverCard = find.text('Existing Server');
     expect(serverCard, findsOneWidget);
-    
+
     // Find the ListTile ancestor of the server text
     final listItem = find.ancestor(
       of: serverCard,
@@ -1283,7 +1293,10 @@ void main() {
     expect(find.text('Edit Server'), findsOneWidget);
 
     // Modify the server name
-    await tester.enterText(find.byType(TextFormField).at(0), 'Updated Server Name');
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'Updated Server Name',
+    );
 
     // Submit the form
     await tester.tap(find.byIcon(Icons.check));
@@ -1295,12 +1308,17 @@ void main() {
 
     // Verify error dialog is shown
     expect(find.text('Server Update Failed'), findsOneWidget);
-    expect(find.text('Failed to update server "Updated Server Name". Please try again.'), findsOneWidget);
-    
+    expect(
+      find.text(
+        'Failed to update server "Updated Server Name". Please try again.',
+      ),
+      findsOneWidget,
+    );
+
     // Tap OK on the error dialog
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
-    
+
     // Verify we're still on the edit page (not navigated away)
     expect(find.text('Edit Server'), findsOneWidget);
   });

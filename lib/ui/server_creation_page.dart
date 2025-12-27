@@ -123,13 +123,16 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                   }
                 } catch (error) {
                   log('failed to save server', error: error);
-                  
+
                   if (context.mounted) {
-                    final action = widget.initialServer != null ? 'update' : 'add';
+                    final action = widget.initialServer != null
+                        ? 'update'
+                        : 'add';
                     utils.showErrorDialog(
                       context,
                       'Failed to $action server "${tempServer.name}". Please try again.',
-                      title: 'Server ${widget.initialServer != null ? 'Update' : 'Add'} Failed',
+                      title:
+                          'Server ${widget.initialServer != null ? 'Update' : 'Add'} Failed',
                     );
                   }
                 }
@@ -222,7 +225,10 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                     const SizedBox(height: 24),
                     const Text(
                       'Authentication',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     RadioGroup<AuthenticationType>(
