@@ -181,9 +181,9 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       '* Required fields',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -249,17 +249,14 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                       },
                     ),
                     const SizedBox(height: 32),
-                    const Text(
+                    Text(
                       'Authentication',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Localhost servers can use any configuration. Remote servers must use HTTPS with authentication.',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 20),
                     Column(

@@ -296,14 +296,14 @@ class _ServerListPageState extends State<ServerListPage> {
             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
           ),
           const SizedBox(height: 32),
-          const Text(
+          Text(
             'No servers configured',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Add your first server to get started',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 40),
           ElevatedButton.icon(
@@ -312,7 +312,6 @@ class _ServerListPageState extends State<ServerListPage> {
             label: const Text('Add Server'),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              textStyle: const TextStyle(fontSize: 16),
             ),
           ),
         ],
@@ -336,17 +335,11 @@ class _ServerListPageState extends State<ServerListPage> {
         ),
         title: Text(
           server.name,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(context).textTheme.titleMedium,
         ),
         subtitle: Text(
           server.address,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         trailing: isDeleting
             ? const SizedBox(
