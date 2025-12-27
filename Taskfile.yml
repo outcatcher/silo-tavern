@@ -53,9 +53,9 @@ tasks:
     cmds:
       - chromedriver --port=4444 &
       - flutter drive
-        --driver=integration_test/driver.dart
-        --target=integration_test/app_test.dart
-        -d web
+        --driver=test/02_integration/driver.dart
+        --target=test/02_integration/server_list_e2e_test.dart
+        -d web-server
 
   test:e2e:linux:
     desc: Run e2e tests on Linux

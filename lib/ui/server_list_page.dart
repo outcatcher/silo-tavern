@@ -254,14 +254,14 @@ class _ServerListPageState extends State<ServerListPage> {
                         },
                         // Edit swipe background (left-to-right drag)
                         background: Container(
-                          color: Colors.blue,
+                          color: Colors.blue.withValues(alpha: 0.9),
                           alignment: Alignment.centerLeft,
                           padding: const EdgeInsets.only(left: 20),
                           child: const Icon(Icons.edit, color: Colors.white),
                         ),
                         // Delete swipe background (right-to-left drag)
                         secondaryBackground: Container(
-                          color: Colors.red,
+                          color: Colors.red.withValues(alpha: 0.9),
                           alignment: Alignment.centerRight,
                           padding: const EdgeInsets.only(right: 20),
                           child: const Icon(Icons.delete, color: Colors.white),
@@ -314,16 +314,15 @@ class _ServerListPageState extends State<ServerListPage> {
 
   Widget _buildServerCard(BuildContext context, Server server) {
     final isDeleting = _deletingServers.contains(server.id);
+    final isHttps = server.address.startsWith('https');
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: server.address.startsWith('https')
-              ? Colors.grey[700]
-              : Colors.grey[500],
+          backgroundColor: isHttps ? Colors.grey[700] : Colors.grey[500],
           child: Icon(
-            server.address.startsWith('https') ? Icons.lock : Icons.lock_open,
+            isHttps ? Icons.lock : Icons.lock_open,
             color: Colors.white,
           ),
         ),
@@ -348,6 +347,16 @@ class _ServerListPageState extends State<ServerListPage> {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : const Icon(Icons.arrow_forward, size: 16, color: Colors.grey),
+        onTap: () {
+          // Show placeholder connection success message with better contrast
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Connection successful'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        },
       ),
     );
   }

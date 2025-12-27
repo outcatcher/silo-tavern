@@ -68,7 +68,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.check, color: Colors.green),
+            icon: Icon(Icons.check, color: Theme.of(context).colorScheme.primary),
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
@@ -159,22 +159,10 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     const SizedBox(height: 16),
-                    const Text.rich(
-                      TextSpan(
-                        text: 'Server Name',
-                        style: TextStyle(fontSize: 12, color: Colors.black87),
-                        children: [
-                          TextSpan(
-                            text: ' *',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
                     TextFormField(
                       initialValue: _name,
                       decoration: const InputDecoration(
+                        labelText: 'Server Name *',
                         hintText: 'Example',
                         hintStyle: TextStyle(color: Colors.grey),
                       ),
@@ -189,22 +177,10 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    const Text.rich(
-                      TextSpan(
-                        text: 'Server URL',
-                        style: TextStyle(fontSize: 12, color: Colors.black87),
-                        children: [
-                          TextSpan(
-                            text: ' *',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
                     TextFormField(
                       initialValue: _url,
                       decoration: const InputDecoration(
+                        labelText: 'Server URL *',
                         hintText: 'https://example.com:8000',
                         hintStyle: TextStyle(color: Colors.grey),
                       ),
@@ -230,92 +206,97 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    RadioGroup<AuthenticationType>(
-                      groupValue: _authType,
-                      onChanged: (AuthenticationType? value) {
-                        setState(() {
-                          _authType = value!;
-                        });
-                      },
-                      child: Column(
-                        children: [
-                          RadioListTile<AuthenticationType>(
-                            title: const Text('None'),
-                            value: AuthenticationType.none,
-                          ),
-                          RadioListTile<AuthenticationType>(
-                            title: const Text('Credentials'),
-                            value: AuthenticationType.credentials,
-                          ),
-                        ],
-                      ),
+                    const Text(
+                      'Localhost servers can use any configuration. Remote servers must use HTTPS with authentication.',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
-                    if (_authType == AuthenticationType.credentials) ...[
-                      const SizedBox(height: 16),
-                      const Text.rich(
-                        TextSpan(
-                          text: 'User Handle',
-                          style: TextStyle(fontSize: 12, color: Colors.black87),
-                          children: [
-                            TextSpan(
-                              text: ' *',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ],
+                    const SizedBox(height: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        RadioGroup<AuthenticationType>(
+                          groupValue: _authType,
+                          onChanged: (AuthenticationType? value) {
+                            setState(() {
+                              _authType = value!;
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              RadioListTile<AuthenticationType>(
+                                title: const Text('None'),
+                                value: AuthenticationType.none,
+                              ),
+                              RadioListTile<AuthenticationType>(
+                                title: const Text('Credentials'),
+                                value: AuthenticationType.credentials,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        initialValue: _username,
-                        decoration: const InputDecoration(
-                          hintText: 'username',
-                          hintStyle: TextStyle(color: Colors.grey),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          height: _authType == AuthenticationType.credentials
+                              ? null
+                              : 0,
+                          child: _authType == AuthenticationType.credentials
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 16),
+                                    TextFormField(
+                                      initialValue: _username,
+                                      decoration: const InputDecoration(
+                                        labelText: 'User Handle *',
+                                        hintText: 'username',
+                                        hintStyle: TextStyle(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (_authType ==
+                                                AuthenticationType
+                                                    .credentials &&
+                                            (value == null || value.isEmpty)) {
+                                          return 'Please enter a username';
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (value) {
+                                        _username = value!;
+                                      },
+                                    ),
+                                    const SizedBox(height: 16),
+                                    TextFormField(
+                                      initialValue: _password,
+                                      obscureText: true,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Password *',
+                                        hintText: '••••••••',
+                                        hintStyle: TextStyle(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (_authType ==
+                                                AuthenticationType
+                                                    .credentials &&
+                                            (value == null || value.isEmpty)) {
+                                          return 'Please enter a password';
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (value) {
+                                        _password = value!;
+                                      },
+                                    ),
+                                  ],
+                                )
+                              : const SizedBox.shrink(),
                         ),
-                        validator: (value) {
-                          if (_authType == AuthenticationType.credentials &&
-                              (value == null || value.isEmpty)) {
-                            return 'Please enter a username';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
-                          _username = value!;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      const Text.rich(
-                        TextSpan(
-                          text: 'Password',
-                          style: TextStyle(fontSize: 12, color: Colors.black87),
-                          children: [
-                            TextSpan(
-                              text: ' *',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        initialValue: _password,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          hintText: '••••••••',
-                          hintStyle: TextStyle(color: Colors.grey),
-                        ),
-                        validator: (value) {
-                          if (_authType == AuthenticationType.credentials &&
-                              (value == null || value.isEmpty)) {
-                            return 'Please enter a password';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
-                          _password = value!;
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ],
                 ),
               ),
