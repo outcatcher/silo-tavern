@@ -257,14 +257,18 @@ class _ServerListPageState extends State<ServerListPage> {
                           },
                           // Edit swipe background (left-to-right drag)
                           background: Container(
-                            color: Colors.blue.withValues(alpha: 0.9),
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)
+                                : Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
                             alignment: Alignment.centerLeft,
                             padding: const EdgeInsets.only(left: 20),
                             child: const Icon(Icons.edit, color: Colors.white),
                           ),
                           // Delete swipe background (right-to-left drag)
                           secondaryBackground: Container(
-                            color: Colors.red.withValues(alpha: 0.9),
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Theme.of(context).colorScheme.error.withValues(alpha: 0.8)
+                                : Theme.of(context).colorScheme.error.withValues(alpha: 0.9),
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.only(right: 20),
                             child: const Icon(Icons.delete, color: Colors.white),

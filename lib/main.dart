@@ -52,7 +52,7 @@ class _SiloTavernAppState extends State<SiloTavernApp> {
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.red,
+          seedColor: Colors.grey,
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
@@ -69,13 +69,16 @@ class _SiloTavernAppState extends State<SiloTavernApp> {
               child: FloatingActionButton(
                 onPressed: _toggleTheme,
                 backgroundColor: _isDarkMode 
-                    ? Colors.blue.withValues(alpha: 0.2)
-                    : Colors.red.withValues(alpha: 0.2),
+                    ? Colors.grey.withValues(alpha: 0.2)
+                    : Colors.grey.withValues(alpha: 0.2),
                 elevation: 0,
                 hoverElevation: 0,
                 focusElevation: 0,
                 child: Icon(
                   _isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                  color: _isDarkMode 
+                      ? Colors.white 
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),

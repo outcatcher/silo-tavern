@@ -35,6 +35,10 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
   late String _username = '';
   late String _password = '';
 
+  // Validation error states
+  String? _nameError;
+  String? _urlError;
+
   @override
   void initState() {
     super.initState();
@@ -69,9 +73,34 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.check, color: Theme.of(context).colorScheme.primary),
+            icon: Icon(
+              Icons.check,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             onPressed: () async {
-              if (_formKey.currentState!.validate()) {
+              // Trigger real-time validation for all fields
+              setState(() {
+                // Validate name
+                if (_name.isEmpty) {
+                  _nameError = 'Please enter a server name';
+                } else {
+                  _nameError = null;
+                }
+
+                // Validate URL
+                if (_url.isEmpty) {
+                  _urlError = 'Please enter a server URL';
+                } else if (!RegExp(r'^https?:\/\/').hasMatch(_url)) {
+                  _urlError = 'Please enter a valid URL (http:// or https://)';
+                } else {
+                  _urlError = null;
+                }
+              });
+
+              // If real-time validation passed, proceed with form validation
+              if (_nameError == null &&
+                  _urlError == null &&
+                  _formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
                 // Create temporary server to validate configuration
                 final tempServer = Server(
@@ -163,9 +192,21 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                     const SizedBox(height: 16),
                     TextFormField(
                       initialValue: _name,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Server Name *',
+                        errorText: _nameError,
                       ),
+                      onChanged: (value) {
+                        setState(() {
+                          _name = value;
+                          // Real-time validation
+                          if (value.isEmpty) {
+                            _nameError = 'Please enter a server name';
+                          } else {
+                            _nameError = null;
+                          }
+                        });
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a server name';
@@ -179,9 +220,24 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                     const SizedBox(height: 16),
                     TextFormField(
                       initialValue: _url,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Server URL *',
+                        errorText: _urlError,
                       ),
+                      onChanged: (value) {
+                        setState(() {
+                          _url = value;
+                          // Real-time validation
+                          if (value.isEmpty) {
+                            _urlError = 'Please enter a server URL';
+                          } else if (!RegExp(r'^https?:\/\/').hasMatch(value)) {
+                            _urlError =
+                                'Please enter a valid URL (http:// or https://)';
+                          } else {
+                            _urlError = null;
+                          }
+                        });
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a server URL';
@@ -249,6 +305,11 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                                       decoration: const InputDecoration(
                                         labelText: 'User Handle *',
                                       ),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _username = value;
+                                        });
+                                      },
                                       validator: (value) {
                                         if (_authType ==
                                                 AuthenticationType
@@ -269,6 +330,11 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                                       decoration: const InputDecoration(
                                         labelText: 'Password *',
                                       ),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _password = value;
+                                        });
+                                      },
                                       validator: (value) {
                                         if (_authType ==
                                                 AuthenticationType
