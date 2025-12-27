@@ -211,63 +211,66 @@ class _ServerListPageState extends State<ServerListPage> {
                   itemCount: _servers.length,
                   itemBuilder: (context, index) {
                     final server = _servers[index];
-                    return GestureDetector(
-                      onLongPressStart: (details) {
-                        _showContextMenu(
-                          context,
-                          server,
-                          details.globalPosition,
-                        );
-                      },
-                      onSecondaryTapDown: (details) {
-                        _showContextMenu(
-                          context,
-                          server,
-                          details.globalPosition,
-                        );
-                      },
-                      child: Dismissible(
-                        key: Key(server.id),
-                        dismissThresholds: const {
-                          DismissDirection.endToStart: 0.2,
-                          DismissDirection.startToEnd: 0.2,
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: GestureDetector(
+                        onLongPressStart: (details) {
+                          _showContextMenu(
+                            context,
+                            server,
+                            details.globalPosition,
+                          );
                         },
-                        onDismissed: (direction) {
-                          _deleteServer(server);
+                        onSecondaryTapDown: (details) {
+                          _showContextMenu(
+                            context,
+                            server,
+                            details.globalPosition,
+                          );
                         },
-                        confirmDismiss: (direction) async {
-                          if (direction == DismissDirection.startToEnd) {
-                            // Handle edit on left-to-right swipe
-                            _editServer(server);
-                            // Return false to prevent dismissal
+                        child: Dismissible(
+                          key: Key(server.id),
+                          dismissThresholds: const {
+                            DismissDirection.endToStart: 0.2,
+                            DismissDirection.startToEnd: 0.2,
+                          },
+                          onDismissed: (direction) {
+                            _deleteServer(server);
+                          },
+                          confirmDismiss: (direction) async {
+                            if (direction == DismissDirection.startToEnd) {
+                              // Handle edit on left-to-right swipe
+                              _editServer(server);
+                              // Return false to prevent dismissal
+                              return false;
+                            } else if (direction == DismissDirection.endToStart) {
+                              // Show delete confirmation dialog for right-to-left swipe
+                              final confirmDelete =
+                                  await _showDeleteConfirmationDialog(
+                                    context,
+                                    server,
+                                  );
+                              return confirmDelete;
+                            }
+                            // Default behavior
                             return false;
-                          } else if (direction == DismissDirection.endToStart) {
-                            // Show delete confirmation dialog for right-to-left swipe
-                            final confirmDelete =
-                                await _showDeleteConfirmationDialog(
-                                  context,
-                                  server,
-                                );
-                            return confirmDelete;
-                          }
-                          // Default behavior
-                          return false;
-                        },
-                        // Edit swipe background (left-to-right drag)
-                        background: Container(
-                          color: Colors.blue.withValues(alpha: 0.9),
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.only(left: 20),
-                          child: const Icon(Icons.edit, color: Colors.white),
+                          },
+                          // Edit swipe background (left-to-right drag)
+                          background: Container(
+                            color: Colors.blue.withValues(alpha: 0.9),
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.only(left: 20),
+                            child: const Icon(Icons.edit, color: Colors.white),
+                          ),
+                          // Delete swipe background (right-to-left drag)
+                          secondaryBackground: Container(
+                            color: Colors.red.withValues(alpha: 0.9),
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 20),
+                            child: const Icon(Icons.delete, color: Colors.white),
+                          ),
+                          child: _buildServerCard(context, server),
                         ),
-                        // Delete swipe background (right-to-left drag)
-                        secondaryBackground: Container(
-                          color: Colors.red.withValues(alpha: 0.9),
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          child: const Icon(Icons.delete, color: Colors.white),
-                        ),
-                        child: _buildServerCard(context, server),
                       ),
                     );
                   },
@@ -279,7 +282,7 @@ class _ServerListPageState extends State<ServerListPage> {
 
   Widget _buildEmptyState(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(32.0),
+      padding: const EdgeInsets.all(48.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -288,23 +291,23 @@ class _ServerListPageState extends State<ServerListPage> {
             size: 64,
             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           const Text(
             'No servers configured',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           const Text(
             'Add your first server to get started',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           ElevatedButton.icon(
             onPressed: _addServer,
             icon: const Icon(Icons.add),
             label: const Text('Add Server'),
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               textStyle: const TextStyle(fontSize: 16),
             ),
           ),
@@ -318,7 +321,7 @@ class _ServerListPageState extends State<ServerListPage> {
     final isHttps = server.address.startsWith('https');
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: EdgeInsets.zero,
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: isHttps ? Colors.grey[700] : Colors.grey[500],
@@ -330,7 +333,7 @@ class _ServerListPageState extends State<ServerListPage> {
         title: Text(
           server.name,
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -348,6 +351,7 @@ class _ServerListPageState extends State<ServerListPage> {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : const Icon(Icons.arrow_forward, size: 16, color: Colors.grey),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         onTap: () {
           // Show placeholder connection success message with better contrast
           ScaffoldMessenger.of(context).showSnackBar(

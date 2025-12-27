@@ -71,6 +71,9 @@ class _SiloTavernAppState extends State<SiloTavernApp> {
                 backgroundColor: _isDarkMode 
                     ? Colors.blue.withValues(alpha: 0.2)
                     : Colors.red.withValues(alpha: 0.2),
+                elevation: 0,
+                hoverElevation: 0,
+                focusElevation: 0,
                 child: Icon(
                   _isDarkMode ? Icons.light_mode : Icons.dark_mode,
                 ),

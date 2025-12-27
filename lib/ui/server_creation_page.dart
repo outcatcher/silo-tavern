@@ -149,7 +149,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(24.0),
             child: Form(
               key: _formKey,
               child: SingleChildScrollView(
@@ -165,8 +165,6 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                       initialValue: _name,
                       decoration: const InputDecoration(
                         labelText: 'Server Name *',
-                        hintText: 'Example',
-                        hintStyle: TextStyle(color: Colors.grey),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -183,8 +181,6 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                       initialValue: _url,
                       decoration: const InputDecoration(
                         labelText: 'Server URL *',
-                        hintText: 'https://example.com:8000',
-                        hintStyle: TextStyle(color: Colors.grey),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -200,19 +196,20 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                         _url = value!;
                       },
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
                     const Text(
                       'Authentication',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
+                    const SizedBox(height: 8),
                     const Text(
                       'Localhost servers can use any configuration. Remote servers must use HTTPS with authentication.',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 20),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -246,7 +243,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                               ? Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const SizedBox(height: 16),
+                                    const SizedBox(height: 20),
                                     TextFormField(
                                       initialValue: _username,
                                       decoration: const InputDecoration(
@@ -265,7 +262,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                                         _username = value!;
                                       },
                                     ),
-                                    const SizedBox(height: 16),
+                                    const SizedBox(height: 20),
                                     TextFormField(
                                       initialValue: _password,
                                       obscureText: true,
