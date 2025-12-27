@@ -54,8 +54,8 @@ class _ServerListPageState extends State<ServerListPage> {
             // Show success message
             utils.showSuccessDialog(
               context,
-              'Server "${server.name}" has been successfully deleted.',
-              title: 'Server Deleted',
+              'Server deleted successfully!',
+              title: 'Deleted',
             );
           }
         })
@@ -80,8 +80,8 @@ class _ServerListPageState extends State<ServerListPage> {
 
             utils.showErrorDialog(
               context,
-              'Failed to delete server "${server.name}". Please try again.',
-              title: 'Deletion Failed',
+              'Failed to delete server. Please try again.',
+              title: 'Delete Failed',
             );
           }
         });

@@ -123,8 +123,8 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                   if (mounted) {
                     utils.showErrorDialog(
                       context,
-                      'Remote servers must use HTTPS and authentication. Local servers can use any configuration.',
-                      title: 'Configuration Not Allowed',
+                      'Please use HTTPS with authentication for remote servers.',
+                      title: 'Invalid Configuration',
                     );
                   }
                   return;
@@ -145,8 +145,8 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                     if (context.mounted) {
                       utils.showSuccessDialog(
                         context,
-                        'Server "${tempServer.name}" has been successfully added.',
-                        title: 'Server Added',
+                        'Server added successfully!',
+                        title: 'Success',
                       );
                       context.go('/servers');
                     }
@@ -155,14 +155,10 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                   log('failed to save server', error: error);
 
                   if (context.mounted) {
-                    final action = widget.initialServer != null
-                        ? 'update'
-                        : 'add';
                     utils.showErrorDialog(
                       context,
-                      'Failed to $action server "${tempServer.name}". Please try again.',
-                      title:
-                          'Server ${widget.initialServer != null ? 'Update' : 'Add'} Failed',
+                      'Failed to save server. Please try again.',
+                      title: 'Save Failed',
                     );
                   }
                 }

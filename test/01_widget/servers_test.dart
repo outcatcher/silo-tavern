@@ -801,10 +801,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify error dialog is shown
-    expect(find.text('Configuration Not Allowed'), findsOneWidget);
+    expect(find.text('Invalid Configuration'), findsOneWidget);
     expect(
       find.text(
-        'Remote servers must use HTTPS and authentication. Local servers can use any configuration.',
+        'Please use HTTPS with authentication for remote servers.',
       ),
       findsOneWidget,
     );
@@ -848,10 +848,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify error dialog is shown
-    expect(find.text('Configuration Not Allowed'), findsOneWidget);
+    expect(find.text('Invalid Configuration'), findsOneWidget);
     expect(
       find.text(
-        'Remote servers must use HTTPS and authentication. Local servers can use any configuration.',
+        'Please use HTTPS with authentication for remote servers.',
       ),
       findsOneWidget,
     );
@@ -1052,7 +1052,7 @@ void main() {
     // Verify error dialog is shown
     expect(
       find.text(
-        'Failed to delete server "Production Server". Please try again.',
+        'Failed to delete server. Please try again.',
       ),
       findsOneWidget,
     );
@@ -1203,9 +1203,9 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify error dialog is shown
-    expect(find.text('Server Add Failed'), findsOneWidget);
+    expect(find.text('Save Failed'), findsOneWidget);
     expect(
-      find.text('Failed to add server "Test Server". Please try again.'),
+      find.text('Failed to save server. Please try again.'),
       findsOneWidget,
     );
 
@@ -1307,10 +1307,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify error dialog is shown
-    expect(find.text('Server Update Failed'), findsOneWidget);
+    expect(find.text('Save Failed'), findsOneWidget);
     expect(
       find.text(
-        'Failed to update server "Updated Server Name". Please try again.',
+        'Failed to save server. Please try again.',
       ),
       findsOneWidget,
     );
