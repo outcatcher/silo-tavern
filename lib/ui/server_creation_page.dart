@@ -64,7 +64,8 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
           onPressed: () {
             context.go('/servers');
           },
-          splashRadius: 24.0, // Increase touch target size
+          splashRadius: 24.0,
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
         ),
         actions: [
           IconButton(
@@ -138,7 +139,8 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 }
               }
             },
-            splashRadius: 24.0, // Increase touch target size
+            splashRadius: 24.0,
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
           ),
         ],
       ),
@@ -249,10 +251,6 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                                       initialValue: _username,
                                       decoration: const InputDecoration(
                                         labelText: 'User Handle *',
-                                        hintText: 'username',
-                                        hintStyle: TextStyle(
-                                          color: Colors.grey,
-                                        ),
                                       ),
                                       validator: (value) {
                                         if (_authType ==
@@ -273,10 +271,6 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                                       obscureText: true,
                                       decoration: const InputDecoration(
                                         labelText: 'Password *',
-                                        hintText: '••••••••',
-                                        hintStyle: TextStyle(
-                                          color: Colors.grey,
-                                        ),
                                       ),
                                       validator: (value) {
                                         if (_authType ==

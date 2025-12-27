@@ -198,6 +198,7 @@ class _ServerListPageState extends State<ServerListPage> {
             onPressed: _addServer,
             tooltip: 'Add Server',
             splashRadius: 24.0,
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
           ),
         ],
       ),
