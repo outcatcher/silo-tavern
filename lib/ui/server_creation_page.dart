@@ -35,6 +35,10 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
   late String _username = '';
   late String _password = '';
 
+  // Validation error states
+  String? _nameError;
+  String? _urlError;
+
   @override
   void initState() {
     super.initState();
@@ -64,13 +68,39 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
           onPressed: () {
             context.go('/servers');
           },
-          splashRadius: 24.0, // Increase touch target size
+          splashRadius: 24.0,
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.check, color: Colors.green),
+            icon: Icon(
+              Icons.check,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             onPressed: () async {
-              if (_formKey.currentState!.validate()) {
+              // Trigger real-time validation for all fields
+              setState(() {
+                // Validate name
+                if (_name.isEmpty) {
+                  _nameError = 'Please enter a server name';
+                } else {
+                  _nameError = null;
+                }
+
+                // Validate URL
+                if (_url.isEmpty) {
+                  _urlError = 'Please enter a server URL';
+                } else if (!RegExp(r'^https?:\/\/').hasMatch(_url)) {
+                  _urlError = 'Please enter a valid URL (http:// or https://)';
+                } else {
+                  _urlError = null;
+                }
+              });
+
+              // If real-time validation passed, proceed with form validation
+              if (_nameError == null &&
+                  _urlError == null &&
+                  _formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
                 // Create temporary server to validate configuration
                 final tempServer = Server(
@@ -93,8 +123,8 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                   if (mounted) {
                     utils.showErrorDialog(
                       context,
-                      'Remote servers must use HTTPS and authentication. Local servers can use any configuration.',
-                      title: 'Configuration Not Allowed',
+                      'Please use HTTPS with authentication for remote servers.',
+                      title: 'Invalid Configuration',
                     );
                   }
                   return;
@@ -105,14 +135,21 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                   if (widget.initialServer != null) {
                     // Update existing server
                     await widget.serverService.updateServer(tempServer);
+                    // Navigate back to the server list after successful update
+                    if (context.mounted) {
+                      context.go('/servers');
+                    }
                   } else {
                     // Add new server
                     await widget.serverService.addServer(tempServer);
-                  }
-
-                  // Navigate back to the server list after successful save
-                  if (context.mounted) {
-                    context.go('/servers');
+                    if (context.mounted) {
+                      utils.showSuccessDialog(
+                        context,
+                        'Server added successfully!',
+                        title: 'Success',
+                      );
+                      context.go('/servers');
+                    }
                   }
                 } catch (error) {
                   log('failed to save server', error: error);
@@ -121,183 +158,198 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                     utils.showErrorDialog(
                       context,
                       'Failed to save server. Please try again.',
+                      title: 'Save Failed',
                     );
                   }
                 }
               }
             },
-            splashRadius: 24.0, // Increase touch target size
+            splashRadius: 24.0,
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '* Required fields',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                const Text.rich(
-                  TextSpan(
-                    text: 'Server Name',
-                    style: TextStyle(fontSize: 12, color: Colors.black87),
-                    children: [
-                      TextSpan(
-                        text: ' *',
-                        style: TextStyle(color: Colors.red),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '* Required fields',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      initialValue: _name,
+                      decoration: InputDecoration(
+                        labelText: 'Server Name *',
+                        errorText: _nameError,
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  initialValue: _name,
-                  decoration: const InputDecoration(
-                    hintText: 'Example',
-                    hintStyle: TextStyle(color: Colors.grey),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a server name';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _name = value!;
-                  },
-                ),
-                const SizedBox(height: 16),
-                const Text.rich(
-                  TextSpan(
-                    text: 'Server URL',
-                    style: TextStyle(fontSize: 12, color: Colors.black87),
-                    children: [
-                      TextSpan(
-                        text: ' *',
-                        style: TextStyle(color: Colors.red),
+                      onChanged: (value) {
+                        setState(() {
+                          _name = value;
+                          // Real-time validation
+                          if (value.isEmpty) {
+                            _nameError = 'Please enter a server name';
+                          } else {
+                            _nameError = null;
+                          }
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a server name';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        _name = value!;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      initialValue: _url,
+                      decoration: InputDecoration(
+                        labelText: 'Server URL *',
+                        errorText: _urlError,
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  initialValue: _url,
-                  decoration: const InputDecoration(
-                    hintText: 'https://example.com:8000',
-                    hintStyle: TextStyle(color: Colors.grey),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a server URL';
-                    }
-                    // Basic URL validation
-                    if (!RegExp(r'^https?:\/\/').hasMatch(value)) {
-                      return 'Please enter a valid URL (http:// or https://)';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _url = value!;
-                  },
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Authentication',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                RadioGroup<AuthenticationType>(
-                  groupValue: _authType,
-                  onChanged: (AuthenticationType? value) {
-                    setState(() {
-                      _authType = value!;
-                    });
-                  },
-                  child: Column(
-                    children: [
-                      RadioListTile<AuthenticationType>(
-                        title: const Text('None'),
-                        value: AuthenticationType.none,
-                      ),
-                      RadioListTile<AuthenticationType>(
-                        title: const Text('Credentials'),
-                        value: AuthenticationType.credentials,
-                      ),
-                    ],
-                  ),
-                ),
-                if (_authType == AuthenticationType.credentials) ...[
-                  const SizedBox(height: 16),
-                  const Text.rich(
-                    TextSpan(
-                      text: 'User Handle',
-                      style: TextStyle(fontSize: 12, color: Colors.black87),
+                      onChanged: (value) {
+                        setState(() {
+                          _url = value;
+                          // Real-time validation
+                          if (value.isEmpty) {
+                            _urlError = 'Please enter a server URL';
+                          } else if (!RegExp(r'^https?:\/\/').hasMatch(value)) {
+                            _urlError =
+                                'Please enter a valid URL (http:// or https://)';
+                          } else {
+                            _urlError = null;
+                          }
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a server URL';
+                        }
+                        // Basic URL validation
+                        if (!RegExp(r'^https?:\/\/').hasMatch(value)) {
+                          return 'Please enter a valid URL (http:// or https://)';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        _url = value!;
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                    Text(
+                      'Authentication',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Localhost servers can use any configuration. Remote servers must use HTTPS with authentication.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: ' *',
-                          style: TextStyle(color: Colors.red),
+                        RadioGroup<AuthenticationType>(
+                          groupValue: _authType,
+                          onChanged: (AuthenticationType? value) {
+                            setState(() {
+                              _authType = value!;
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              RadioListTile<AuthenticationType>(
+                                title: const Text('None'),
+                                value: AuthenticationType.none,
+                              ),
+                              RadioListTile<AuthenticationType>(
+                                title: const Text('Credentials'),
+                                value: AuthenticationType.credentials,
+                              ),
+                            ],
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          height: _authType == AuthenticationType.credentials
+                              ? null
+                              : 0,
+                          child: _authType == AuthenticationType.credentials
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 20),
+                                    TextFormField(
+                                      initialValue: _username,
+                                      decoration: const InputDecoration(
+                                        labelText: 'User Handle *',
+                                      ),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _username = value;
+                                        });
+                                      },
+                                      validator: (value) {
+                                        if (_authType ==
+                                                AuthenticationType
+                                                    .credentials &&
+                                            (value == null || value.isEmpty)) {
+                                          return 'Please enter a username';
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (value) {
+                                        _username = value!;
+                                      },
+                                    ),
+                                    const SizedBox(height: 20),
+                                    TextFormField(
+                                      initialValue: _password,
+                                      obscureText: true,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Password *',
+                                      ),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _password = value;
+                                        });
+                                      },
+                                      validator: (value) {
+                                        if (_authType ==
+                                                AuthenticationType
+                                                    .credentials &&
+                                            (value == null || value.isEmpty)) {
+                                          return 'Please enter a password';
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (value) {
+                                        _password = value!;
+                                      },
+                                    ),
+                                  ],
+                                )
+                              : const SizedBox.shrink(),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    initialValue: _username,
-                    decoration: const InputDecoration(
-                      hintText: 'username',
-                      hintStyle: TextStyle(color: Colors.grey),
-                    ),
-                    validator: (value) {
-                      if (_authType == AuthenticationType.credentials &&
-                          (value == null || value.isEmpty)) {
-                        return 'Please enter a username';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      _username = value!;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  const Text.rich(
-                    TextSpan(
-                      text: 'Password',
-                      style: TextStyle(fontSize: 12, color: Colors.black87),
-                      children: [
-                        TextSpan(
-                          text: ' *',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    initialValue: _password,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      hintText: '••••••••',
-                      hintStyle: TextStyle(color: Colors.grey),
-                    ),
-                    validator: (value) {
-                      if (_authType == AuthenticationType.credentials &&
-                          (value == null || value.isEmpty)) {
-                        return 'Please enter a password';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      _password = value!;
-                    },
-                  ),
-                ],
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
         ),
