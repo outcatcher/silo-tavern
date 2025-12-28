@@ -14,12 +14,7 @@ void showErrorDialog(
             children: [
               const Icon(Icons.error_outline, color: Colors.red),
               const SizedBox(width: 12),
-              Flexible(
-                child: Text(
-                  title,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              Flexible(child: Text(title, overflow: TextOverflow.ellipsis)),
             ],
           ),
           content: Text(message),
@@ -49,12 +44,7 @@ void showSuccessDialog(
             children: [
               const Icon(Icons.check_circle, color: Colors.green),
               const SizedBox(width: 12),
-              Flexible(
-                child: Text(
-                  title,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              Flexible(child: Text(title, overflow: TextOverflow.ellipsis)),
             ],
           ),
           content: Text(message),

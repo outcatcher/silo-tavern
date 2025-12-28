@@ -49,9 +49,7 @@ class _SiloTavernAppState extends State<SiloTavernApp> {
   @override
   void initState() {
     super.initState();
-    _appRouter = AppRouter(
-      serverService: widget.serverService,
-    );
+    _appRouter = AppRouter(serverService: widget.serverService);
   }
 
   @override

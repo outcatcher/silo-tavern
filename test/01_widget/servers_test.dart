@@ -803,9 +803,7 @@ void main() {
     // Verify error dialog is shown
     expect(find.text('Invalid Configuration'), findsOneWidget);
     expect(
-      find.text(
-        'Please use HTTPS with authentication for remote servers.',
-      ),
+      find.text('Please use HTTPS with authentication for remote servers.'),
       findsOneWidget,
     );
 
@@ -850,9 +848,7 @@ void main() {
     // Verify error dialog is shown
     expect(find.text('Invalid Configuration'), findsOneWidget);
     expect(
-      find.text(
-        'Please use HTTPS with authentication for remote servers.',
-      ),
+      find.text('Please use HTTPS with authentication for remote servers.'),
       findsOneWidget,
     );
 
@@ -1051,9 +1047,7 @@ void main() {
 
     // Verify error dialog is shown
     expect(
-      find.text(
-        'Failed to delete server. Please try again.',
-      ),
+      find.text('Failed to delete server. Please try again.'),
       findsOneWidget,
     );
 
@@ -1309,9 +1303,7 @@ void main() {
     // Verify error dialog is shown
     expect(find.text('Save Failed'), findsOneWidget);
     expect(
-      find.text(
-        'Failed to save server. Please try again.',
-      ),
+      find.text('Failed to save server. Please try again.'),
       findsOneWidget,
     );
 

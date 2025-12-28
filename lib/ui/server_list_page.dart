@@ -212,7 +212,10 @@ class _ServerListPageState extends State<ServerListPage> {
                   itemBuilder: (context, index) {
                     final server = _servers[index];
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       child: GestureDetector(
                         onLongPressStart: (details) {
                           _showContextMenu(
@@ -243,7 +246,8 @@ class _ServerListPageState extends State<ServerListPage> {
                               _editServer(server);
                               // Return false to prevent dismissal
                               return false;
-                            } else if (direction == DismissDirection.endToStart) {
+                            } else if (direction ==
+                                DismissDirection.endToStart) {
                               // Show delete confirmation dialog for right-to-left swipe
                               final confirmDelete =
                                   await _showDeleteConfirmationDialog(
@@ -257,21 +261,34 @@ class _ServerListPageState extends State<ServerListPage> {
                           },
                           // Edit swipe background (left-to-right drag)
                           background: Container(
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)
-                                : Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.8)
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.9),
                             alignment: Alignment.centerLeft,
                             padding: const EdgeInsets.only(left: 20),
                             child: const Icon(Icons.edit, color: Colors.white),
                           ),
                           // Delete swipe background (right-to-left drag)
                           secondaryBackground: Container(
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? Theme.of(context).colorScheme.error.withValues(alpha: 0.8)
-                                : Theme.of(context).colorScheme.error.withValues(alpha: 0.9),
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.error.withValues(alpha: 0.8)
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.error.withValues(alpha: 0.9),
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.only(right: 20),
-                            child: const Icon(Icons.delete, color: Colors.white),
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
                           ),
                           child: _buildServerCard(context, server),
                         ),
@@ -348,7 +365,10 @@ class _ServerListPageState extends State<ServerListPage> {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : const Icon(Icons.arrow_forward, size: 16, color: Colors.grey),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
         onTap: () {
           // Show placeholder connection success message with better contrast
           ScaffoldMessenger.of(context).showSnackBar(

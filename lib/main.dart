@@ -68,7 +68,7 @@ class _SiloTavernAppState extends State<SiloTavernApp> {
               bottom: 16,
               child: FloatingActionButton(
                 onPressed: _toggleTheme,
-                backgroundColor: _isDarkMode 
+                backgroundColor: _isDarkMode
                     ? Colors.grey.withValues(alpha: 0.2)
                     : Colors.grey.withValues(alpha: 0.2),
                 elevation: 0,
@@ -76,8 +76,8 @@ class _SiloTavernAppState extends State<SiloTavernApp> {
                 focusElevation: 0,
                 child: Icon(
                   _isDarkMode ? Icons.light_mode : Icons.dark_mode,
-                  color: _isDarkMode 
-                      ? Colors.white 
+                  color: _isDarkMode
+                      ? Colors.white
                       : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
