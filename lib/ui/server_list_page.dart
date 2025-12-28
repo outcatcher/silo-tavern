@@ -98,7 +98,7 @@ class _ServerListPageState extends State<ServerListPage> {
               title: const Text('Confirm Deletion'),
               content: RichText(
                 text: TextSpan(
-                  style: const TextStyle(color: Colors.black, fontSize: 16),
+                  style: Theme.of(context).textTheme.bodyLarge,
                   children: [
                     const TextSpan(text: 'Delete '),
                     TextSpan(
