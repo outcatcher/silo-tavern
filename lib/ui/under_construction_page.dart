@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// Page displayed when a server connection is successful
+/// Page displayed when a feature is under construction
 ///
-/// Shows an "under construction" message with the server name as title
+/// Shows an "under construction" message with a customizable title and back navigation
 class UnderConstructionPage extends StatelessWidget {
-  final String serverName;
+  final String title;
+  final String backUrl;
 
-  const UnderConstructionPage({super.key, required this.serverName});
+  const UnderConstructionPage({
+    super.key, 
+    required this.title,
+    this.backUrl = '/servers',
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(serverName),
+        title: Text(title),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/servers'),
+          onPressed: () => context.go(backUrl),
         ),
       ),
       body: Center(

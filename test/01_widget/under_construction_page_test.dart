@@ -17,7 +17,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: UnderConstructionPage(serverName: serverName),
+            body: UnderConstructionPage(title: serverName),
           ),
         ),
       );
@@ -34,7 +34,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: UnderConstructionPage(serverName: serverName),
+            body: UnderConstructionPage(title: serverName),
           ),
         ),
       );
@@ -52,7 +52,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: UnderConstructionPage(serverName: serverName),
+            body: UnderConstructionPage(title: serverName),
           ),
         ),
       );
@@ -69,7 +69,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: UnderConstructionPage(serverName: serverName),
+            body: UnderConstructionPage(title: serverName),
           ),
         ),
       );
@@ -98,7 +98,7 @@ void main() {
           ),
           GoRoute(
             path: '/servers/connect/:id',
-            builder: (context, state) => UnderConstructionPage(serverName: serverName),
+            builder: (context, state) => UnderConstructionPage(title: serverName),
           ),
         ],
       );

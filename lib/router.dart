@@ -60,7 +60,7 @@ class AppRouter {
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          return UnderConstructionPage(serverName: server.name);
+          return UnderConstructionPage(title: server.name);
         },
       ),
     ],
