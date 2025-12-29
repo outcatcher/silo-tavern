@@ -26,7 +26,7 @@ void main() {
     setUp(() {
       connectionService = MockConnectionServiceInterface();
       secureStorage = MockFlutterSecureStorage();
-      
+
       domain = ConnectionDomain(
         ConnectionOptions(
           connectionService: connectionService,
@@ -46,13 +46,13 @@ void main() {
           password: 'pass',
         ),
       );
-      
-      when(connectionService.obtainCsrfToken(any)).thenAnswer(
-        (_) async => 'mock-csrf-token',
-      );
-      when(connectionService.authenticate(any, any, any)).thenAnswer(
-        (_) async {},
-      );
+
+      when(
+        connectionService.obtainCsrfToken(any),
+      ).thenAnswer((_) async => 'mock-csrf-token');
+      when(
+        connectionService.authenticate(any, any, any),
+      ).thenAnswer((_) async {});
 
       // Act
       final result = await domain.connectToServer(server);
@@ -60,15 +60,20 @@ void main() {
       // Assert
       expect(result.isSuccess, isTrue);
       expect(result.errorMessage, isNull);
-      
+
       // Verify interactions
       verify(connectionService.obtainCsrfToken(server.address)).called(1);
-      verify(connectionService.authenticate(
-        server.address,
-        'mock-csrf-token',
-        argThat(predicate<ConnectionCredentials>((creds) => 
-          creds.username == 'user' && creds.password == 'pass')),
-      )).called(1);
+      verify(
+        connectionService.authenticate(
+          server.address,
+          'mock-csrf-token',
+          argThat(
+            predicate<ConnectionCredentials>(
+              (creds) => creds.username == 'user' && creds.password == 'pass',
+            ),
+          ),
+        ),
+      ).called(1);
     });
 
     test('Connect to server without authentication', () async {
@@ -79,17 +84,17 @@ void main() {
         address: 'http://localhost:8080',
         authentication: const server_models.AuthenticationInfo.none(),
       );
-      
-      when(connectionService.obtainCsrfToken(any)).thenAnswer(
-        (_) async => 'mock-csrf-token',
-      );
+
+      when(
+        connectionService.obtainCsrfToken(any),
+      ).thenAnswer((_) async => 'mock-csrf-token');
 
       // Act
       final result = await domain.connectToServer(server);
 
       // Assert
       expect(result.isSuccess, isTrue);
-      
+
       // Verify authentication was not called
       verify(connectionService.obtainCsrfToken(server.address)).called(1);
       verifyNever(connectionService.authenticate(any, any, any));
@@ -106,13 +111,13 @@ void main() {
           password: 'pass',
         ),
       );
-      
-      when(connectionService.obtainCsrfToken(any)).thenAnswer(
-        (_) async => 'mock-csrf-token',
-      );
-      when(connectionService.authenticate(any, any, any)).thenThrow(
-        Exception('Authentication failed'),
-      );
+
+      when(
+        connectionService.obtainCsrfToken(any),
+      ).thenAnswer((_) async => 'mock-csrf-token');
+      when(
+        connectionService.authenticate(any, any, any),
+      ).thenThrow(Exception('Authentication failed'));
 
       // Act
       final result = await domain.connectToServer(server);

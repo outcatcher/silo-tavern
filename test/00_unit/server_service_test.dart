@@ -22,7 +22,7 @@ void main() {
     setUp(() async {
       storage = MockServerStorage();
       connectionDomain = MockConnectionDomain();
-      
+
       // Mock the storage methods to return some initial servers
       when(storage.listServers()).thenAnswer(
         (_) async => [
@@ -58,7 +58,9 @@ void main() {
       when(storage.updateServer(any)).thenAnswer((_) async {});
       when(storage.deleteServer(any)).thenAnswer((_) async {});
 
-      service = ServerDomain(ServerOptions(storage, connectionDomain: connectionDomain));
+      service = ServerDomain(
+        ServerOptions(storage, connectionDomain: connectionDomain),
+      );
 
       // Initialize the service
       await service.initialize();

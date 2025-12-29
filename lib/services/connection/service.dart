@@ -4,6 +4,8 @@
 /// - CSRF token requests
 /// - Authentication handling
 /// - Token storage
+library;
+
 import 'dart:async';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/connection/models.dart';
@@ -11,7 +13,7 @@ import './interface.dart';
 
 class ConnectionService implements ConnectionServiceInterface {
   final FlutterSecureStorage _secureStorage;
-  
+
   // In-memory cache for credentials to support re-authentication
   final Map<String, ConnectionCredentials> _credentialCache = {};
 
@@ -21,7 +23,7 @@ class ConnectionService implements ConnectionServiceInterface {
   Future<String> obtainCsrfToken(String serverUrl) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 100));
-    
+
     // Return a fixed token for mocking
     return 'mock-csrf-token-12345';
   }
@@ -34,10 +36,10 @@ class ConnectionService implements ConnectionServiceInterface {
   ) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 100));
-    
+
     // In a real implementation, this would make an HTTP request
     // For mocking, we just complete successfully
-    
+
     // Store session information securely
     await _secureStorage.write(
       key: 'session_${Uri.parse(serverUrl).host}',

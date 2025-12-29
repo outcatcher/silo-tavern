@@ -19,7 +19,11 @@ void main() async {
   );
 
   final serverDomain = ServerDomain(
-    ServerOptions.fromRawStorage(prefs, secureStorage, connectionDomain: connectionDomain),
+    ServerOptions.fromRawStorage(
+      prefs,
+      secureStorage,
+      connectionDomain: connectionDomain,
+    ),
   );
   await serverDomain.initialize();
 

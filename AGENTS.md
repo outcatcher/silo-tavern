@@ -121,6 +121,7 @@ task build:linux
 3. **Swipe Actions**: Custom `confirmDismiss` implementation handles different swipe directions for edit/delete actions
 4. **Authentication Security**: Passwords are stored using secure storage mechanisms (via `flutter_secure_storage` dependency)
 5. **Commit Policy**: Only commit changes when explicitly prompted by the user - never commit automatically
+6. **GIT OPERATIONS**: NEVER PERFORM GIT OPERATIONS (commit, push, reset, etc.) WITHOUT EXPLICIT USER PROMPTING
 
 ## Dependencies
 

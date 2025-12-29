@@ -16,10 +16,7 @@ import 'package:silo_tavern/ui/server_list_page.dart';
 
 import '../00_unit/server_connection_test.mocks.dart';
 
-@GenerateNiceMocks([
-  MockSpec<ServerStorage>(),
-  MockSpec<ConnectionDomain>(),
-])
+@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
 void main() {
   group('ServerListPage Connection Tests', () {
     late MockServerStorage storage;
@@ -30,7 +27,7 @@ void main() {
     setUp(() async {
       storage = MockServerStorage();
       connectionDomain = MockConnectionDomain();
-      
+
       // Mock the storage methods to return some initial servers
       when(storage.listServers()).thenAnswer(
         (_) async => [
@@ -86,7 +83,9 @@ void main() {
               final serverId = state.pathParameters['id']!;
               final server = domain.findServerById(serverId);
               if (server == null) {
-                return const Scaffold(body: Center(child: Text('Server not found')));
+                return const Scaffold(
+                  body: Center(child: Text('Server not found')),
+                );
               }
               return Scaffold(
                 appBar: AppBar(title: Text(server.name)),
@@ -99,45 +98,48 @@ void main() {
     });
 
     // Skip this test for now as it's difficult to test the transient snackbar
-    testWidgets('Shows connecting message when tapping server', (WidgetTester tester) async {
+    testWidgets('Shows connecting message when tapping server', (
+      WidgetTester tester,
+    ) async {
       // This test is intentionally left blank as testing transient snackbars is complex
       expect(true, isTrue);
     }, skip: true);
 
-    testWidgets('Navigates to under construction page on successful connection', (WidgetTester tester) async {
+    testWidgets(
+      'Navigates to under construction page on successful connection',
+      (WidgetTester tester) async {
+        // Arrange
+        when(
+          connectionDomain.connectToServer(any),
+        ).thenAnswer((_) async => connection_models.ConnectionResult.success());
+
+        await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+        await tester.pumpAndSettle();
+
+        // Act
+        final serverCard = find.text('Test Server 1').first;
+        await tester.tap(serverCard);
+        await tester.pumpAndSettle();
+
+        // Assert
+        expect(find.text('Under Construction'), findsOneWidget);
+        expect(
+          find.text('Test Server 1'),
+          findsOneWidget,
+        ); // Server name in app bar
+      },
+    );
+
+    testWidgets('Shows error message on connection failure', (
+      WidgetTester tester,
+    ) async {
       // Arrange
       when(connectionDomain.connectToServer(any)).thenAnswer(
-        (_) async => connection_models.ConnectionResult.success(),
+        (_) async =>
+            connection_models.ConnectionResult.failure('Connection failed'),
       );
 
-      await tester.pumpWidget(
-        MaterialApp.router(
-          routerConfig: router,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      // Act
-      final serverCard = find.text('Test Server 1').first;
-      await tester.tap(serverCard);
-      await tester.pumpAndSettle();
-
-      // Assert
-      expect(find.text('Under Construction'), findsOneWidget);
-      expect(find.text('Test Server 1'), findsOneWidget); // Server name in app bar
-    });
-
-    testWidgets('Shows error message on connection failure', (WidgetTester tester) async {
-      // Arrange
-      when(connectionDomain.connectToServer(any)).thenAnswer(
-        (_) async => connection_models.ConnectionResult.failure('Connection failed'),
-      );
-
-      await tester.pumpWidget(
-        MaterialApp.router(
-          routerConfig: router,
-        ),
-      );
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pumpAndSettle();
 
       // Act
@@ -147,20 +149,22 @@ void main() {
 
       // Assert
       expect(find.textContaining('Error connecting to server'), findsOneWidget);
-      expect(find.text('Test Server 1'), findsOneWidget); // Still on server list page
+      expect(
+        find.text('Test Server 1'),
+        findsOneWidget,
+      ); // Still on server list page
     });
 
-    testWidgets('Remains on server list page on connection failure', (WidgetTester tester) async {
+    testWidgets('Remains on server list page on connection failure', (
+      WidgetTester tester,
+    ) async {
       // Arrange
       when(connectionDomain.connectToServer(any)).thenAnswer(
-        (_) async => connection_models.ConnectionResult.failure('Connection failed'),
+        (_) async =>
+            connection_models.ConnectionResult.failure('Connection failed'),
       );
 
-      await tester.pumpWidget(
-        MaterialApp.router(
-          routerConfig: router,
-        ),
-      );
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pumpAndSettle();
 
       // Act
@@ -169,7 +173,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert
-      expect(find.text('SiloTavern - Servers'), findsOneWidget); // Still on server list
+      expect(
+        find.text('SiloTavern - Servers'),
+        findsOneWidget,
+      ); // Still on server list
     });
   });
 }

@@ -13,10 +13,7 @@ import 'package:silo_tavern/services/servers/storage.dart';
 
 import 'server_connection_test.mocks.dart';
 
-@GenerateNiceMocks([
-  MockSpec<ServerStorage>(),
-  MockSpec<ConnectionDomain>(),
-])
+@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
 void main() {
   group('ServerConnection Tests', () {
     late MockServerStorage storage;
@@ -26,7 +23,7 @@ void main() {
     setUp(() async {
       storage = MockServerStorage();
       connectionDomain = MockConnectionDomain();
-      
+
       // Mock the storage methods to return some initial servers
       when(storage.listServers()).thenAnswer(
         (_) async => [
@@ -73,9 +70,9 @@ void main() {
     test('Connect to server successfully', () async {
       // Arrange
       final server = domain.servers[0];
-      when(connectionDomain.connectToServer(any)).thenAnswer(
-        (_) async => connection_models.ConnectionResult.success(),
-      );
+      when(
+        connectionDomain.connectToServer(any),
+      ).thenAnswer((_) async => connection_models.ConnectionResult.success());
 
       // Act
       final result = await domain.connectToServer(server);
@@ -84,7 +81,7 @@ void main() {
       expect(result.isSuccess, isTrue);
       expect(result.server, server);
       expect(result.errorMessage, isNull);
-      
+
       // Verify interactions
       verify(connectionDomain.connectToServer(server)).called(1);
     });
@@ -92,16 +89,16 @@ void main() {
     test('Connect to server with authentication', () async {
       // Arrange
       final server = domain.servers[0]; // Server with credentials
-      when(connectionDomain.connectToServer(any)).thenAnswer(
-        (_) async => connection_models.ConnectionResult.success(),
-      );
+      when(
+        connectionDomain.connectToServer(any),
+      ).thenAnswer((_) async => connection_models.ConnectionResult.success());
 
       // Act
       final result = await domain.connectToServer(server);
 
       // Assert
       expect(result.isSuccess, isTrue);
-      
+
       // Verify interactions
       verify(connectionDomain.connectToServer(server)).called(1);
     });
@@ -109,16 +106,16 @@ void main() {
     test('Connect to server without authentication', () async {
       // Arrange
       final server = domain.servers[1]; // Server without credentials
-      when(connectionDomain.connectToServer(any)).thenAnswer(
-        (_) async => connection_models.ConnectionResult.success(),
-      );
+      when(
+        connectionDomain.connectToServer(any),
+      ).thenAnswer((_) async => connection_models.ConnectionResult.success());
 
       // Act
       final result = await domain.connectToServer(server);
 
       // Assert
       expect(result.isSuccess, isTrue);
-      
+
       // Verify interactions
       verify(connectionDomain.connectToServer(server)).called(1);
     });
@@ -127,7 +124,8 @@ void main() {
       // Arrange
       final server = domain.servers[0];
       when(connectionDomain.connectToServer(any)).thenAnswer(
-        (_) async => connection_models.ConnectionResult.failure('Connection failed'),
+        (_) async =>
+            connection_models.ConnectionResult.failure('Connection failed'),
       );
 
       // Act
@@ -138,7 +136,7 @@ void main() {
       expect(result.server, server);
       expect(result.errorMessage, isNotNull);
       expect(result.errorMessage, contains('Connection failed'));
-      
+
       // Verify interactions
       verify(connectionDomain.connectToServer(server)).called(1);
     });

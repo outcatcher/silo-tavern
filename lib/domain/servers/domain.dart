@@ -6,7 +6,6 @@ import '../../services/servers/storage.dart';
 import '../../utils/network_utils.dart';
 import 'models.dart';
 import '../connection/domain.dart';
-import '../connection/models.dart' as connection_models;
 
 class ServerOptions {
   final ServerStorage storage;
@@ -33,7 +32,7 @@ class ServerDomain {
 
   final locker = Mutex();
 
-  ServerDomain(ServerOptions options) 
+  ServerDomain(ServerOptions options)
     : _storage = options.storage,
       _connectionDomain = options.connectionDomain;
 
@@ -104,13 +103,16 @@ class ServerDomain {
     try {
       // Use the connection domain to connect to the server
       final result = await _connectionDomain.connectToServer(server);
-      
+
       if (result.isSuccess) {
         // Connection successful
         return ServerConnectionResult.success(server);
       } else {
         // Connection failed
-        return ServerConnectionResult.failure(server, result.errorMessage ?? 'Unknown error');
+        return ServerConnectionResult.failure(
+          server,
+          result.errorMessage ?? 'Unknown error',
+        );
       }
     } catch (e) {
       // Connection failed

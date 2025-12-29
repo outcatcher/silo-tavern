@@ -1,4 +1,6 @@
 /// Service interface for connection operations
+library;
+
 import '../../domain/connection/models.dart';
 
 abstract class ConnectionServiceInterface {

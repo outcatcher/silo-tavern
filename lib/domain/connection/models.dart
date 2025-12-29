@@ -1,15 +1,12 @@
 /// Models for the connection domain
-import 'package:flutter/foundation.dart';
+library;
 
 /// Represents credentials for server authentication
 class ConnectionCredentials {
   final String username;
   final String password;
 
-  ConnectionCredentials({
-    required this.username,
-    required this.password,
-  });
+  ConnectionCredentials({required this.username, required this.password});
 
   @override
   bool operator ==(Object other) {
@@ -23,10 +20,7 @@ class ConnectionCredentials {
   int get hashCode => Object.hash(username, password);
 
   Map<String, dynamic> toJson() {
-    return {
-      'username': username,
-      'password': password,
-    };
+    return {'username': username, 'password': password};
   }
 
   factory ConnectionCredentials.fromJson(Map<String, dynamic> json) {
@@ -63,10 +57,7 @@ class AuthenticatedClient {
   final String serverId;
   final String baseUrl;
 
-  AuthenticatedClient({
-    required this.serverId,
-    required this.baseUrl,
-  });
+  AuthenticatedClient({required this.serverId, required this.baseUrl});
 
   // In a real implementation, this would contain the actual HTTP client
   // with CSRF headers and cookies pre-configured
