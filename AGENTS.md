@@ -108,7 +108,7 @@ task build:linux
 1. **Material Design**: Uses Flutter's Material Design widgets
 2. **Gestures**: Implements various gesture handlers (long press, secondary tap) for context menus
 3. **Dismissible Widgets**: Uses `Dismissible` for swipe gestures to edit/delete items
-4. **Navigation**: Uses `Navigator.push` for screen transitions
+4. **Navigation**: Uses `context.go()` for screen transitions (NEVER use `Navigator.push()` or `Navigator.pop()`)
 
 ## Key Gotchas
 
