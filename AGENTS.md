@@ -133,3 +133,7 @@ Development dependencies:
 1. **Domain-Driven Design**: Business logic is separated from UI concerns
 2. **Service Layer**: Server management is handled through a service class rather than directly in UI
 3. **State Management**: Uses Flutter's built-in state management with `StatefulWidget` for simple state needs
+4. **Three-Layer Architecture**: Code is organized in a three-layer architecture:
+   - **UI Layer**: Handles user interface and interactions (`lib/ui/`)
+   - **Domain Layer**: Contains business logic and data models (`lib/domain/`)
+   - **Service Layer**: Manages external integrations and data persistence (`lib/services/`)
