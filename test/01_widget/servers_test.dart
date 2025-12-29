@@ -12,22 +12,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:silo_tavern/domain/server.dart';
-import 'package:silo_tavern/domain/server_service.dart';
+import 'package:silo_tavern/domain/servers/models.dart';
+import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/main.dart';
 
 import 'servers_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerService>()])
+@GenerateNiceMocks([MockSpec<ServerDomain>()])
 void main() {
-  late MockServerService serverService;
+  late MockServerDomain serverDomain;
 
   setUp(() {
     // Ensure test binding is initialized
     TestWidgetsFlutterBinding.ensureInitialized();
 
     // Create mock server service
-    final mockService = MockServerService();
+    final mockService = MockServerDomain();
 
     // Create a mutable list of servers for the mock
     final serversList = [
@@ -90,11 +90,11 @@ void main() {
       }
     });
 
-    serverService = mockService;
+    serverDomain = mockService;
   });
   testWidgets('1.1 Server list basic display', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
 
     // Wait for any async operations to complete
     await tester.pumpAndSettle();
@@ -115,7 +115,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
@@ -144,7 +144,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
@@ -174,7 +174,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
@@ -214,7 +214,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
@@ -243,7 +243,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
@@ -279,7 +279,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
@@ -315,7 +315,7 @@ void main() {
     '5.2 Credentials authentication validates correctly with valid data',
     (WidgetTester tester) async {
       // Build our app and trigger a frame.
-      await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+      await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
       await tester.pumpAndSettle();
 
       // Tap the '+' icon to open the creation page.
@@ -353,7 +353,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Verify that servers are displayed with Dismissible widgets.
@@ -367,7 +367,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Verify initial server exists.
@@ -398,7 +398,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
@@ -425,7 +425,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
@@ -452,7 +452,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Verify initial server exists.
@@ -482,7 +482,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Verify initial server exists.
@@ -520,7 +520,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Verify initial server exists.
@@ -555,7 +555,7 @@ void main() {
 
   testWidgets('6.2 Back button cancels creation', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
@@ -586,7 +586,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
@@ -610,7 +610,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
@@ -648,7 +648,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
@@ -688,7 +688,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Edit an existing server (Production Server) using context menu
@@ -737,7 +737,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Edit an existing server (Production Server) using context menu
@@ -779,7 +779,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
@@ -819,7 +819,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Find the Production Server dismissible
@@ -862,7 +862,7 @@ void main() {
 
   testWidgets('Long press shows context menu', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Find a server card
@@ -882,7 +882,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Find a server card
@@ -907,7 +907,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Find a server card
@@ -933,7 +933,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Verify initial server exists
@@ -966,7 +966,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Verify initial server exists
@@ -997,7 +997,7 @@ void main() {
 
   testWidgets('Right-click shows context menu', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Find a server card
@@ -1017,12 +1017,12 @@ void main() {
     WidgetTester tester,
   ) async {
     // Configure the mock to throw an exception when removing a server
-    when(serverService.removeServer(any)).thenAnswer((invocation) async {
+    when(serverDomain.removeServer(any)).thenAnswer((invocation) async {
       throw Exception('Simulated delete failure');
     });
 
     // Build our app and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: serverService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: serverDomain));
     await tester.pumpAndSettle();
 
     // Verify initial server exists.
@@ -1072,7 +1072,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Create a mock service with an empty server list
-    final mockService = MockServerService();
+    final mockService = MockServerDomain();
     final emptyServersList = <Server>[];
 
     // Set up mock to return empty list
@@ -1103,7 +1103,7 @@ void main() {
     });
 
     // Build our app with empty server list and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: mockService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: mockService));
     await tester.pumpAndSettle();
 
     // Verify that the empty state is displayed
@@ -1131,7 +1131,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Create a mock service that throws an error when adding a server
-    final mockService = MockServerService();
+    final mockService = MockServerDomain();
     final serversList = <Server>[];
 
     // Set up mock to return initial empty list
@@ -1158,7 +1158,7 @@ void main() {
     });
 
     // Build our app with the mock service and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: mockService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: mockService));
     await tester.pumpAndSettle();
 
     // Tap the '+' icon to open the creation page.
@@ -1215,7 +1215,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Create a mock service that throws an error when updating a server
-    final mockService = MockServerService();
+    final mockService = MockServerDomain();
     final serversList = [
       Server(
         id: '1',
@@ -1261,7 +1261,7 @@ void main() {
     });
 
     // Build our app with the mock service and trigger a frame.
-    await tester.pumpWidget(SiloTavernApp(serverService: mockService));
+    await tester.pumpWidget(SiloTavernApp(serverDomain: mockService));
     await tester.pumpAndSettle();
 
     // Find the existing server and edit it using context menu

@@ -2,9 +2,9 @@ import 'package:mutex/mutex.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../services/server_storage.dart';
-import '../utils/network_utils.dart';
-import 'server.dart';
+import '../../services/servers/storage.dart';
+import '../../utils/network_utils.dart';
+import 'models.dart';
 
 class ServerOptions {
   final ServerStorage storage;
@@ -19,13 +19,13 @@ class ServerOptions {
   }
 }
 
-class ServerService {
+class ServerDomain {
   final List<Server> _servers = [];
   final ServerStorage _storage;
 
   final locker = Mutex();
 
-  ServerService(ServerOptions options) : _storage = options.storage;
+  ServerDomain(ServerOptions options) : _storage = options.storage;
 
   // Initialize the service by loading servers
   Future<void> initialize() async {
@@ -55,7 +55,7 @@ class ServerService {
     }
 
     // Only add server if configuration is allowed
-    NetworkUtils.validateServerConfiguration(server);
+    validateServerConfiguration(server);
 
     _servers.add(server);
     await locker.protect(() => _storage.createServer(server));
@@ -69,7 +69,7 @@ class ServerService {
     }
 
     // Only add server if configuration is allowed
-    NetworkUtils.validateServerConfiguration(updatedServer);
+    validateServerConfiguration(updatedServer);
     _servers[index] = updatedServer;
     await locker.protect(() => _storage.updateServer(updatedServer));
   }
@@ -87,5 +87,28 @@ class ServerService {
     } catch (e) {
       return null;
     }
+  }
+}
+
+/// Validates if a server configuration is allowed based on security rules
+/// Local servers are always allowed
+/// Remote servers must be HTTPS and have authentication
+void validateServerConfiguration(Server server) {
+  final isHttps = server.address.startsWith('https://');
+  final hasAuthentication = server.authentication.useCredentials;
+  final isLocal = NetworkUtils.isLocalAddress(server.address);
+
+  // Local addresses are always allowed
+  if (isLocal) {
+    return;
+  }
+
+  // For remote addresses: must be HTTPS AND have authentication
+  if (!isHttps) {
+    throw ArgumentError('HTTPS must be used for external servers');
+  }
+
+  if (!hasAuthentication) {
+    throw ArgumentError('Authentication must be used for external servers');
   }
 }

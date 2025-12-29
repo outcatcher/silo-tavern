@@ -6,8 +6,8 @@
 import 'dart:async' as _i3;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:silo_tavern/domain/server.dart' as _i4;
-import 'package:silo_tavern/services/server_storage.dart' as _i2;
+import 'package:silo_tavern/domain/servers/models.dart' as _i4;
+import 'package:silo_tavern/services/servers/storage.dart' as _i2;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

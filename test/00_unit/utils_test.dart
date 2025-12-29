@@ -3,7 +3,8 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:silo_tavern/domain/server.dart';
+import 'package:silo_tavern/domain/servers/models.dart';
+import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/utils/network_utils.dart';
 
 void main() {
@@ -170,19 +171,19 @@ void main() {
           );
 
           expect(
-            () => NetworkUtils.validateServerConfiguration(httpLocalNoAuth),
+            () => validateServerConfiguration(httpLocalNoAuth),
             returnsNormally,
           );
           expect(
-            () => NetworkUtils.validateServerConfiguration(httpLocalWithAuth),
+            () => validateServerConfiguration(httpLocalWithAuth),
             returnsNormally,
           );
           expect(
-            () => NetworkUtils.validateServerConfiguration(httpsLocalNoAuth),
+            () => validateServerConfiguration(httpsLocalNoAuth),
             returnsNormally,
           );
           expect(
-            () => NetworkUtils.validateServerConfiguration(httpsLocalWithAuth),
+            () => validateServerConfiguration(httpsLocalWithAuth),
             returnsNormally,
           );
         },
@@ -200,7 +201,7 @@ void main() {
         );
 
         expect(
-          () => NetworkUtils.validateServerConfiguration(httpsRemoteWithAuth),
+          () => validateServerConfiguration(httpsRemoteWithAuth),
           returnsNormally,
         );
       });
@@ -214,7 +215,7 @@ void main() {
         );
 
         expect(
-          () => NetworkUtils.validateServerConfiguration(httpsRemoteNoAuth),
+          () => validateServerConfiguration(httpsRemoteNoAuth),
           throwsA(isA<ArgumentError>()),
         );
       });
@@ -231,7 +232,7 @@ void main() {
         );
 
         expect(
-          () => NetworkUtils.validateServerConfiguration(httpRemoteWithAuth),
+          () => validateServerConfiguration(httpRemoteWithAuth),
           throwsA(isA<ArgumentError>()),
         );
       });
@@ -245,7 +246,7 @@ void main() {
         );
 
         expect(
-          () => NetworkUtils.validateServerConfiguration(httpRemoteNoAuth),
+          () => validateServerConfiguration(httpRemoteNoAuth),
           throwsA(isA<ArgumentError>()),
         );
       });
@@ -259,8 +260,7 @@ void main() {
           authentication: const AuthenticationInfo.none(),
         );
         expect(
-          () =>
-              NetworkUtils.validateServerConfiguration(httpBoundaryLocalNoAuth),
+          () => validateServerConfiguration(httpBoundaryLocalNoAuth),
           returnsNormally,
         );
 
@@ -272,7 +272,7 @@ void main() {
           authentication: const AuthenticationInfo.none(),
         );
         expect(
-          () => NetworkUtils.validateServerConfiguration(httpIPv6LocalNoAuth),
+          () => validateServerConfiguration(httpIPv6LocalNoAuth),
           returnsNormally,
         );
 
@@ -284,8 +284,7 @@ void main() {
           authentication: const AuthenticationInfo.none(),
         );
         expect(
-          () =>
-              NetworkUtils.validateServerConfiguration(httpsExternalIPv4NoAuth),
+          () => validateServerConfiguration(httpsExternalIPv4NoAuth),
           throwsA(isA<ArgumentError>()),
         );
 
@@ -300,9 +299,7 @@ void main() {
           ),
         );
         expect(
-          () => NetworkUtils.validateServerConfiguration(
-            httpsExternalIPv6WithAuth,
-          ),
+          () => validateServerConfiguration(httpsExternalIPv6WithAuth),
           returnsNormally,
         );
 
@@ -317,9 +314,7 @@ void main() {
           ),
         );
         expect(
-          () => NetworkUtils.validateServerConfiguration(
-            httpExternalIPv6WithAuth,
-          ),
+          () => validateServerConfiguration(httpExternalIPv6WithAuth),
           throwsA(isA<ArgumentError>()),
         );
       });

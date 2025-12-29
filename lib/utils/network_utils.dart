@@ -1,5 +1,4 @@
 import 'dart:io';
-import '../domain/server.dart';
 
 class NetworkUtils {
   /// List of private network CIDR blocks as defined in various RFCs
@@ -78,29 +77,6 @@ class NetworkUtils {
 
     // Not a local address
     return false;
-  }
-
-  /// Validates if a server configuration is allowed based on security rules
-  /// Local servers are always allowed
-  /// Remote servers must be HTTPS and have authentication
-  static void validateServerConfiguration(Server server) {
-    final isHttps = server.address.startsWith('https://');
-    final hasAuthentication = server.authentication.useCredentials;
-    final isLocal = isLocalAddress(server.address);
-
-    // Local addresses are always allowed
-    if (isLocal) {
-      return;
-    }
-
-    // For remote addresses: must be HTTPS AND have authentication
-    if (!isHttps) {
-      throw ArgumentError('HTTPS must be used for external servers');
-    }
-
-    if (!hasAuthentication) {
-      throw ArgumentError('Authentication must be used for external servers');
-    }
   }
 }
 

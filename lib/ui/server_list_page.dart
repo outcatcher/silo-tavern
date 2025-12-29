@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:silo_tavern/domain/server.dart';
-import 'package:silo_tavern/domain/server_service.dart';
+import 'package:silo_tavern/domain/servers/models.dart';
+import 'package:silo_tavern/domain/servers/domain.dart';
 
 import 'utils.dart' as utils;
 
 class ServerListPage extends StatefulWidget {
-  final ServerService serverService;
+  final ServerDomain serverDomain;
 
-  const ServerListPage({super.key, required this.serverService});
+  const ServerListPage({super.key, required this.serverDomain});
 
   @override
   State<ServerListPage> createState() => _ServerListPageState();
@@ -23,7 +23,7 @@ class _ServerListPageState extends State<ServerListPage> {
   @override
   void initState() {
     super.initState();
-    _servers = List.from(widget.serverService.servers);
+    _servers = List.from(widget.serverDomain.servers);
   }
 
   void _addServer() {
@@ -42,7 +42,7 @@ class _ServerListPageState extends State<ServerListPage> {
     });
 
     // Actually delete from service (non-blocking)
-    widget.serverService
+    widget.serverDomain
         .removeServer(server.id)
         .then((_) {
           // Remove from deleting set on success

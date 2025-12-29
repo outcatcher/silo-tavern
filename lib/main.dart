@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:silo_tavern/domain/server_service.dart';
+import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/router.dart';
 
 void main() async {
@@ -9,18 +9,18 @@ void main() async {
   final prefs = SharedPreferencesAsync();
   final secureStorage = const FlutterSecureStorage();
 
-  final serverService = ServerService(
+  final serverDomain = ServerDomain(
     ServerOptions.fromRawStorage(prefs, secureStorage),
   );
-  await serverService.initialize();
+  await serverDomain.initialize();
 
-  runApp(SiloTavernApp(serverService: serverService));
+  runApp(SiloTavernApp(serverDomain: serverDomain));
 }
 
 class SiloTavernApp extends StatefulWidget {
-  final ServerService serverService;
+  final ServerDomain serverDomain;
 
-  const SiloTavernApp({super.key, required this.serverService});
+  const SiloTavernApp({super.key, required this.serverDomain});
 
   @override
   State<SiloTavernApp> createState() => _SiloTavernAppState();
@@ -33,7 +33,7 @@ class _SiloTavernAppState extends State<SiloTavernApp> {
   @override
   void initState() {
     super.initState();
-    _appRouter = AppRouter(serverService: widget.serverService);
+    _appRouter = AppRouter(serverDomain: widget.serverDomain);
   }
 
   void _toggleTheme() {

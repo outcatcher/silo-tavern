@@ -9,9 +9,9 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:silo_tavern/domain/servers/models.dart';
 
-import 'package:silo_tavern/domain/server.dart';
-import 'package:silo_tavern/services/server_storage.dart';
+import 'package:silo_tavern/services/servers/storage.dart';
 
 import 'server_storage_test.mocks.dart';
 

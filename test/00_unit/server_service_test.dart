@@ -5,9 +5,9 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:silo_tavern/domain/server.dart';
-import 'package:silo_tavern/domain/server_service.dart';
-import 'package:silo_tavern/services/server_storage.dart';
+import 'package:silo_tavern/domain/servers/models.dart';
+import 'package:silo_tavern/domain/servers/domain.dart';
+import 'package:silo_tavern/services/servers/storage.dart';
 
 import 'server_service_test.mocks.dart';
 
@@ -15,7 +15,7 @@ import 'server_service_test.mocks.dart';
 void main() {
   group('ServerService Tests', () {
     late MockServerStorage storage;
-    late ServerService service;
+    late ServerDomain service;
 
     setUp(() async {
       storage = MockServerStorage();
@@ -54,7 +54,7 @@ void main() {
       when(storage.updateServer(any)).thenAnswer((_) async {});
       when(storage.deleteServer(any)).thenAnswer((_) async {});
 
-      service = ServerService(ServerOptions(storage));
+      service = ServerDomain(ServerOptions(storage));
 
       // Initialize the service
       await service.initialize();

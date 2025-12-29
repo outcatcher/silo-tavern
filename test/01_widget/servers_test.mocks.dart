@@ -7,8 +7,8 @@ import 'dart:async' as _i5;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mutex/mutex.dart' as _i2;
-import 'package:silo_tavern/domain/server.dart' as _i4;
-import 'package:silo_tavern/domain/server_service.dart' as _i3;
+import 'package:silo_tavern/domain/servers/domain.dart' as _i3;
+import 'package:silo_tavern/domain/servers/models.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -30,10 +30,10 @@ class _FakeMutex_0 extends _i1.SmartFake implements _i2.Mutex {
     : super(parent, parentInvocation);
 }
 
-/// A class which mocks [ServerService].
+/// A class which mocks [ServerDomain].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockServerService extends _i1.Mock implements _i3.ServerService {
+class MockServerDomain extends _i1.Mock implements _i3.ServerDomain {
   @override
   _i2.Mutex get locker =>
       (super.noSuchMethod(

@@ -1,4 +1,4 @@
-part of 'server_storage.dart';
+part of 'storage.dart';
 
 /// Service-level server model that decouples from domain models
 /// This model contains only the data needed for persistence
