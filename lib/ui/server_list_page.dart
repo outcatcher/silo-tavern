@@ -385,8 +385,11 @@ class _ServerListPageState extends State<ServerListPage> {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
           
           if (result.isSuccess) {
-            // Navigate to under construction page
-            context.go('/servers/connect/${server.id}');
+            // Navigate to under construction page with back URL as query parameter
+            context.go(Uri(
+              path: '/servers/connect/${server.id}',
+              queryParameters: {'backUrl': '/servers'},
+            ).toString());
           } else {
             // Show error message
             final errorSnackBar = SnackBar(

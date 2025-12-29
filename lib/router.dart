@@ -60,7 +60,9 @@ class AppRouter {
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          return UnderConstructionPage(title: server.name);
+          // Get back URL from query parameters or default to '/servers'
+          final backUrl = state.uri.queryParameters['backUrl'] ?? '/servers';
+          return UnderConstructionPage(title: server.name, backUrl: backUrl);
         },
       ),
     ],

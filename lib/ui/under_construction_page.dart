@@ -6,13 +6,9 @@ import 'package:go_router/go_router.dart';
 /// Shows an "under construction" message with a customizable title and back navigation
 class UnderConstructionPage extends StatelessWidget {
   final String title;
-  final String backUrl;
+  final String? backUrl;
 
-  const UnderConstructionPage({
-    super.key, 
-    required this.title,
-    this.backUrl = '/servers',
-  });
+  const UnderConstructionPage({super.key, required this.title, this.backUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +17,7 @@ class UnderConstructionPage extends StatelessWidget {
         title: Text(title),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go(backUrl),
+          onPressed: () => context.go(backUrl ?? '/'),
         ),
       ),
       body: Center(
@@ -35,23 +31,18 @@ class UnderConstructionPage extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(height: 32),
-            
+
             // Under construction text
             const Text(
               'Under Construction',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             // Additional message
             const Text(
               'This feature is currently being developed',
-              style: TextStyle(
-                fontSize: 16,
-              ),
+              style: TextStyle(fontSize: 16),
             ),
           ],
         ),

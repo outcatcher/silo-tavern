@@ -87,7 +87,7 @@ void main() {
       
       // Set up router with under construction page as initial location
       final router = GoRouter(
-        initialLocation: '/servers/connect/1',
+        initialLocation: '/servers/connect/1?backUrl=/servers',
         routes: [
           GoRoute(
             path: '/servers',
@@ -98,7 +98,10 @@ void main() {
           ),
           GoRoute(
             path: '/servers/connect/:id',
-            builder: (context, state) => UnderConstructionPage(title: serverName),
+            builder: (context, state) {
+              final backUrl = state.uri.queryParameters['backUrl'] ?? '/servers';
+              return UnderConstructionPage(title: serverName, backUrl: backUrl);
+            },
           ),
         ],
       );
