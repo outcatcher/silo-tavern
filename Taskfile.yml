@@ -12,7 +12,7 @@ tasks:
   generate-mocks:
     desc: Generate mocks
     cmds:
-      - dart run build_runner build
+      - dart run build_runner build --delete-conflicting-outputs
 
   .tag-coverage-report:
     internal: true
