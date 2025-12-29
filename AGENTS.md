@@ -102,6 +102,10 @@ task build:linux
 1. **Tagged Tests**: Tests are organized with tags (`unit`, `widget`, `integration`)
 2. **Grouping**: Related tests are grouped using `group()` for better organization
 3. **State Management**: Widget tests focus on verifying UI state changes in response to user interactions
+4. **Mocking Strategy**: Unit tests MUST mock underlying layers instead of using real implementations:
+   - UI layer tests should mock domain services
+   - Domain layer tests should mock service layer dependencies
+   - This ensures fast, reliable tests that focus on the specific layer's behavior
 
 ### UI Components
 
