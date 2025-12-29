@@ -7,8 +7,8 @@ import 'dart:async' as _i5;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mutex/mutex.dart' as _i2;
-import 'package:silo_tavern/domain/servers/domain.dart' as _i3;
-import 'package:silo_tavern/domain/servers/models.dart' as _i4;
+import 'package:silo_tavern/domain/servers/domain.dart' as _i4;
+import 'package:silo_tavern/domain/servers/models.dart' as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -30,10 +30,16 @@ class _FakeMutex_0 extends _i1.SmartFake implements _i2.Mutex {
     : super(parent, parentInvocation);
 }
 
+class _FakeServerConnectionResult_1 extends _i1.SmartFake
+    implements _i3.ServerConnectionResult {
+  _FakeServerConnectionResult_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [ServerDomain].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockServerDomain extends _i1.Mock implements _i3.ServerDomain {
+class MockServerDomain extends _i1.Mock implements _i4.ServerDomain {
   @override
   _i2.Mutex get locker =>
       (super.noSuchMethod(
@@ -47,13 +53,13 @@ class MockServerDomain extends _i1.Mock implements _i3.ServerDomain {
           as _i2.Mutex);
 
   @override
-  List<_i4.Server> get servers =>
+  List<_i3.Server> get servers =>
       (super.noSuchMethod(
             Invocation.getter(#servers),
-            returnValue: <_i4.Server>[],
-            returnValueForMissingStub: <_i4.Server>[],
+            returnValue: <_i3.Server>[],
+            returnValueForMissingStub: <_i3.Server>[],
           )
-          as List<_i4.Server>);
+          as List<_i3.Server>);
 
   @override
   int get serverCount =>
@@ -74,7 +80,7 @@ class MockServerDomain extends _i1.Mock implements _i3.ServerDomain {
           as _i5.Future<void>);
 
   @override
-  _i5.Future<void> addServer(_i4.Server? server) =>
+  _i5.Future<void> addServer(_i3.Server? server) =>
       (super.noSuchMethod(
             Invocation.method(#addServer, [server]),
             returnValue: _i5.Future<void>.value(),
@@ -83,7 +89,7 @@ class MockServerDomain extends _i1.Mock implements _i3.ServerDomain {
           as _i5.Future<void>);
 
   @override
-  _i5.Future<void> updateServer(_i4.Server? updatedServer) =>
+  _i5.Future<void> updateServer(_i3.Server? updatedServer) =>
       (super.noSuchMethod(
             Invocation.method(#updateServer, [updatedServer]),
             returnValue: _i5.Future<void>.value(),
@@ -101,10 +107,30 @@ class MockServerDomain extends _i1.Mock implements _i3.ServerDomain {
           as _i5.Future<void>);
 
   @override
-  _i4.Server? findServerById(String? id) =>
+  _i3.Server? findServerById(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#findServerById, [id]),
             returnValueForMissingStub: null,
           )
-          as _i4.Server?);
+          as _i3.Server?);
+
+  @override
+  _i5.Future<_i3.ServerConnectionResult> connectToServer(_i3.Server? server) =>
+      (super.noSuchMethod(
+            Invocation.method(#connectToServer, [server]),
+            returnValue: _i5.Future<_i3.ServerConnectionResult>.value(
+              _FakeServerConnectionResult_1(
+                this,
+                Invocation.method(#connectToServer, [server]),
+              ),
+            ),
+            returnValueForMissingStub:
+                _i5.Future<_i3.ServerConnectionResult>.value(
+                  _FakeServerConnectionResult_1(
+                    this,
+                    Invocation.method(#connectToServer, [server]),
+                  ),
+                ),
+          )
+          as _i5.Future<_i3.ServerConnectionResult>);
 }

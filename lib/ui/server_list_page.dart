@@ -369,15 +369,33 @@ class _ServerListPageState extends State<ServerListPage> {
           horizontal: 16,
           vertical: 12,
         ),
-        onTap: () {
-          // Show placeholder connection success message with better contrast
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Connection successful'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
+        onTap: () async {
+          // Show connecting message
+          final snackBar = SnackBar(
+            content: const Text('Connecting to server...'),
+            backgroundColor: Colors.blue,
+            duration: const Duration(seconds: 2),
           );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          
+          // Connect to the server
+          final result = await widget.serverDomain.connectToServer(server);
+          
+          // Hide the connecting message
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          
+          if (result.isSuccess) {
+            // Navigate to under construction page
+            context.go('/servers/connect/${server.id}');
+          } else {
+            // Show error message
+            final errorSnackBar = SnackBar(
+              content: Text('Error connecting to server: ${result.errorMessage}'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+          }
         },
       ),
     );
