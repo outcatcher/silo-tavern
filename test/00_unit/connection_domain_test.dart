@@ -8,23 +8,23 @@ import 'package:mockito/mockito.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/connection/models.dart';
-import 'package:silo_tavern/services/connection/interface.dart';
+import 'package:silo_tavern/services/connection/service.dart';
 import 'package:silo_tavern/domain/servers/models.dart' as server_models;
 
 import 'connection_domain_test.mocks.dart';
 
 @GenerateNiceMocks([
-  MockSpec<ConnectionServiceInterface>(),
+  MockSpec<ConnectionService>(),
   MockSpec<FlutterSecureStorage>(),
 ])
 void main() {
   group('ConnectionDomain Tests', () {
-    late MockConnectionServiceInterface connectionService;
+    late MockConnectionService connectionService;
     late MockFlutterSecureStorage secureStorage;
     late ConnectionDomain domain;
 
     setUp(() {
-      connectionService = MockConnectionServiceInterface();
+      connectionService = MockConnectionService();
       secureStorage = MockFlutterSecureStorage();
 
       domain = ConnectionDomain(

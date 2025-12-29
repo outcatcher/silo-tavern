@@ -7,11 +7,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mutex/mutex.dart';
 
 import '../servers/models.dart' as server_models;
-import '../../services/connection/interface.dart';
+import '../../services/connection/service.dart';
 import 'models.dart';
 
 class ConnectionOptions {
-  final ConnectionServiceInterface connectionService;
+  final ConnectionService connectionService;
   final FlutterSecureStorage secureStorage;
 
   ConnectionOptions({
@@ -21,7 +21,7 @@ class ConnectionOptions {
 }
 
 class ConnectionDomain {
-  final ConnectionServiceInterface _connectionService;
+  final ConnectionService _connectionService;
 
   // In-memory cache for credentials to support re-authentication
   final Map<String, ConnectionCredentials> _credentialCache = {};
