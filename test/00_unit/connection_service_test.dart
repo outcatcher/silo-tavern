@@ -8,10 +8,7 @@ import 'package:silo_tavern/domain/connection/models.dart';
 
 import 'connection_service_test.mocks.dart';
 
-@GenerateNiceMocks([
-  MockSpec<http.Client>(),
-  MockSpec<FlutterSecureStorage>(),
-])
+@GenerateNiceMocks([MockSpec<http.Client>(), MockSpec<FlutterSecureStorage>()])
 void main() {
   group('ConnectionService Tests', () {
     late MockClient httpClient;
@@ -29,7 +26,7 @@ void main() {
         // Arrange
         const serverUrl = 'https://test.example.com';
         const expectedToken = 'abc123xyz';
-        
+
         when(
           httpClient.get(Uri.parse('https://test.example.com/csrf-token')),
         ).thenAnswer(
@@ -45,18 +42,18 @@ void main() {
 
         // Assert
         expect(token, expectedToken);
-        verify(httpClient.get(Uri.parse('https://test.example.com/csrf-token'))).called(1);
+        verify(
+          httpClient.get(Uri.parse('https://test.example.com/csrf-token')),
+        ).called(1);
       });
 
       test('Obtain CSRF token fails with HTTP error', () async {
         // Arrange
         const serverUrl = 'https://test.example.com';
-        
+
         when(
           httpClient.get(Uri.parse('https://test.example.com/csrf-token')),
-        ).thenAnswer(
-          (_) async => http.Response('Error', 500),
-        );
+        ).thenAnswer((_) async => http.Response('Error', 500));
 
         // Act & Assert
         expect(
@@ -73,12 +70,12 @@ void main() {
         const csrfToken = 'abc123xyz';
         const username = 'testuser';
         const password = 'testpass';
-        
+
         final credentials = ConnectionCredentials(
           username: username,
           password: password,
         );
-        
+
         when(
           httpClient.post(
             Uri.parse('https://test.example.com/api/users/login'),
@@ -88,9 +85,7 @@ void main() {
             },
             body: '{"handle":"$username","password":"$password"}',
           ),
-        ).thenAnswer(
-          (_) async => http.Response('', 200),
-        );
+        ).thenAnswer((_) async => http.Response('', 200));
 
         // Act & Assert
         expect(
@@ -105,21 +100,19 @@ void main() {
         const csrfToken = 'abc123xyz';
         const username = 'testuser';
         const password = 'testpass';
-        
+
         final credentials = ConnectionCredentials(
           username: username,
           password: password,
         );
-        
+
         when(
           httpClient.post(
             Uri.parse('https://test.example.com/api/users/login'),
             headers: anyNamed('headers'),
             body: anyNamed('body'),
           ),
-        ).thenAnswer(
-          (_) async => http.Response('Unauthorized', 401),
-        );
+        ).thenAnswer((_) async => http.Response('Unauthorized', 401));
 
         // Act & Assert
         expect(
@@ -162,6 +155,105 @@ void main() {
         // Assert
         expect(service.hasCachedCredentials(serverId), isFalse);
         expect(service.getCachedCredentials(serverId), isNull);
+      });
+    });
+
+    group('Cookie Handling', () {
+      test('Authenticate stores cookies when present in response', () async {
+        // Arrange
+        const serverUrl = 'https://test.example.com';
+        const csrfToken = 'abc123xyz';
+        const username = 'testuser';
+        const password = 'testpass';
+
+        final credentials = ConnectionCredentials(
+          username: username,
+          password: password,
+        );
+
+        const cookieHeader =
+            'sessionid=abc123; Path=/; HttpOnly, csrftoken=def456; Path=/';
+
+        when(
+          httpClient.post(
+            Uri.parse('https://test.example.com/api/users/login'),
+            headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+              'X-CSRF-Token': csrfToken,
+            },
+            body: '{"handle":"$username","password":"$password"}',
+          ),
+        ).thenAnswer(
+          (_) async =>
+              http.Response('', 200, headers: {'set-cookie': cookieHeader}),
+        );
+
+        when(
+          secureStorage.write(
+            key: 'session_cookies_test.example.com',
+            value: '{"sessionid":"abc123","csrftoken":"def456"}',
+          ),
+        ).thenAnswer((_) async {});
+
+        // Act
+        await service.authenticate(serverUrl, csrfToken, credentials);
+
+        // Verify that secure storage was called to save cookies
+        verify(
+          secureStorage.write(
+            key: 'session_cookies_test.example.com',
+            value: '{"sessionid":"abc123","csrftoken":"def456"}',
+          ),
+        ).called(1);
+      });
+
+      test('Extract cookies from headers handles single cookie', () async {
+        // Arrange
+        const cookieHeader = 'sessionid=abc123';
+        final headers = {'set-cookie': cookieHeader};
+
+        // Act
+        final cookies = service.extractCookiesFromHeaders(headers);
+
+        // Assert
+        expect(cookies, hasLength(1));
+        expect(cookies['sessionid'], equals('abc123'));
+      });
+
+      test('Extract cookies from headers handles multiple cookies', () async {
+        // Arrange
+        const cookieHeader =
+            'sessionid=abc123; Path=/; HttpOnly, csrftoken=def456; Path=/';
+        final headers = {'set-cookie': cookieHeader};
+
+        // Act
+        final cookies = service.extractCookiesFromHeaders(headers);
+
+        // Assert
+        expect(cookies, hasLength(2));
+        expect(cookies['sessionid'], equals('abc123'));
+        expect(cookies['csrftoken'], equals('def456'));
+      });
+
+      test('Extract cookies from headers handles no cookie header', () async {
+        // Arrange
+        final headers = <String, String>{};
+
+        // Act
+        final cookies = service.extractCookiesFromHeaders(headers);
+
+        // Assert
+        expect(cookies, isEmpty);
+      });
+    });
+
+    group('Constructor', () {
+      test('Creates instance with default http client', () async {
+        // Act
+        final service = ConnectionService(secureStorage);
+
+        // Assert
+        expect(service, isNotNull);
       });
     });
   });

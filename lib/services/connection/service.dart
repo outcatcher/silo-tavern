@@ -10,6 +10,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/foundation.dart';
 import '../../domain/connection/models.dart';
 
 class ConnectionService {
@@ -61,7 +62,7 @@ class ConnectionService {
 
     // Store session cookies from the response
     final host = Uri.parse(serverUrl).host;
-    final cookies = _extractCookiesFromHeaders(response.headers);
+    final cookies = extractCookiesFromHeaders(response.headers);
 
     if (cookies.isNotEmpty) {
       await _secureStorage.write(
@@ -89,7 +90,8 @@ class ConnectionService {
   }
 
   /// Extract cookies from HTTP response headers
-  Map<String, String> _extractCookiesFromHeaders(Map<String, String> headers) {
+  @visibleForTesting
+  Map<String, String> extractCookiesFromHeaders(Map<String, String> headers) {
     final cookies = <String, String>{};
     final cookieHeader = headers['set-cookie'];
 
