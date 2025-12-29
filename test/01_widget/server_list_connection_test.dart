@@ -9,26 +9,27 @@ import 'package:mockito/mockito.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
+import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/domain/connection/models.dart' as connection_models;
 import 'package:silo_tavern/services/servers/storage.dart';
-import 'package:silo_tavern/services/connection/service.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 
 import '../00_unit/server_connection_test.mocks.dart';
 
 @GenerateNiceMocks([
   MockSpec<ServerStorage>(),
-  MockSpec<ServerConnectionService>(),
+  MockSpec<ConnectionDomain>(),
 ])
 void main() {
   group('ServerListPage Connection Tests', () {
     late MockServerStorage storage;
-    late MockServerConnectionService connectionService;
+    late MockConnectionDomain connectionDomain;
     late ServerDomain domain;
     late GoRouter router;
 
     setUp(() async {
       storage = MockServerStorage();
-      connectionService = MockServerConnectionService();
+      connectionDomain = MockConnectionDomain();
       
       // Mock the storage methods to return some initial servers
       when(storage.listServers()).thenAnswer(
@@ -66,7 +67,7 @@ void main() {
       when(storage.deleteServer(any)).thenAnswer((_) async {});
 
       domain = ServerDomain(
-        ServerOptions(storage, connectionService: connectionService),
+        ServerOptions(storage, connectionDomain: connectionDomain),
       );
 
       // Initialize the domain
@@ -105,14 +106,8 @@ void main() {
 
     testWidgets('Navigates to under construction page on successful connection', (WidgetTester tester) async {
       // Arrange
-      when(connectionService.getCsrfToken(any)).thenAnswer(
-        (_) async => 'mock-csrf-token',
-      );
-      when(connectionService.authenticate(any, any, any, any)).thenAnswer(
-        (_) async {},
-      );
-      when(connectionService.storeTokens(any, any)).thenAnswer(
-        (_) async {},
+      when(connectionDomain.connectToServer(any)).thenAnswer(
+        (_) async => connection_models.ConnectionResult.success(),
       );
 
       await tester.pumpWidget(
@@ -134,8 +129,8 @@ void main() {
 
     testWidgets('Shows error message on connection failure', (WidgetTester tester) async {
       // Arrange
-      when(connectionService.getCsrfToken(any)).thenThrow(
-        Exception('Network error'),
+      when(connectionDomain.connectToServer(any)).thenAnswer(
+        (_) async => connection_models.ConnectionResult.failure('Connection failed'),
       );
 
       await tester.pumpWidget(
@@ -157,8 +152,8 @@ void main() {
 
     testWidgets('Remains on server list page on connection failure', (WidgetTester tester) async {
       // Arrange
-      when(connectionService.getCsrfToken(any)).thenThrow(
-        Exception('Network error'),
+      when(connectionDomain.connectToServer(any)).thenAnswer(
+        (_) async => connection_models.ConnectionResult.failure('Connection failed'),
       );
 
       await tester.pumpWidget(

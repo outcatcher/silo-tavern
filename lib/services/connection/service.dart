@@ -4,14 +4,21 @@
 /// - CSRF token requests
 /// - Authentication handling
 /// - Token storage
-class ServerConnectionService {
-  /// Mock method to get CSRF token
-  ///
-  /// In a real implementation, this would make an HTTP request to the server's
-  /// `/csrf-token` endpoint and return the token.
-  ///
-  /// Returns a fixed token for mocking purposes.
-  Future<String> getCsrfToken(String serverAddress) async {
+import 'dart:async';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../domain/connection/models.dart';
+import './interface.dart';
+
+class ConnectionService implements ConnectionServiceInterface {
+  final FlutterSecureStorage _secureStorage;
+  
+  // In-memory cache for credentials to support re-authentication
+  final Map<String, ConnectionCredentials> _credentialCache = {};
+
+  ConnectionService(this._secureStorage);
+
+  @override
+  Future<String> obtainCsrfToken(String serverUrl) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 100));
     
@@ -19,34 +26,39 @@ class ServerConnectionService {
     return 'mock-csrf-token-12345';
   }
 
-  /// Mock method to authenticate with the server
-  ///
-  /// In a real implementation, this would make an HTTP request to the server's
-  /// authentication endpoint using the provided credentials and CSRF token.
-  ///
-  /// Returns void for mocking purposes.
+  @override
   Future<void> authenticate(
-    String serverAddress,
+    String serverUrl,
     String csrfToken,
-    String username,
-    String password,
+    ConnectionCredentials credentials,
   ) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 100));
     
     // In a real implementation, this would make an HTTP request
     // For mocking, we just complete successfully
+    
+    // Store session information securely
+    await _secureStorage.write(
+      key: 'session_${Uri.parse(serverUrl).host}',
+      value: 'mock-session-cookie',
+    );
   }
 
-  /// Mock method to store authentication tokens
-  ///
-  /// In a real implementation, this would securely store tokens received
-  /// from the server during authentication.
-  Future<void> storeTokens(String serverId, Map<String, String> tokens) async {
-    // Simulate storage operation
-    await Future.delayed(const Duration(milliseconds: 50));
-    
-    // In a real implementation, this would store tokens securely
-    // For mocking, we just complete successfully
+  @override
+  Future<void> disconnect(String serverId) async {
+    // Clear stored tokens/cookies
+    // In a real implementation, this would clear all connection-related data
+    _credentialCache.remove(serverId);
+  }
+
+  @override
+  bool hasCachedCredentials(String serverId) {
+    return _credentialCache.containsKey(serverId);
+  }
+
+  @override
+  ConnectionCredentials? getCachedCredentials(String serverId) {
+    return _credentialCache[serverId];
   }
 }

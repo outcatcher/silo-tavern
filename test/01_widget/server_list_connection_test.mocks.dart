@@ -3,13 +3,13 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i3;
+import 'dart:async' as _i4;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i6;
-import 'package:silo_tavern/domain/servers/models.dart' as _i4;
-import 'package:silo_tavern/services/connection/service.dart' as _i5;
-import 'package:silo_tavern/services/servers/storage.dart' as _i2;
+import 'package:silo_tavern/domain/connection/domain.dart' as _i6;
+import 'package:silo_tavern/domain/connection/models.dart' as _i2;
+import 'package:silo_tavern/domain/servers/models.dart' as _i5;
+import 'package:silo_tavern/services/servers/storage.dart' as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -26,107 +26,156 @@ import 'package:silo_tavern/services/servers/storage.dart' as _i2;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
+class _FakeConnectionResult_0 extends _i1.SmartFake
+    implements _i2.ConnectionResult {
+  _FakeConnectionResult_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeAuthenticatedClient_1 extends _i1.SmartFake
+    implements _i2.AuthenticatedClient {
+  _FakeAuthenticatedClient_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [ServerStorage].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockServerStorage extends _i1.Mock implements _i2.ServerStorage {
+class MockServerStorage extends _i1.Mock implements _i3.ServerStorage {
   @override
-  _i3.Future<List<_i4.Server>> listServers() =>
+  _i4.Future<List<_i5.Server>> listServers() =>
       (super.noSuchMethod(
             Invocation.method(#listServers, []),
-            returnValue: _i3.Future<List<_i4.Server>>.value(<_i4.Server>[]),
-            returnValueForMissingStub: _i3.Future<List<_i4.Server>>.value(
-              <_i4.Server>[],
+            returnValue: _i4.Future<List<_i5.Server>>.value(<_i5.Server>[]),
+            returnValueForMissingStub: _i4.Future<List<_i5.Server>>.value(
+              <_i5.Server>[],
             ),
           )
-          as _i3.Future<List<_i4.Server>>);
+          as _i4.Future<List<_i5.Server>>);
 
   @override
-  _i3.Future<_i4.Server?> getServer(String? id) =>
+  _i4.Future<_i5.Server?> getServer(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#getServer, [id]),
-            returnValue: _i3.Future<_i4.Server?>.value(),
-            returnValueForMissingStub: _i3.Future<_i4.Server?>.value(),
+            returnValue: _i4.Future<_i5.Server?>.value(),
+            returnValueForMissingStub: _i4.Future<_i5.Server?>.value(),
           )
-          as _i3.Future<_i4.Server?>);
+          as _i4.Future<_i5.Server?>);
 
   @override
-  _i3.Future<void> createServer(_i4.Server? server) =>
+  _i4.Future<void> createServer(_i5.Server? server) =>
       (super.noSuchMethod(
             Invocation.method(#createServer, [server]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i3.Future<void> updateServer(_i4.Server? server) =>
+  _i4.Future<void> updateServer(_i5.Server? server) =>
       (super.noSuchMethod(
             Invocation.method(#updateServer, [server]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteServer(String? serverId) =>
+  _i4.Future<void> deleteServer(String? serverId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteServer, [serverId]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
 }
 
-/// A class which mocks [ServerConnectionService].
+/// A class which mocks [ConnectionDomain].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockServerConnectionService extends _i1.Mock
-    implements _i5.ServerConnectionService {
+class MockConnectionDomain extends _i1.Mock implements _i6.ConnectionDomain {
   @override
-  _i3.Future<String> getCsrfToken(String? serverAddress) =>
+  _i4.Future<_i2.ConnectionResult> connectToServer(_i5.Server? server) =>
       (super.noSuchMethod(
-            Invocation.method(#getCsrfToken, [serverAddress]),
-            returnValue: _i3.Future<String>.value(
-              _i6.dummyValue<String>(
+            Invocation.method(#connectToServer, [server]),
+            returnValue: _i4.Future<_i2.ConnectionResult>.value(
+              _FakeConnectionResult_0(
                 this,
-                Invocation.method(#getCsrfToken, [serverAddress]),
+                Invocation.method(#connectToServer, [server]),
               ),
             ),
-            returnValueForMissingStub: _i3.Future<String>.value(
-              _i6.dummyValue<String>(
+            returnValueForMissingStub: _i4.Future<_i2.ConnectionResult>.value(
+              _FakeConnectionResult_0(
                 this,
-                Invocation.method(#getCsrfToken, [serverAddress]),
+                Invocation.method(#connectToServer, [server]),
               ),
             ),
           )
-          as _i3.Future<String>);
+          as _i4.Future<_i2.ConnectionResult>);
 
   @override
-  _i3.Future<void> authenticate(
-    String? serverAddress,
-    String? csrfToken,
-    String? username,
-    String? password,
+  _i4.Future<_i2.AuthenticatedClient> getAuthenticatedClient(
+    String? serverId,
+    String? baseUrl,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#authenticate, [
-              serverAddress,
-              csrfToken,
-              username,
-              password,
-            ]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            Invocation.method(#getAuthenticatedClient, [serverId, baseUrl]),
+            returnValue: _i4.Future<_i2.AuthenticatedClient>.value(
+              _FakeAuthenticatedClient_1(
+                this,
+                Invocation.method(#getAuthenticatedClient, [serverId, baseUrl]),
+              ),
+            ),
+            returnValueForMissingStub:
+                _i4.Future<_i2.AuthenticatedClient>.value(
+                  _FakeAuthenticatedClient_1(
+                    this,
+                    Invocation.method(#getAuthenticatedClient, [
+                      serverId,
+                      baseUrl,
+                    ]),
+                  ),
+                ),
           )
-          as _i3.Future<void>);
+          as _i4.Future<_i2.AuthenticatedClient>);
 
   @override
-  _i3.Future<void> storeTokens(String? serverId, Map<String, String>? tokens) =>
+  _i4.Future<void> disconnect(String? serverId) =>
       (super.noSuchMethod(
-            Invocation.method(#storeTokens, [serverId, tokens]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            Invocation.method(#disconnect, [serverId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<_i2.ConnectionResult> reauthenticate(
+    String? serverId,
+    String? serverUrl,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#reauthenticate, [serverId, serverUrl]),
+            returnValue: _i4.Future<_i2.ConnectionResult>.value(
+              _FakeConnectionResult_0(
+                this,
+                Invocation.method(#reauthenticate, [serverId, serverUrl]),
+              ),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.ConnectionResult>.value(
+              _FakeConnectionResult_0(
+                this,
+                Invocation.method(#reauthenticate, [serverId, serverUrl]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.ConnectionResult>);
+
+  @override
+  _i4.Future<bool> isConnected(String? serverId) =>
+      (super.noSuchMethod(
+            Invocation.method(#isConnected, [serverId]),
+            returnValue: _i4.Future<bool>.value(false),
+            returnValueForMissingStub: _i4.Future<bool>.value(false),
+          )
+          as _i4.Future<bool>);
 }

@@ -7,24 +7,25 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
-import 'package:silo_tavern/services/connection/service.dart';
+import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/domain/connection/models.dart' as connection_models;
 import 'package:silo_tavern/services/servers/storage.dart';
 
 import 'server_connection_test.mocks.dart';
 
 @GenerateNiceMocks([
   MockSpec<ServerStorage>(),
-  MockSpec<ServerConnectionService>(),
+  MockSpec<ConnectionDomain>(),
 ])
 void main() {
   group('ServerConnection Tests', () {
     late MockServerStorage storage;
-    late MockServerConnectionService connectionService;
+    late MockConnectionDomain connectionDomain;
     late ServerDomain domain;
 
     setUp(() async {
       storage = MockServerStorage();
-      connectionService = MockServerConnectionService();
+      connectionDomain = MockConnectionDomain();
       
       // Mock the storage methods to return some initial servers
       when(storage.listServers()).thenAnswer(
@@ -62,7 +63,7 @@ void main() {
       when(storage.deleteServer(any)).thenAnswer((_) async {});
 
       domain = ServerDomain(
-        ServerOptions(storage, connectionService: connectionService),
+        ServerOptions(storage, connectionDomain: connectionDomain),
       );
 
       // Initialize the domain
@@ -72,14 +73,8 @@ void main() {
     test('Connect to server successfully', () async {
       // Arrange
       final server = domain.servers[0];
-      when(connectionService.getCsrfToken(any)).thenAnswer(
-        (_) async => 'mock-csrf-token',
-      );
-      when(connectionService.authenticate(any, any, any, any)).thenAnswer(
-        (_) async {},
-      );
-      when(connectionService.storeTokens(any, any)).thenAnswer(
-        (_) async {},
+      when(connectionDomain.connectToServer(any)).thenAnswer(
+        (_) async => connection_models.ConnectionResult.success(),
       );
 
       // Act
@@ -91,21 +86,14 @@ void main() {
       expect(result.errorMessage, isNull);
       
       // Verify interactions
-      verify(connectionService.getCsrfToken(server.address)).called(1);
-      verify(connectionService.storeTokens(server.id, any)).called(1);
+      verify(connectionDomain.connectToServer(server)).called(1);
     });
 
     test('Connect to server with authentication', () async {
       // Arrange
       final server = domain.servers[0]; // Server with credentials
-      when(connectionService.getCsrfToken(any)).thenAnswer(
-        (_) async => 'mock-csrf-token',
-      );
-      when(connectionService.authenticate(any, any, any, any)).thenAnswer(
-        (_) async {},
-      );
-      when(connectionService.storeTokens(any, any)).thenAnswer(
-        (_) async {},
+      when(connectionDomain.connectToServer(any)).thenAnswer(
+        (_) async => connection_models.ConnectionResult.success(),
       );
 
       // Act
@@ -114,25 +102,15 @@ void main() {
       // Assert
       expect(result.isSuccess, isTrue);
       
-      // Verify authentication was called
-      verify(connectionService.getCsrfToken(server.address)).called(1);
-      verify(connectionService.authenticate(
-        server.address,
-        'mock-csrf-token',
-        server.authentication.username,
-        server.authentication.password,
-      )).called(1);
-      verify(connectionService.storeTokens(server.id, any)).called(1);
+      // Verify interactions
+      verify(connectionDomain.connectToServer(server)).called(1);
     });
 
     test('Connect to server without authentication', () async {
       // Arrange
       final server = domain.servers[1]; // Server without credentials
-      when(connectionService.getCsrfToken(any)).thenAnswer(
-        (_) async => 'mock-csrf-token',
-      );
-      when(connectionService.storeTokens(any, any)).thenAnswer(
-        (_) async {},
+      when(connectionDomain.connectToServer(any)).thenAnswer(
+        (_) async => connection_models.ConnectionResult.success(),
       );
 
       // Act
@@ -141,17 +119,15 @@ void main() {
       // Assert
       expect(result.isSuccess, isTrue);
       
-      // Verify authentication was NOT called
-      verify(connectionService.getCsrfToken(server.address)).called(1);
-      verifyNever(connectionService.authenticate(any, any, any, any));
-      verify(connectionService.storeTokens(server.id, any)).called(1);
+      // Verify interactions
+      verify(connectionDomain.connectToServer(server)).called(1);
     });
 
-    test('Connect to server fails when CSRF request fails', () async {
+    test('Connect to server fails when connection fails', () async {
       // Arrange
       final server = domain.servers[0];
-      when(connectionService.getCsrfToken(any)).thenThrow(
-        Exception('Network error'),
+      when(connectionDomain.connectToServer(any)).thenAnswer(
+        (_) async => connection_models.ConnectionResult.failure('Connection failed'),
       );
 
       // Act
@@ -161,42 +137,10 @@ void main() {
       expect(result.isSuccess, isFalse);
       expect(result.server, server);
       expect(result.errorMessage, isNotNull);
-      expect(result.errorMessage, contains('Network error'));
-      
-      // Verify authentication was not called
-      verify(connectionService.getCsrfToken(server.address)).called(1);
-      verifyNever(connectionService.authenticate(any, any, any, any));
-      verifyNever(connectionService.storeTokens(any, any));
-    });
-
-    test('Connect to server fails when authentication fails', () async {
-      // Arrange
-      final server = domain.servers[0];
-      when(connectionService.getCsrfToken(any)).thenAnswer(
-        (_) async => 'mock-csrf-token',
-      );
-      when(connectionService.authenticate(any, any, any, any)).thenThrow(
-        Exception('Authentication failed'),
-      );
-
-      // Act
-      final result = await domain.connectToServer(server);
-
-      // Assert
-      expect(result.isSuccess, isFalse);
-      expect(result.server, server);
-      expect(result.errorMessage, isNotNull);
-      expect(result.errorMessage, contains('Authentication failed'));
+      expect(result.errorMessage, contains('Connection failed'));
       
       // Verify interactions
-      verify(connectionService.getCsrfToken(server.address)).called(1);
-      verify(connectionService.authenticate(
-        server.address,
-        'mock-csrf-token',
-        server.authentication.username,
-        server.authentication.password,
-      )).called(1);
-      verifyNever(connectionService.storeTokens(any, any));
+      verify(connectionDomain.connectToServer(server)).called(1);
     });
   });
 }

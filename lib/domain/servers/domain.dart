@@ -3,25 +3,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../services/servers/storage.dart';
-import '../../services/connection/service.dart';
 import '../../utils/network_utils.dart';
 import 'models.dart';
+import '../connection/domain.dart';
+import '../connection/models.dart' as connection_models;
 
 class ServerOptions {
   final ServerStorage storage;
-  final ServerConnectionService connectionService;
+  final ConnectionDomain connectionDomain;
 
-  ServerOptions(this.storage, {ServerConnectionService? connectionService})
-    : connectionService = connectionService ?? ServerConnectionService();
+  ServerOptions(this.storage, {required this.connectionDomain});
 
   factory ServerOptions.fromRawStorage(
     SharedPreferencesAsync prefs,
     FlutterSecureStorage sec, {
-    ServerConnectionService? connectionService,
+    required ConnectionDomain connectionDomain,
   }) {
     return ServerOptions(
       ServerStorage.fromRawStorage(prefs, sec),
-      connectionService: connectionService,
+      connectionDomain: connectionDomain,
     );
   }
 }
@@ -29,13 +29,13 @@ class ServerOptions {
 class ServerDomain {
   final List<Server> _servers = [];
   final ServerStorage _storage;
-  final ServerConnectionService _connectionService;
+  final ConnectionDomain _connectionDomain;
 
   final locker = Mutex();
 
   ServerDomain(ServerOptions options) 
     : _storage = options.storage,
-      _connectionService = options.connectionService;
+      _connectionDomain = options.connectionDomain;
 
   // Initialize the service by loading servers
   Future<void> initialize() async {
@@ -102,28 +102,16 @@ class ServerDomain {
   // Connect to a server
   Future<ServerConnectionResult> connectToServer(Server server) async {
     try {
-      // Step 1: Get CSRF token
-      final csrfToken = await _connectionService.getCsrfToken(server.address);
+      // Use the connection domain to connect to the server
+      final result = await _connectionDomain.connectToServer(server);
       
-      // Step 2: Authenticate with the server
-      if (server.authentication.useCredentials) {
-        await _connectionService.authenticate(
-          server.address,
-          csrfToken,
-          server.authentication.username,
-          server.authentication.password,
-        );
+      if (result.isSuccess) {
+        // Connection successful
+        return ServerConnectionResult.success(server);
+      } else {
+        // Connection failed
+        return ServerConnectionResult.failure(server, result.errorMessage ?? 'Unknown error');
       }
-      
-      // Step 3: Store tokens (in a real implementation)
-      // For mocking, we'll just simulate this step
-      await _connectionService.storeTokens(
-        server.id,
-        {'csrfToken': csrfToken},
-      );
-      
-      // Connection successful
-      return ServerConnectionResult.success(server);
     } catch (e) {
       // Connection failed
       return ServerConnectionResult.failure(server, e.toString());
