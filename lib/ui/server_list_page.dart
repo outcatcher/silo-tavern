@@ -372,7 +372,7 @@ class _ServerListPageState extends State<ServerListPage> {
         onTap: () async {
           // Check if the widget is still mounted before using context
           if (!context.mounted) return;
-          
+
           // Show connecting message
           final snackBar = SnackBar(
             content: const Text('Connecting to server...'),
@@ -403,7 +403,7 @@ class _ServerListPageState extends State<ServerListPage> {
           } else {
             // Check if the widget is still mounted before showing error
             if (!context.mounted) return;
-            
+
             // Show error message
             final errorSnackBar = SnackBar(
               content: Text(
