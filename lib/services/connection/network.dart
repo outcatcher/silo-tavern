@@ -12,6 +12,7 @@ import 'dart:convert';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:silo_tavern/domain/connection/models.dart';
 
@@ -50,28 +51,38 @@ class ConnectionSession implements ConnectionSessionInterface {
   /// Obtain CSRF token from the server
   @override
   Future<void> obtainCsrfToken() async {
-    final response = await _client.get('/csrf-token');
+    try {
+      final response = await _client.get('/csrf-token');
 
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.data) as Map<String, dynamic>;
-      _csrf = jsonResponse['token'] as String;
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.data) as Map<String, dynamic>;
+        _csrf = jsonResponse['token'] as String;
 
-      _client.options.headers['X-CSRF-Token'] = _csrf;
-    } else {
-      throw Exception('Failed to obtain CSRF token: ${response.statusCode}');
+        _client.options.headers['X-CSRF-Token'] = _csrf;
+      } else {
+        throw Exception('Failed to obtain CSRF token: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('ConnectionSession: Failed to obtain CSRF token: $e');
+      rethrow;
     }
   }
 
   /// Authenticate with the server and obtain session cookies
   @override
   Future<void> authenticate(ConnectionCredentials? credentials) async {
-    final response = await _client.post(
-      '/api/users/login',
-      data: credentials?.toJson(),
-    );
+    try {
+      final response = await _client.post(
+        '/api/users/login',
+        data: credentials?.toJson(),
+      );
 
-    if (response.statusCode != 200) {
-      throw Exception('Authentication failed: ${response.statusCode}');
+      if (response.statusCode != 200) {
+        throw Exception('Authentication failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('ConnectionSession: Failed to authenticate: $e');
+      rethrow;
     }
   }
 }

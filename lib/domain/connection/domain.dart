@@ -3,6 +3,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:silo_tavern/services/connection/network.dart';
 import 'package:silo_tavern/services/connection/storage.dart';
@@ -43,6 +44,7 @@ class ConnectionDomain {
     try {
       await session.obtainCsrfToken();
     } catch (e) {
+      debugPrint('ConnectionDomain: Failed to obtain CSRF token for server ${server.id}: $e');
       return ConnectionResult.failure(e.toString());
     }
 
@@ -57,6 +59,7 @@ class ConnectionDomain {
 
         return ConnectionResult.success();
       } catch (e) {
+        debugPrint('ConnectionDomain: Failed to authenticate with server ${server.id}: $e');
         return ConnectionResult.failure(e.toString());
       }
     }

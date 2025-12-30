@@ -76,7 +76,12 @@ tasks:
   lint:
     desc: Run linter
     cmds:
-      - flutter analyze
+      - dart fix --dry-run
+
+  lint:fix:
+    desc: Fix lint errors
+    cmds:
+      - dart fix --apply
 
   format:
     desc: Format code

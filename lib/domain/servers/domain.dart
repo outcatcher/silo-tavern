@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mutex/mutex.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -112,6 +113,7 @@ class ServerDomain {
         return ServerConnectionResult.success(server);
       } else {
         // Connection failed
+        debugPrint('ServerDomain: Connection failed for server ${server.id}: ${result.errorMessage}');
         return ServerConnectionResult.failure(
           server,
           result.errorMessage ?? 'Unknown error',
@@ -119,6 +121,7 @@ class ServerDomain {
       }
     } catch (e) {
       // Connection failed
+      debugPrint('ServerDomain: Exception during connection to server ${server.id}: $e');
       return ServerConnectionResult.failure(server, e.toString());
     }
   }
