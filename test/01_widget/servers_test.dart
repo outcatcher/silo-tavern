@@ -15,7 +15,6 @@ import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
-import 'package:silo_tavern/services/connection/service.dart';
 import 'package:silo_tavern/main.dart';
 
 import 'servers_test.mocks.dart';
@@ -33,15 +32,6 @@ void main() {
 
     // Create mock connection domain and service
     final mockConnectionDomain = MockConnectionDomain();
-    final mockConnectionService = MockConnectionService();
-
-    // Configure the connection domain to return the connection service
-    when(
-      mockConnectionDomain.connectionService,
-    ).thenReturn(mockConnectionService);
-
-    // Configure the connection service close method to do nothing
-    when(mockConnectionService.close()).thenAnswer((_) async {});
 
     // Configure the server domain to return the connection domain
     when(mockService.connectionDomain).thenReturn(mockConnectionDomain);
@@ -1097,15 +1087,6 @@ void main() {
 
     // Create mock connection domain and service
     final mockConnectionDomain = MockConnectionDomain();
-    final mockConnectionService = MockConnectionService();
-
-    // Configure the connection domain to return the connection service
-    when(
-      mockConnectionDomain.connectionService,
-    ).thenReturn(mockConnectionService);
-
-    // Configure the connection service close method to do nothing
-    when(mockConnectionService.close()).thenAnswer((_) async {});
 
     // Configure the server domain to return the connection domain
     when(mockService.connectionDomain).thenReturn(mockConnectionDomain);
@@ -1171,15 +1152,6 @@ void main() {
 
     // Create mock connection domain and service
     final mockConnectionDomain = MockConnectionDomain();
-    final mockConnectionService = MockConnectionService();
-
-    // Configure the connection domain to return the connection service
-    when(
-      mockConnectionDomain.connectionService,
-    ).thenReturn(mockConnectionService);
-
-    // Configure the connection service close method to do nothing
-    when(mockConnectionService.close()).thenAnswer((_) async {});
 
     // Configure the server domain to return the connection domain
     when(mockService.connectionDomain).thenReturn(mockConnectionDomain);
@@ -1280,15 +1252,6 @@ void main() {
 
     // Create mock connection domain and service
     final mockConnectionDomain = MockConnectionDomain();
-    final mockConnectionService = MockConnectionService();
-
-    // Configure the connection domain to return the connection service
-    when(
-      mockConnectionDomain.connectionService,
-    ).thenReturn(mockConnectionService);
-
-    // Configure the connection service close method to do nothing
-    when(mockConnectionService.close()).thenAnswer((_) async {});
 
     // Configure the server domain to return the connection domain
     when(mockService.connectionDomain).thenReturn(mockConnectionDomain);

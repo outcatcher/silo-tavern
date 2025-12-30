@@ -110,16 +110,4 @@ void main() {
       expect(failure1.hashCode, equals(failure2.hashCode));
     });
   });
-
-  group('AuthenticatedClient Tests', () {
-    test('AuthenticatedClient creation', () {
-      final client = AuthenticatedClient(
-        serverId: '1',
-        baseUrl: 'https://test.example.com',
-      );
-
-      expect(client.serverId, '1');
-      expect(client.baseUrl, 'https://test.example.com');
-    });
-  });
 }

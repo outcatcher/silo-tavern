@@ -13,8 +13,14 @@ import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/connection/models.dart' as connection_models;
 import 'package:silo_tavern/services/servers/storage.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
+import 'package:silo_tavern/ui/under_construction_page.dart';
 
-@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
+import 'server_list_connection_test.mocks.dart';
+
+@GenerateNiceMocks([
+  MockSpec<ServerStorage>(),
+  MockSpec<ConnectionDomain>(),
+])
 void main() {
   group('ServerListPage Connection Tests', () {
     late MockServerStorage storage;
@@ -57,16 +63,15 @@ void main() {
           ),
         ),
       );
+
       when(storage.createServer(any)).thenAnswer((_) async {});
       when(storage.updateServer(any)).thenAnswer((_) async {});
       when(storage.deleteServer(any)).thenAnswer((_) async {});
 
-      // Mock connection service to avoid disposal issues
-      final mockConnectionService = MockConnectionService();
-      when(mockConnectionService.close()).thenAnswer((_) async {});
-      when(
-        connectionDomain.connectionService,
-      ).thenReturn(mockConnectionService);
+      // Mock the connection domain methods
+      when(connectionDomain.connectToServer(any)).thenAnswer(
+        (_) async => connection_models.ConnectionResult.success(),
+      );
 
       domain = ServerDomain(
         ServerOptions(storage, connectionDomain: connectionDomain),
@@ -80,10 +85,12 @@ void main() {
         routes: [
           GoRoute(
             path: '/',
+            name: 'servers',
             builder: (context, state) => ServerListPage(serverDomain: domain),
           ),
           GoRoute(
             path: '/servers/connect/:id',
+            name: 'serverConnect',
             builder: (context, state) {
               final serverId = state.pathParameters['id']!;
               final server = domain.findServerById(serverId);
@@ -92,48 +99,36 @@ void main() {
                   body: Center(child: Text('Server not found')),
                 );
               }
-              return Scaffold(
-                appBar: AppBar(title: Text(server.name)),
-                body: const Center(child: Text('Under Construction')),
-              );
+              return UnderConstructionPage(title: server.name, backUrl: '/servers');
             },
           ),
         ],
       );
     });
 
-    // Skip this test for now as it's difficult to test the transient snackbar
-    testWidgets('Shows connecting message when tapping server', (
+    testWidgets('Navigates to under construction page on successful connection', (
       WidgetTester tester,
     ) async {
-      // This test is intentionally left blank as testing transient snackbars is complex
-      expect(true, isTrue);
-    }, skip: true);
+      // Arrange
+      when(connectionDomain.connectToServer(any)).thenAnswer(
+        (_) async => connection_models.ConnectionResult.success(),
+      );
 
-    testWidgets(
-      'Navigates to under construction page on successful connection',
-      (WidgetTester tester) async {
-        // Arrange
-        when(
-          connectionDomain.connectToServer(any),
-        ).thenAnswer((_) async => connection_models.ConnectionResult.success());
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
 
-        await tester.pumpWidget(MaterialApp.router(routerConfig: router));
-        await tester.pumpAndSettle();
+      // Act
+      final serverCard = find.text('Test Server 1').first;
+      await tester.tap(serverCard);
+      await tester.pumpAndSettle();
 
-        // Act
-        final serverCard = find.text('Test Server 1').first;
-        await tester.tap(serverCard);
-        await tester.pumpAndSettle();
-
-        // Assert
-        expect(find.text('Under Construction'), findsOneWidget);
-        expect(
-          find.text('Test Server 1'),
-          findsOneWidget,
-        ); // Server name in app bar
-      },
-    );
+      // Assert
+      expect(find.text('Under Construction'), findsOneWidget);
+      expect(
+        find.text('Test Server 1'),
+        findsOneWidget,
+      ); // Server name should be in the page
+    });
 
     testWidgets('Shows error message on connection failure', (
       WidgetTester tester,
