@@ -1,14 +1,15 @@
+import 'dart:io';
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:silo_tavern/services/connection/service.dart';
 import 'package:silo_tavern/domain/connection/models.dart';
+import 'package:silo_tavern/services/connection/service.dart';
 
 import 'connection_service_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<http.Client>(), MockSpec<FlutterSecureStorage>()])
+@GenerateNiceMocks([MockSpec<HttpClient>(), MockSpec<FlutterSecureStorage>()])
 void main() {
   group('ConnectionService Tests', () {
     late MockClient httpClient;
@@ -19,6 +20,10 @@ void main() {
       httpClient = MockClient();
       secureStorage = MockFlutterSecureStorage();
       service = ConnectionService(secureStorage, httpClient: httpClient);
+    });
+
+    tearDown(() {
+      service.close();
     });
 
     group('CSRF Token Handling', () {
@@ -254,6 +259,9 @@ void main() {
 
         // Assert
         expect(service, isNotNull);
+
+        // Cleanup
+        service.close();
       });
     });
   });

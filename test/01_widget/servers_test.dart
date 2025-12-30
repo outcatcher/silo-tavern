@@ -14,11 +14,13 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
+import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/services/connection/service.dart';
 import 'package:silo_tavern/main.dart';
 
 import 'servers_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerDomain>()])
+@GenerateNiceMocks([MockSpec<ServerDomain>(), MockSpec<ConnectionDomain>()])
 void main() {
   late MockServerDomain serverDomain;
 
@@ -28,6 +30,24 @@ void main() {
 
     // Create mock server service
     final mockService = MockServerDomain();
+
+    // Create mock connection domain and service
+    final mockConnectionDomain = MockConnectionDomain();
+    final mockConnectionService = MockConnectionService();
+
+    // Configure the connection domain to return the connection service
+    when(
+      mockConnectionDomain.connectionService,
+    ).thenReturn(mockConnectionService);
+
+    // Configure the connection service close method to do nothing
+    when(mockConnectionService.close()).thenAnswer((_) async {});
+
+    // Configure the server domain to return the connection domain
+    when(mockService.connectionDomain).thenReturn(mockConnectionDomain);
+
+    // Assign the mock service to the serverDomain variable
+    serverDomain = mockService;
 
     // Create a mutable list of servers for the mock
     final serversList = [
@@ -1075,6 +1095,21 @@ void main() {
     final mockService = MockServerDomain();
     final emptyServersList = <Server>[];
 
+    // Create mock connection domain and service
+    final mockConnectionDomain = MockConnectionDomain();
+    final mockConnectionService = MockConnectionService();
+
+    // Configure the connection domain to return the connection service
+    when(
+      mockConnectionDomain.connectionService,
+    ).thenReturn(mockConnectionService);
+
+    // Configure the connection service close method to do nothing
+    when(mockConnectionService.close()).thenAnswer((_) async {});
+
+    // Configure the server domain to return the connection domain
+    when(mockService.connectionDomain).thenReturn(mockConnectionDomain);
+
     // Set up mock to return empty list
     when(mockService.servers).thenAnswer((_) => emptyServersList);
 
@@ -1133,6 +1168,21 @@ void main() {
     // Create a mock service that throws an error when adding a server
     final mockService = MockServerDomain();
     final serversList = <Server>[];
+
+    // Create mock connection domain and service
+    final mockConnectionDomain = MockConnectionDomain();
+    final mockConnectionService = MockConnectionService();
+
+    // Configure the connection domain to return the connection service
+    when(
+      mockConnectionDomain.connectionService,
+    ).thenReturn(mockConnectionService);
+
+    // Configure the connection service close method to do nothing
+    when(mockConnectionService.close()).thenAnswer((_) async {});
+
+    // Configure the server domain to return the connection domain
+    when(mockService.connectionDomain).thenReturn(mockConnectionDomain);
 
     // Set up mock to return initial empty list
     when(mockService.servers).thenAnswer((_) => serversList);
@@ -1227,6 +1277,21 @@ void main() {
         ),
       ),
     ];
+
+    // Create mock connection domain and service
+    final mockConnectionDomain = MockConnectionDomain();
+    final mockConnectionService = MockConnectionService();
+
+    // Configure the connection domain to return the connection service
+    when(
+      mockConnectionDomain.connectionService,
+    ).thenReturn(mockConnectionService);
+
+    // Configure the connection service close method to do nothing
+    when(mockConnectionService.close()).thenAnswer((_) async {});
+
+    // Configure the server domain to return the connection domain
+    when(mockService.connectionDomain).thenReturn(mockConnectionDomain);
 
     // Set up mock to return initial server list
     when(mockService.servers).thenAnswer((_) => serversList);

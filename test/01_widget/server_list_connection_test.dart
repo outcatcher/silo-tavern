@@ -14,8 +14,6 @@ import 'package:silo_tavern/domain/connection/models.dart' as connection_models;
 import 'package:silo_tavern/services/servers/storage.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 
-import '../00_unit/server_connection_test.mocks.dart';
-
 @GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
 void main() {
   group('ServerListPage Connection Tests', () {
@@ -62,6 +60,13 @@ void main() {
       when(storage.createServer(any)).thenAnswer((_) async {});
       when(storage.updateServer(any)).thenAnswer((_) async {});
       when(storage.deleteServer(any)).thenAnswer((_) async {});
+
+      // Mock connection service to avoid disposal issues
+      final mockConnectionService = MockConnectionService();
+      when(mockConnectionService.close()).thenAnswer((_) async {});
+      when(
+        connectionDomain.connectionService,
+      ).thenReturn(mockConnectionService);
 
       domain = ServerDomain(
         ServerOptions(storage, connectionDomain: connectionDomain),

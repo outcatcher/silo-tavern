@@ -36,6 +36,9 @@ class ServerDomain {
     : _storage = options.storage,
       _connectionDomain = options.connectionDomain;
 
+  /// Access to the underlying connection domain
+  ConnectionDomain get connectionDomain => _connectionDomain;
+
   // Initialize the service by loading servers
   Future<void> initialize() async {
     await _reLoadServers();
