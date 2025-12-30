@@ -55,7 +55,18 @@ class ConnectionSession implements ConnectionSessionInterface {
       final response = await _client.get('/csrf-token');
 
       if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.data) as Map<String, dynamic>;
+        // Handle both string and Map responses
+        Map<String, dynamic> jsonResponse;
+        if (response.data is String) {
+          jsonResponse = jsonDecode(response.data) as Map<String, dynamic>;
+        } else if (response.data is Map<String, dynamic>) {
+          jsonResponse = response.data as Map<String, dynamic>;
+        } else {
+          throw Exception('Unexpected response data type: ${response.data.runtimeType}');
+        }
+        
+        // Maintain backward compatibility with existing tests
+        // When token is missing, let the cast throw TypeError as expected by tests
         _csrf = jsonResponse['token'] as String;
 
         _client.options.headers['X-CSRF-Token'] = _csrf;
