@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:silo_tavern/utils/app_storage.dart';

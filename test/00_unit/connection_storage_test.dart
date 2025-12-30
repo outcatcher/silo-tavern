@@ -12,7 +12,10 @@ import 'package:silo_tavern/utils/app_storage.dart';
 
 import 'connection_storage_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<JsonSecureStorage>(), MockSpec<FlutterSecureStorage>()])
+@GenerateNiceMocks([
+  MockSpec<JsonSecureStorage>(),
+  MockSpec<FlutterSecureStorage>(),
+])
 void main() {
   group('ConnectionStorage Tests', () {
     late MockJsonSecureStorage mockSecureStorage;
@@ -36,7 +39,7 @@ void main() {
             ..domain = 'example.com'
             ..path = '/api',
         ];
-        
+
         final expectedData = [
           {
             'name': 'session',
@@ -50,7 +53,7 @@ void main() {
             'value': 'xyz789',
             'domain': 'example.com',
             'path': '/api',
-          }
+          },
         ];
 
         when(
@@ -61,9 +64,7 @@ void main() {
         await storage.saveSessionCookies(serverId, cookies);
 
         // Assert
-        verify(
-          mockSecureStorage.set(serverId, expectedData),
-        ).called(1);
+        verify(mockSecureStorage.set(serverId, expectedData)).called(1);
       });
 
       test('Handles cookies without expiration dates', () async {
@@ -74,14 +75,14 @@ void main() {
             ..domain = 'example.com'
             ..path = '/',
         ];
-        
+
         final expectedData = [
           {
             'name': 'session',
             'value': 'abc123',
             'domain': 'example.com',
             'path': '/',
-          }
+          },
         ];
 
         when(
@@ -92,16 +93,14 @@ void main() {
         await storage.saveSessionCookies(serverId, cookies);
 
         // Assert
-        verify(
-          mockSecureStorage.set(serverId, expectedData),
-        ).called(1);
+        verify(mockSecureStorage.set(serverId, expectedData)).called(1);
       });
 
       test('Handles empty cookie list', () async {
         // Arrange
         const serverId = 'server789';
         final cookies = <Cookie>[];
-        
+
         final expectedData = <Map<String, dynamic>>[];
 
         when(
@@ -112,9 +111,7 @@ void main() {
         await storage.saveSessionCookies(serverId, cookies);
 
         // Assert
-        verify(
-          mockSecureStorage.set(serverId, expectedData),
-        ).called(1);
+        verify(mockSecureStorage.set(serverId, expectedData)).called(1);
       });
     });
 
@@ -135,9 +132,9 @@ void main() {
             'value': 'xyz789',
             'domain': 'example.com',
             'path': '/api',
-          }
+          },
         ];
-        
+
         when(
           mockSecureStorage.get(serverId),
         ).thenAnswer((_) async => storedData);
@@ -148,14 +145,14 @@ void main() {
         // Assert
         expect(result, isNotNull);
         expect(result, hasLength(2));
-        
+
         final firstCookie = result![0];
         expect(firstCookie.name, 'session');
         expect(firstCookie.value, 'abc123');
         expect(firstCookie.domain, 'example.com');
         expect(firstCookie.path, '/');
         expect(firstCookie.expires, DateTime(2025, 12, 31));
-        
+
         final secondCookie = result[1];
         expect(secondCookie.name, 'auth');
         expect(secondCookie.value, 'xyz789');
@@ -167,10 +164,8 @@ void main() {
       test('Returns null when no cookies exist for server', () async {
         // Arrange
         const serverId = 'nonexistent';
-        
-        when(
-          mockSecureStorage.get(serverId),
-        ).thenAnswer((_) async => null);
+
+        when(mockSecureStorage.get(serverId)).thenAnswer((_) async => null);
 
         // Act
         final result = await storage.loadSessionCookies(serverId);
@@ -188,9 +183,9 @@ void main() {
             'value': 'abc123',
             'domain': 'example.com',
             'path': '/',
-          }
+          },
         ];
-        
+
         when(
           mockSecureStorage.get(serverId),
         ).thenAnswer((_) async => storedData);
@@ -201,7 +196,7 @@ void main() {
         // Assert
         expect(result, isNotNull);
         expect(result, hasLength(1));
-        
+
         final cookie = result![0];
         expect(cookie.name, 'session');
         expect(cookie.value, 'abc123');
@@ -214,7 +209,7 @@ void main() {
         // Arrange
         const serverId = 'server789';
         final storedData = <Map<String, dynamic>>[];
-        
+
         when(
           mockSecureStorage.get(serverId),
         ).thenAnswer((_) async => storedData);
@@ -231,7 +226,7 @@ void main() {
         // Arrange
         const serverId = 'notlist';
         const storedData = 'not-a-list';
-        
+
         when(
           mockSecureStorage.get(serverId),
         ).thenAnswer((_) async => storedData);
@@ -250,7 +245,9 @@ void main() {
         final mockFlutterSecureStorage = MockFlutterSecureStorage();
 
         // Act
-        final storage = ConnectionStorage.defaultInstance(mockFlutterSecureStorage);
+        final storage = ConnectionStorage.defaultInstance(
+          mockFlutterSecureStorage,
+        );
 
         // Assert
         expect(storage, isNotNull);
