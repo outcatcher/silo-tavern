@@ -15,7 +15,7 @@ class JsonSecureStorage {
     return '$_keyPrefix/$key';
   }
 
-  Future<Map<String, dynamic>?> get(String key) async {
+  Future<dynamic> get(String key) async {
     final raw = await _secureStorage.read(key: _realKey(key));
 
     if (raw == null) {

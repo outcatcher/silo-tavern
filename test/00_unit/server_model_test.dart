@@ -3,7 +3,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:silo_tavern/domain/server.dart';
+import 'package:silo_tavern/domain/servers/models.dart';
 
 void main() {
   group('Server Model Tests', () {

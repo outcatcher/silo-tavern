@@ -5,20 +5,24 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:silo_tavern/domain/server.dart';
-import 'package:silo_tavern/domain/server_service.dart';
-import 'package:silo_tavern/services/server_storage.dart';
+import 'package:silo_tavern/domain/servers/models.dart';
+import 'package:silo_tavern/domain/servers/domain.dart';
+import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/services/servers/storage.dart';
 
 import 'server_service_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerStorage>()])
+@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
 void main() {
   group('ServerService Tests', () {
     late MockServerStorage storage;
-    late ServerService service;
+    late MockConnectionDomain connectionDomain;
+    late ServerDomain service;
 
     setUp(() async {
       storage = MockServerStorage();
+      connectionDomain = MockConnectionDomain();
+
       // Mock the storage methods to return some initial servers
       when(storage.listServers()).thenAnswer(
         (_) async => [
@@ -54,7 +58,9 @@ void main() {
       when(storage.updateServer(any)).thenAnswer((_) async {});
       when(storage.deleteServer(any)).thenAnswer((_) async {});
 
-      service = ServerService(ServerOptions(storage));
+      service = ServerDomain(
+        ServerOptions(storage, connectionDomain: connectionDomain),
+      );
 
       // Initialize the service
       await service.initialize();

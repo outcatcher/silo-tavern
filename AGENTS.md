@@ -102,13 +102,17 @@ task build:linux
 1. **Tagged Tests**: Tests are organized with tags (`unit`, `widget`, `integration`)
 2. **Grouping**: Related tests are grouped using `group()` for better organization
 3. **State Management**: Widget tests focus on verifying UI state changes in response to user interactions
+4. **Mocking Strategy**: Unit tests MUST mock underlying layers instead of using real implementations:
+   - UI layer tests should mock domain services
+   - Domain layer tests should mock service layer dependencies
+   - This ensures fast, reliable tests that focus on the specific layer's behavior
 
 ### UI Components
 
 1. **Material Design**: Uses Flutter's Material Design widgets
 2. **Gestures**: Implements various gesture handlers (long press, secondary tap) for context menus
 3. **Dismissible Widgets**: Uses `Dismissible` for swipe gestures to edit/delete items
-4. **Navigation**: Uses `Navigator.push` for screen transitions
+4. **Navigation**: Uses `context.go()` for screen transitions (NEVER use `Navigator.push()` or `Navigator.pop()`)
 
 ## Key Gotchas
 
@@ -116,6 +120,23 @@ task build:linux
 2. **Gesture Handling**: Both long press and secondary tap are implemented for context menus to support different input methods
 3. **Swipe Actions**: Custom `confirmDismiss` implementation handles different swipe directions for edit/delete actions
 4. **Authentication Security**: Passwords are stored using secure storage mechanisms (via `flutter_secure_storage` dependency)
+
+## Git Operations
+**Agent Commit Policy**: AI agents NEVER commit automatically without explicit user prompt
+**Agent Push Policy**: AI agents NEVER push to remote under any circumstances
+
+### Minimal Agency Rules:
+1. **No unauthorized commits** - Only commit when user explicitly asks "commit", "create commit", or similar
+2. **No pushes ever** - Never push changes to remote repositories
+3. **Explicit action required** - If user asks about changes or status, wait for explicit "commit" command
+4. **No auto-assumption** - When in doubt, ask "would you like me to commit these changes?"
+
+### Git Commands You May Use:
+- `git status` - Read current status
+- `git diff` - Show changes
+- `git log` - View commit history
+- **NEVER** `git commit` without explicit user instruction
+- **NEVER** `git push` under any circumstances
 
 ## Dependencies
 
@@ -133,3 +154,7 @@ Development dependencies:
 1. **Domain-Driven Design**: Business logic is separated from UI concerns
 2. **Service Layer**: Server management is handled through a service class rather than directly in UI
 3. **State Management**: Uses Flutter's built-in state management with `StatefulWidget` for simple state needs
+4. **Three-Layer Architecture**: Code is organized in a three-layer architecture:
+   - **UI Layer**: Handles user interface and interactions (`lib/ui/`)
+   - **Domain Layer**: Contains business logic and data models (`lib/domain/`)
+   - **Service Layer**: Manages external integrations and data persistence (`lib/services/`)

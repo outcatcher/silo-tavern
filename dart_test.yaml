@@ -5,3 +5,6 @@ tags:
   e2e: {}
   servers: {}
   storage: {}
+  ui: {}
+  models: {}
+  connection: {}

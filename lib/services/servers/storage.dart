@@ -2,10 +2,10 @@ library;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../domain/server.dart';
-import '../utils/app_storage.dart';
+import '../../domain/servers/models.dart';
+import '../../utils/app_storage.dart';
 
-part 'server_models.dart';
+part 'models.dart';
 
 class ServerStorage {
   static const String _serversKeyPrefix = 'servers';

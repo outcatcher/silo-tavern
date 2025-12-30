@@ -32,8 +32,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Run tests
-        run: flutter test --coverage --exclude-tags e2e --branch-coverage
+      - name: Run unit tests
+        run: flutter test test/00_unit
+
+      - name: Run widget tests
+        run: flutter test test/01_widget
 
   lint:
     runs-on: ubuntu-latest

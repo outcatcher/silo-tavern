@@ -2,9 +2,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:silo_tavern/domain/server.dart';
-import 'package:silo_tavern/utils/network_utils.dart';
-import 'package:silo_tavern/domain/server_service.dart';
+import 'package:silo_tavern/domain/servers/models.dart';
+import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:uuid/v7.dart';
 
 import 'utils.dart' as utils;
@@ -12,12 +11,12 @@ import 'utils.dart' as utils;
 enum PageMode { create, edit }
 
 class ServerCreationPage extends StatefulWidget {
-  final ServerService serverService;
+  final ServerDomain serverDomain;
   final Server? initialServer;
 
   const ServerCreationPage({
     super.key,
-    required this.serverService,
+    required this.serverDomain,
     this.initialServer,
   });
 
@@ -117,7 +116,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
 
                 // Validate server configuration
                 try {
-                  NetworkUtils.validateServerConfiguration(tempServer);
+                  validateServerConfiguration(tempServer);
                 } catch (e) {
                   // Show error dialog
                   if (mounted) {
@@ -134,14 +133,14 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 try {
                   if (widget.initialServer != null) {
                     // Update existing server
-                    await widget.serverService.updateServer(tempServer);
+                    await widget.serverDomain.updateServer(tempServer);
                     // Navigate back to the server list after successful update
                     if (context.mounted) {
                       context.go('/servers');
                     }
                   } else {
                     // Add new server
-                    await widget.serverService.addServer(tempServer);
+                    await widget.serverDomain.addServer(tempServer);
                     if (context.mounted) {
                       utils.showSuccessDialog(
                         context,

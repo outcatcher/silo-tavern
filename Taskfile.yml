@@ -3,48 +3,59 @@ version: "3"
 dotenv:
   - .env
 
+env:
+  lcov_exclude: >-
+    '**/*.g.dart'
+    '**/*.freezed.dart'
+    '**/*.gen.dart'
+
 tasks:
   setup:
     desc: Enable builds
     cmds:
       - flutter config --enable-linux-desktop --enable-web
 
-  generate-mocks:
+  generate:
     desc: Generate mocks
     cmds:
-      - dart run build_runner build
+      - dart run build_runner build --delete-conflicting-outputs
 
-  .tag-coverage-report:
+  .path-coverage-report:
     internal: true
-    silent: true
+    silent: false
     requires:
-      vars: [tag]
+      vars: [path]
+    vars:
+      coverage_file: coverage/lcov.{{ .path }}.info
+      coverage_filtered_file: coverage/lcov.{{ .path }}.filtered.info
     cmds:
-      - genhtml coverage/lcov.{{ .tag }}.info -o coverage/html
+      - "echo Following files are excluded from coverage: {{ .lcov_exclude }}"
+      - lcov --remove {{ .coverage_file }} {{ .lcov_exclude }} -o {{ .coverage_filtered_file }}
+      - genhtml {{ .coverage_filtered_file }} -o coverage/html
       - echo "Coverage report generated at coverage/html/index.html"
 
-  .tag-test:
+  .path-test:
     internal: true
     silent: true
     requires:
-      vars: [tag]
+      vars: [path]
     cmds:
-      - flutter test --tags {{ .tag }} --branch-coverage --coverage-path coverage/lcov.{{ .tag }}.info
-      - task: .tag-coverage-report
+      - flutter test --coverage --coverage-path coverage/lcov.{{ .path }}.info test/{{ .path }}
+      - task: .path-coverage-report
         vars:
-          tag: "{{ .tag }}"
+          path: "{{ .path }}"
 
   test:unit:
     desc: Run only unit tests
     cmds:
-      - task: .tag-test
-        vars: { tag: unit }
+      - task: .path-test
+        vars: { path: "00_unit" }
 
   test:widget:
     desc: Run only widget tests
     cmds:
-      - task: .tag-test
-        vars: { tag: widget }
+      - task: .path-test
+        vars: { path: "01_widget" }
 
   test:e2e:web:
     preconditions:
@@ -70,13 +81,18 @@ tasks:
     cmds:
       - task: test:unit
       - task: test:widget
-      - genhtml $(ls $(find . -name 'lcov.*.info')) -o coverage/html
+      - genhtml $(ls $(find . -name 'lcov.*.filtered.info')) -o coverage/html
       - echo "Coverage report generated at coverage/html/index.html"
 
   lint:
     desc: Run linter
     cmds:
-      - flutter analyze
+      - dart fix --dry-run
+
+  lint:fix:
+    desc: Fix lint errors
+    cmds:
+      - dart fix --apply
 
   format:
     desc: Format code
