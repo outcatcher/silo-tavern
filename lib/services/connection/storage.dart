@@ -9,24 +9,38 @@ class ConnectionStorage {
 
   static const String _sessionKeyPrefix = 'sessions';
 
-  ConnectionStorage(JsonSecureStorage secureStorage)
-    : _secureStorage = secureStorage;
+  ConnectionStorage(this._secureStorage);
 
   factory ConnectionStorage.defaultInstance(FlutterSecureStorage sec) {
     return ConnectionStorage(JsonSecureStorage(sec, _sessionKeyPrefix));
   }
 
   Future<void> saveSessionCookies(String serverId, List<Cookie> cookies) async {
-    _secureStorage.set(serverId, cookies);
+    final cookieData = cookies.map((cookie) {
+      return {
+        'name': cookie.name,
+        'value': cookie.value,
+        'domain': cookie.domain,
+        'path': cookie.path,
+        if (cookie.expires != null)
+          'expires': cookie.expires!.toIso8601String(),
+      };
+    }).toList();
+
+    _secureStorage.set(serverId, cookieData);
   }
 
   Future<List<Cookie>?> loadSessionCookies(String serverId) async {
-    final jsonData = await _secureStorage.get(serverId);
-    if (jsonData == null) {
+    final cookieData = await _secureStorage.get(serverId);
+    if (cookieData == null) {
       return null;
     }
 
-    final cookiesFromStorage = (jsonDecode(jsonData) as List)
+    if (cookieData is! List) {
+      return null;
+    }
+
+    final cookiesFromStorage = cookieData
         .map(
           (e) => Cookie(e['name'], e['value'])
             ..domain = e['domain']

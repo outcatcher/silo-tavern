@@ -12,6 +12,7 @@ import 'dart:convert';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/widgets.dart';
 import 'package:silo_tavern/domain/connection/models.dart';
 
 abstract class ConnectionSessionInterface {
@@ -42,6 +43,9 @@ class ConnectionSession implements ConnectionSessionInterface {
   String? _csrf;
 
   ConnectionSession._(this._client);
+
+  @visibleForTesting
+  ConnectionSession(this._client);
 
   /// Obtain CSRF token from the server
   @override

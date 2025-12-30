@@ -40,7 +40,11 @@ class ConnectionDomain {
       return ConnectionResult.success();
     }
 
-    await session.obtainCsrfToken();
+    try {
+      await session.obtainCsrfToken();
+    } catch (e) {
+      return ConnectionResult.failure(e.toString());
+    }
 
     if (server.authentication.useCredentials) {
       final credentials = ConnectionCredentials(
