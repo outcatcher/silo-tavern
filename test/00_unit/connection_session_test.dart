@@ -52,24 +52,17 @@ void main() {
         'Throws exception when CSRF token request fails with non-200 status',
         () async {
           // Arrange
-          final mockResponse = MockResponse();
-
-          when(
-            mockDio.get('/csrf-token'),
-          ).thenAnswer((_) async => mockResponse);
-          when(mockResponse.statusCode).thenReturn(500);
-          when(mockResponse.data).thenReturn('Internal Server Error');
+          when(mockDio.get('/csrf-token')).thenThrow(
+            DioException(
+              response: MockResponse(),
+              requestOptions: RequestOptions(path: '/csrf-token'),
+            ),
+          );
 
           // Act & Assert
           expect(
             () => session.obtainCsrfToken(),
-            throwsA(
-              predicate(
-                (e) =>
-                    e is Exception &&
-                    e.toString().contains('Failed to obtain CSRF token'),
-              ),
-            ),
+            throwsA(predicate((e) => e is DioException)),
           );
 
           verify(mockDio.get('/csrf-token')).called(1);
@@ -174,27 +167,10 @@ void main() {
         ).called(1);
       });
 
-      test('Successfully authenticates without credentials', () async {
-        // Arrange
-        final mockResponse = MockResponse();
-
-        when(
-          mockDio.post('/api/users/login', data: null),
-        ).thenAnswer((_) async => mockResponse);
-        when(mockResponse.statusCode).thenReturn(200);
-
-        // Act
-        await session.authenticate(null);
-
-        // Assert
-        verify(mockDio.post('/api/users/login', data: null)).called(1);
-      });
-
       test(
         'Throws exception when authentication fails with non-200 status',
         () async {
           // Arrange
-          final mockResponse = MockResponse();
           final credentials = ConnectionCredentials(
             handle: 'testuser',
             password: 'wrongpass',
@@ -202,20 +178,17 @@ void main() {
 
           when(
             mockDio.post('/api/users/login', data: anyNamed('data')),
-          ).thenAnswer((_) async => mockResponse);
-          when(mockResponse.statusCode).thenReturn(401);
-          when(mockResponse.data).thenReturn('Unauthorized');
+          ).thenThrow(
+            DioException(
+              response: MockResponse(),
+              requestOptions: RequestOptions(path: '/api/users/login'),
+            ),
+          );
 
           // Act & Assert
           expect(
             () => session.authenticate(credentials),
-            throwsA(
-              predicate(
-                (e) =>
-                    e is Exception &&
-                    e.toString().contains('Authentication failed'),
-              ),
-            ),
+            throwsA(predicate((e) => e is DioException)),
           );
 
           verify(

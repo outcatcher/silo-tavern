@@ -114,7 +114,7 @@ void main() {
         session1.authenticate(
           argThat(
             predicate<ConnectionCredentials>(
-              (creds) => creds.username == 'user' && creds.password == 'pass',
+              (creds) => creds.handle == 'user' && creds.password == 'pass',
             ),
           ),
         ),
@@ -223,7 +223,7 @@ void main() {
           argThat(
             predicate<ConnectionCredentials>(
               (creds) =>
-                  creds.username == 'user' && creds.password == 'wrongpass',
+                  creds.handle == 'user' && creds.password == 'wrongpass',
             ),
           ),
         ),

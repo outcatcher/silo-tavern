@@ -52,17 +52,14 @@ class ConnectionSession implements ConnectionSessionInterface {
   Future<void> obtainCsrfToken() async {
     try {
       final response = await _client.get('/csrf-token');
+      final tokenData = CSRFTokenResponse.fromJson(response.data);
 
-      if (response.statusCode == 200) {
-        // CSRF token response should always be JSON
-        final tokenData = CSRFTokenResponse.fromJson(response.data);
-
-        _client.options.headers['X-CSRF-Token'] = tokenData.token;
-      } else {
-        throw Exception('Failed to obtain CSRF token: ${response.statusCode}');
-      }
+      _client.options.headers['X-CSRF-Token'] = tokenData.token;
+    } on DioException catch (e) {
+      debugPrint('Failed to obtain CSRF: ${e.response}');
+      rethrow;
     } catch (e) {
-      debugPrint('ConnectionSession: Failed to obtain CSRF token: $e');
+      debugPrint('Uncaught exception during obtaining CSRF: $e');
       rethrow;
     }
   }

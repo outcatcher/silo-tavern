@@ -14,7 +14,7 @@ void main() {
         password: 'testpass',
       );
 
-      expect(credentials.username, 'testuser');
+      expect(credentials.handle, 'testuser');
       expect(credentials.password, 'testpass');
     });
 
@@ -60,15 +60,15 @@ void main() {
 
       final json = credentials.toJson();
 
-      expect(json, {'username': 'testuser', 'password': 'testpass'});
+      expect(json, {'handle': 'testuser', 'password': 'testpass'});
     });
 
     test('ConnectionCredentials fromJson', () {
-      final json = {'username': 'testuser', 'password': 'testpass'};
+      final json = {'handle': 'testuser', 'password': 'testpass'};
 
       final credentials = ConnectionCredentials.fromJson(json);
 
-      expect(credentials.username, 'testuser');
+      expect(credentials.handle, 'testuser');
       expect(credentials.password, 'testpass');
     });
   });
