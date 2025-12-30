@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -31,7 +29,9 @@ class ConnectionStorage {
 
       _secureStorage.set(serverId, cookieData);
     } catch (e) {
-      debugPrint('ConnectionStorage: Failed to save session cookies for server $serverId: $e');
+      debugPrint(
+        'ConnectionStorage: Failed to save session cookies for server $serverId: $e',
+      );
       rethrow;
     }
   }
@@ -60,7 +60,9 @@ class ConnectionStorage {
 
       return cookiesFromStorage;
     } catch (e) {
-      debugPrint('ConnectionStorage: Failed to load session cookies for server $serverId: $e');
+      debugPrint(
+        'ConnectionStorage: Failed to load session cookies for server $serverId: $e',
+      );
       return null;
     }
   }

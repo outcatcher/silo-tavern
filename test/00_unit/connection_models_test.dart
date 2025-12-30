@@ -4,12 +4,13 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silo_tavern/domain/connection/models.dart';
+import 'package:silo_tavern/services/connection/models/models.dart';
 
 void main() {
   group('ConnectionCredentials Tests', () {
     test('ConnectionCredentials creation', () {
       final credentials = ConnectionCredentials(
-        username: 'testuser',
+        handle: 'testuser',
         password: 'testpass',
       );
 
@@ -19,17 +20,17 @@ void main() {
 
     test('ConnectionCredentials equality', () {
       final credentials1 = ConnectionCredentials(
-        username: 'testuser',
+        handle: 'testuser',
         password: 'testpass',
       );
 
       final credentials2 = ConnectionCredentials(
-        username: 'testuser',
+        handle: 'testuser',
         password: 'testpass',
       );
 
       final credentials3 = ConnectionCredentials(
-        username: 'otheruser',
+        handle: 'otheruser',
         password: 'otherpass',
       );
 
@@ -39,12 +40,12 @@ void main() {
 
     test('ConnectionCredentials hash code', () {
       final credentials1 = ConnectionCredentials(
-        username: 'testuser',
+        handle: 'testuser',
         password: 'testpass',
       );
 
       final credentials2 = ConnectionCredentials(
-        username: 'testuser',
+        handle: 'testuser',
         password: 'testpass',
       );
 
@@ -53,7 +54,7 @@ void main() {
 
     test('ConnectionCredentials toJson', () {
       final credentials = ConnectionCredentials(
-        username: 'testuser',
+        handle: 'testuser',
         password: 'testpass',
       );
 

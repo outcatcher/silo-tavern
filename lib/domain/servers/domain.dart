@@ -113,7 +113,9 @@ class ServerDomain {
         return ServerConnectionResult.success(server);
       } else {
         // Connection failed
-        debugPrint('ServerDomain: Connection failed for server ${server.id}: ${result.errorMessage}');
+        debugPrint(
+          'ServerDomain: Connection failed for server ${server.id}: ${result.errorMessage}',
+        );
         return ServerConnectionResult.failure(
           server,
           result.errorMessage ?? 'Unknown error',
@@ -121,7 +123,9 @@ class ServerDomain {
       }
     } catch (e) {
       // Connection failed
-      debugPrint('ServerDomain: Exception during connection to server ${server.id}: $e');
+      debugPrint(
+        'ServerDomain: Exception during connection to server ${server.id}: $e',
+      );
       return ServerConnectionResult.failure(server, e.toString());
     }
   }

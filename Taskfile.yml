@@ -9,7 +9,7 @@ tasks:
     cmds:
       - flutter config --enable-linux-desktop --enable-web
 
-  generate-mocks:
+  generate:
     desc: Generate mocks
     cmds:
       - dart run build_runner build --delete-conflicting-outputs

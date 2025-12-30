@@ -7,7 +7,7 @@ import 'dart:async' as _i3;
 
 import 'package:cookie_jar/cookie_jar.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:silo_tavern/domain/connection/models.dart' as _i4;
+import 'package:silo_tavern/services/connection/models/models.dart' as _i4;
 import 'package:silo_tavern/services/connection/network.dart' as _i2;
 import 'package:silo_tavern/services/connection/storage.dart' as _i5;
 

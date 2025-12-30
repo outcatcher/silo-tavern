@@ -5,10 +5,11 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:silo_tavern/domain/servers/models.dart' as server_models;
+import 'package:silo_tavern/services/connection/models/models.dart';
 import 'package:silo_tavern/services/connection/network.dart';
 import 'package:silo_tavern/services/connection/storage.dart';
 
-import '../servers/models.dart' as server_models;
 import 'models.dart';
 
 class ConnectionDomain {
@@ -44,13 +45,15 @@ class ConnectionDomain {
     try {
       await session.obtainCsrfToken();
     } catch (e) {
-      debugPrint('ConnectionDomain: Failed to obtain CSRF token for server ${server.id}: $e');
+      debugPrint(
+        'ConnectionDomain: Failed to obtain CSRF token for server ${server.id}: $e',
+      );
       return ConnectionResult.failure(e.toString());
     }
 
     if (server.authentication.useCredentials) {
       final credentials = ConnectionCredentials(
-        username: server.authentication.username,
+        handle: server.authentication.username,
         password: server.authentication.password,
       );
 
@@ -59,7 +62,9 @@ class ConnectionDomain {
 
         return ConnectionResult.success();
       } catch (e) {
-        debugPrint('ConnectionDomain: Failed to authenticate with server ${server.id}: $e');
+        debugPrint(
+          'ConnectionDomain: Failed to authenticate with server ${server.id}: $e',
+        );
         return ConnectionResult.failure(e.toString());
       }
     }

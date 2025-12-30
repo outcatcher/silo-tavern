@@ -2,14 +2,12 @@
 @Tags(['unit', 'connection'])
 library;
 
-import 'dart:convert';
-
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:dio/dio.dart';
+import 'package:silo_tavern/services/connection/models/models.dart';
 import 'package:silo_tavern/services/connection/network.dart';
-import 'package:silo_tavern/domain/connection/models.dart';
 
 import 'connection_session_test.mocks.dart';
 
@@ -30,11 +28,11 @@ void main() {
       test('Successfully obtains CSRF token and sets header', () async {
         // Arrange
         final mockResponse = MockResponse();
-        final responseJson = {'token': 'abc123xyz'};
+        final responseData = {'token': 'abc123xyz'};
 
         when(mockDio.get('/csrf-token')).thenAnswer((_) async => mockResponse);
         when(mockResponse.statusCode).thenReturn(200);
-        when(mockResponse.data).thenReturn(jsonEncode(responseJson));
+        when(mockResponse.data).thenReturn(responseData);
 
         // Mock the options property
         final baseOptions = BaseOptions();
@@ -96,18 +94,26 @@ void main() {
         },
       );
 
-      test('Throws exception when response JSON is malformed', () async {
+      test('Throws exception when response data is not a Map', () async {
         // Arrange
         final mockResponse = MockResponse();
 
         when(mockDio.get('/csrf-token')).thenAnswer((_) async => mockResponse);
         when(mockResponse.statusCode).thenReturn(200);
-        when(mockResponse.data).thenReturn('invalid json');
+        when(mockResponse.data).thenReturn('invalid data type');
 
         // Act & Assert
         expect(
           () => session.obtainCsrfToken(),
-          throwsA(predicate((e) => e is FormatException)),
+          throwsA(
+            predicate(
+              (e) =>
+                  e is TypeError &&
+                  e.toString().contains(
+                    'type \'String\' is not a subtype of type \'Map<String, dynamic>\'',
+                  ),
+            ),
+          ),
         );
 
         verify(mockDio.get('/csrf-token')).called(1);
@@ -118,20 +124,26 @@ void main() {
         () async {
           // Arrange
           final mockResponse = MockResponse();
-          final responseJson = {'message': 'success'}; // Missing 'token' field
+          final responseData = {'message': 'success'}; // Missing 'token' field
 
           when(
             mockDio.get('/csrf-token'),
           ).thenAnswer((_) async => mockResponse);
           when(mockResponse.statusCode).thenReturn(200);
-          when(mockResponse.data).thenReturn(jsonEncode(responseJson));
+          when(mockResponse.data).thenReturn(responseData);
 
           // Act & Assert
           expect(
             () => session.obtainCsrfToken(),
             throwsA(
-              predicate((e) => e is TypeError),
-            ), // Type cast error when trying to cast null to String
+              predicate(
+                (e) =>
+                    e is TypeError &&
+                    e.toString().contains(
+                      'type \'Null\' is not a subtype of type \'String\'',
+                    ),
+              ),
+            ),
           );
 
           verify(mockDio.get('/csrf-token')).called(1);
@@ -144,7 +156,7 @@ void main() {
         // Arrange
         final mockResponse = MockResponse();
         final credentials = ConnectionCredentials(
-          username: 'testuser',
+          handle: 'testuser',
           password: 'testpass',
         );
 
@@ -184,7 +196,7 @@ void main() {
           // Arrange
           final mockResponse = MockResponse();
           final credentials = ConnectionCredentials(
-            username: 'testuser',
+            handle: 'testuser',
             password: 'wrongpass',
           );
 
@@ -217,7 +229,7 @@ void main() {
         () async {
           // Arrange
           final credentials = ConnectionCredentials(
-            username: 'testuser',
+            handle: 'testuser',
             password: 'testpass',
           );
 
