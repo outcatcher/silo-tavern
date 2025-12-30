@@ -120,8 +120,23 @@ task build:linux
 2. **Gesture Handling**: Both long press and secondary tap are implemented for context menus to support different input methods
 3. **Swipe Actions**: Custom `confirmDismiss` implementation handles different swipe directions for edit/delete actions
 4. **Authentication Security**: Passwords are stored using secure storage mechanisms (via `flutter_secure_storage` dependency)
-5. **Commit Policy**: Only commit changes when explicitly prompted by the user - never commit automatically
-6. **GIT OPERATIONS**: NEVER PERFORM GIT OPERATIONS (commit, push, reset, etc.) WITHOUT EXPLICIT USER PROMPTING
+
+## Git Operations
+**Agent Commit Policy**: AI agents NEVER commit automatically without explicit user prompt
+**Agent Push Policy**: AI agents NEVER push to remote under any circumstances
+
+### Minimal Agency Rules:
+1. **No unauthorized commits** - Only commit when user explicitly asks "commit", "create commit", or similar
+2. **No pushes ever** - Never push changes to remote repositories
+3. **Explicit action required** - If user asks about changes or status, wait for explicit "commit" command
+4. **No auto-assumption** - When in doubt, ask "would you like me to commit these changes?"
+
+### Git Commands You May Use:
+- `git status` - Read current status
+- `git diff` - Show changes
+- `git log` - View commit history
+- **NEVER** `git commit` without explicit user instruction
+- **NEVER** `git push` under any circumstances
 
 ## Dependencies
 

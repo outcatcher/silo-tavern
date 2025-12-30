@@ -3,6 +3,12 @@ version: "3"
 dotenv:
   - .env
 
+env:
+  lcov_exclude: >-
+    '**/*.g.dart'
+    '**/*.freezed.dart'
+    '**/*.gen.dart'
+
 tasks:
   setup:
     desc: Enable builds
@@ -16,11 +22,16 @@ tasks:
 
   .path-coverage-report:
     internal: true
-    silent: true
+    silent: false
     requires:
       vars: [path]
+    vars:
+      coverage_file: coverage/lcov.{{ .path }}.info
+      coverage_filtered_file: coverage/lcov.{{ .path }}.filtered.info
     cmds:
-      - genhtml coverage/lcov.{{ .path }}.info -o coverage/html
+      - "echo Following files are excluded from coverage: {{ .lcov_exclude }}"
+      - lcov --remove {{ .coverage_file }} {{ .lcov_exclude }} -o {{ .coverage_filtered_file }}
+      - genhtml {{ .coverage_filtered_file }} -o coverage/html
       - echo "Coverage report generated at coverage/html/index.html"
 
   .path-test:
@@ -70,7 +81,7 @@ tasks:
     cmds:
       - task: test:unit
       - task: test:widget
-      - genhtml $(ls $(find . -name 'lcov.*.info')) -o coverage/html
+      - genhtml $(ls $(find . -name 'lcov.*.filtered.info')) -o coverage/html
       - echo "Coverage report generated at coverage/html/index.html"
 
   lint:
