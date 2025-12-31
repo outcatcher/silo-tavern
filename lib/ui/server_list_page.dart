@@ -369,51 +369,14 @@ class _ServerListPageState extends State<ServerListPage> {
           horizontal: 16,
           vertical: 12,
         ),
-        onTap: () async {
-          // Check if the widget is still mounted before using context
-          if (!context.mounted) return;
-
-          // Show connecting message
-          final snackBar = SnackBar(
-            content: const Text('Connecting to server...'),
-            backgroundColor: Colors.blue,
-            duration: const Duration(seconds: 2),
+        onTap: () {
+          // Navigate to login page with back URL as query parameter
+          context.go(
+            Uri(
+              path: '/servers/login/${server.id}',
+              queryParameters: {'backUrl': '/servers'},
+            ).toString(),
           );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-          // Connect to the server
-          final result = await widget.serverDomain.connectToServer(server);
-
-          // Check if the widget is still mounted before using context
-          if (!context.mounted) return;
-
-          // Hide the connecting message
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-          if (!context.mounted) return;
-
-          if (result.isSuccess) {
-            // Navigate to under construction page with back URL as query parameter
-            context.go(
-              Uri(
-                path: '/servers/connect/${server.id}',
-                queryParameters: {'backUrl': '/servers'},
-              ).toString(),
-            );
-          } else {
-            // Check if the widget is still mounted before showing error
-            if (!context.mounted) return;
-
-            // Show error message
-            final errorSnackBar = SnackBar(
-              content: Text(
-                'Error connecting to server: ${result.errorMessage}',
-              ),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 3),
-            );
-            ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
-          }
         },
       ),
     );
