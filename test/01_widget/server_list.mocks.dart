@@ -3,21 +3,12 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i12;
+import 'dart:async' as _i6;
 
-import 'package:flutter/widgets.dart' as _i7;
-import 'package:go_router/src/configuration.dart' as _i6;
-import 'package:go_router/src/delegate.dart' as _i8;
-import 'package:go_router/src/information_provider.dart' as _i9;
-import 'package:go_router/src/match.dart' as _i15;
-import 'package:go_router/src/parser.dart' as _i10;
-import 'package:go_router/src/router.dart' as _i13;
-import 'package:go_router/src/state.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i14;
 import 'package:mutex/mutex.dart' as _i2;
 import 'package:silo_tavern/domain/connection/domain.dart' as _i3;
-import 'package:silo_tavern/domain/servers/domain.dart' as _i11;
+import 'package:silo_tavern/domain/servers/domain.dart' as _i5;
 import 'package:silo_tavern/domain/servers/models.dart' as _i4;
 
 // ignore_for_file: type=lint
@@ -52,45 +43,10 @@ class _FakeServerConnectionResult_2 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeGoRouterState_3 extends _i1.SmartFake implements _i5.GoRouterState {
-  _FakeGoRouterState_3(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeRouteConfiguration_4 extends _i1.SmartFake
-    implements _i6.RouteConfiguration {
-  _FakeRouteConfiguration_4(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeBackButtonDispatcher_5 extends _i1.SmartFake
-    implements _i7.BackButtonDispatcher {
-  _FakeBackButtonDispatcher_5(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeGoRouterDelegate_6 extends _i1.SmartFake
-    implements _i8.GoRouterDelegate {
-  _FakeGoRouterDelegate_6(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeGoRouteInformationProvider_7 extends _i1.SmartFake
-    implements _i9.GoRouteInformationProvider {
-  _FakeGoRouteInformationProvider_7(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeGoRouteInformationParser_8 extends _i1.SmartFake
-    implements _i10.GoRouteInformationParser {
-  _FakeGoRouteInformationParser_8(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
 /// A class which mocks [ServerDomain].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockServerDomain extends _i1.Mock implements _i11.ServerDomain {
+class MockServerDomain extends _i1.Mock implements _i5.ServerDomain {
   @override
   _i2.Mutex get locker =>
       (super.noSuchMethod(
@@ -137,40 +93,40 @@ class MockServerDomain extends _i1.Mock implements _i11.ServerDomain {
           as int);
 
   @override
-  _i12.Future<void> initialize() =>
+  _i6.Future<void> initialize() =>
       (super.noSuchMethod(
             Invocation.method(#initialize, []),
-            returnValue: _i12.Future<void>.value(),
-            returnValueForMissingStub: _i12.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i12.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i12.Future<void> addServer(_i4.Server? server) =>
+  _i6.Future<void> addServer(_i4.Server? server) =>
       (super.noSuchMethod(
             Invocation.method(#addServer, [server]),
-            returnValue: _i12.Future<void>.value(),
-            returnValueForMissingStub: _i12.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i12.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i12.Future<void> updateServer(_i4.Server? updatedServer) =>
+  _i6.Future<void> updateServer(_i4.Server? updatedServer) =>
       (super.noSuchMethod(
             Invocation.method(#updateServer, [updatedServer]),
-            returnValue: _i12.Future<void>.value(),
-            returnValueForMissingStub: _i12.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i12.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i12.Future<void> removeServer(String? id) =>
+  _i6.Future<void> removeServer(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#removeServer, [id]),
-            returnValue: _i12.Future<void>.value(),
-            returnValueForMissingStub: _i12.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i12.Future<void>);
+          as _i6.Future<void>);
 
   @override
   _i4.Server? findServerById(String? id) =>
@@ -181,349 +137,22 @@ class MockServerDomain extends _i1.Mock implements _i11.ServerDomain {
           as _i4.Server?);
 
   @override
-  _i12.Future<_i4.ServerConnectionResult> connectToServer(_i4.Server? server) =>
+  _i6.Future<_i4.ServerConnectionResult> connectToServer(_i4.Server? server) =>
       (super.noSuchMethod(
             Invocation.method(#connectToServer, [server]),
-            returnValue: _i12.Future<_i4.ServerConnectionResult>.value(
+            returnValue: _i6.Future<_i4.ServerConnectionResult>.value(
               _FakeServerConnectionResult_2(
                 this,
                 Invocation.method(#connectToServer, [server]),
               ),
             ),
             returnValueForMissingStub:
-                _i12.Future<_i4.ServerConnectionResult>.value(
+                _i6.Future<_i4.ServerConnectionResult>.value(
                   _FakeServerConnectionResult_2(
                     this,
                     Invocation.method(#connectToServer, [server]),
                   ),
                 ),
           )
-          as _i12.Future<_i4.ServerConnectionResult>);
-}
-
-/// A class which mocks [GoRouter].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockGoRouter extends _i1.Mock implements _i13.GoRouter {
-  @override
-  _i5.GoRouterState get state =>
-      (super.noSuchMethod(
-            Invocation.getter(#state),
-            returnValue: _FakeGoRouterState_3(this, Invocation.getter(#state)),
-            returnValueForMissingStub: _FakeGoRouterState_3(
-              this,
-              Invocation.getter(#state),
-            ),
-          )
-          as _i5.GoRouterState);
-
-  @override
-  _i6.RouteConfiguration get configuration =>
-      (super.noSuchMethod(
-            Invocation.getter(#configuration),
-            returnValue: _FakeRouteConfiguration_4(
-              this,
-              Invocation.getter(#configuration),
-            ),
-            returnValueForMissingStub: _FakeRouteConfiguration_4(
-              this,
-              Invocation.getter(#configuration),
-            ),
-          )
-          as _i6.RouteConfiguration);
-
-  @override
-  _i7.BackButtonDispatcher get backButtonDispatcher =>
-      (super.noSuchMethod(
-            Invocation.getter(#backButtonDispatcher),
-            returnValue: _FakeBackButtonDispatcher_5(
-              this,
-              Invocation.getter(#backButtonDispatcher),
-            ),
-            returnValueForMissingStub: _FakeBackButtonDispatcher_5(
-              this,
-              Invocation.getter(#backButtonDispatcher),
-            ),
-          )
-          as _i7.BackButtonDispatcher);
-
-  @override
-  _i8.GoRouterDelegate get routerDelegate =>
-      (super.noSuchMethod(
-            Invocation.getter(#routerDelegate),
-            returnValue: _FakeGoRouterDelegate_6(
-              this,
-              Invocation.getter(#routerDelegate),
-            ),
-            returnValueForMissingStub: _FakeGoRouterDelegate_6(
-              this,
-              Invocation.getter(#routerDelegate),
-            ),
-          )
-          as _i8.GoRouterDelegate);
-
-  @override
-  _i9.GoRouteInformationProvider get routeInformationProvider =>
-      (super.noSuchMethod(
-            Invocation.getter(#routeInformationProvider),
-            returnValue: _FakeGoRouteInformationProvider_7(
-              this,
-              Invocation.getter(#routeInformationProvider),
-            ),
-            returnValueForMissingStub: _FakeGoRouteInformationProvider_7(
-              this,
-              Invocation.getter(#routeInformationProvider),
-            ),
-          )
-          as _i9.GoRouteInformationProvider);
-
-  @override
-  _i10.GoRouteInformationParser get routeInformationParser =>
-      (super.noSuchMethod(
-            Invocation.getter(#routeInformationParser),
-            returnValue: _FakeGoRouteInformationParser_8(
-              this,
-              Invocation.getter(#routeInformationParser),
-            ),
-            returnValueForMissingStub: _FakeGoRouteInformationParser_8(
-              this,
-              Invocation.getter(#routeInformationParser),
-            ),
-          )
-          as _i10.GoRouteInformationParser);
-
-  @override
-  bool get overridePlatformDefaultLocation =>
-      (super.noSuchMethod(
-            Invocation.getter(#overridePlatformDefaultLocation),
-            returnValue: false,
-            returnValueForMissingStub: false,
-          )
-          as bool);
-
-  @override
-  set configuration(_i6.RouteConfiguration? value) => super.noSuchMethod(
-    Invocation.setter(#configuration, value),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  set routerDelegate(_i8.GoRouterDelegate? value) => super.noSuchMethod(
-    Invocation.setter(#routerDelegate, value),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  set routeInformationProvider(_i9.GoRouteInformationProvider? value) =>
-      super.noSuchMethod(
-        Invocation.setter(#routeInformationProvider, value),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  set routeInformationParser(_i10.GoRouteInformationParser? value) =>
-      super.noSuchMethod(
-        Invocation.setter(#routeInformationParser, value),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  bool canPop() =>
-      (super.noSuchMethod(
-            Invocation.method(#canPop, []),
-            returnValue: false,
-            returnValueForMissingStub: false,
-          )
-          as bool);
-
-  @override
-  String namedLocation(
-    String? name, {
-    Map<String, String>? pathParameters = const {},
-    Map<String, dynamic>? queryParameters = const {},
-    String? fragment,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #namedLocation,
-              [name],
-              {
-                #pathParameters: pathParameters,
-                #queryParameters: queryParameters,
-                #fragment: fragment,
-              },
-            ),
-            returnValue: _i14.dummyValue<String>(
-              this,
-              Invocation.method(
-                #namedLocation,
-                [name],
-                {
-                  #pathParameters: pathParameters,
-                  #queryParameters: queryParameters,
-                  #fragment: fragment,
-                },
-              ),
-            ),
-            returnValueForMissingStub: _i14.dummyValue<String>(
-              this,
-              Invocation.method(
-                #namedLocation,
-                [name],
-                {
-                  #pathParameters: pathParameters,
-                  #queryParameters: queryParameters,
-                  #fragment: fragment,
-                },
-              ),
-            ),
-          )
-          as String);
-
-  @override
-  void go(String? location, {Object? extra}) => super.noSuchMethod(
-    Invocation.method(#go, [location], {#extra: extra}),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void restore(_i15.RouteMatchList? matchList) => super.noSuchMethod(
-    Invocation.method(#restore, [matchList]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void goNamed(
-    String? name, {
-    Map<String, String>? pathParameters = const {},
-    Map<String, dynamic>? queryParameters = const {},
-    Object? extra,
-    String? fragment,
-  }) => super.noSuchMethod(
-    Invocation.method(
-      #goNamed,
-      [name],
-      {
-        #pathParameters: pathParameters,
-        #queryParameters: queryParameters,
-        #extra: extra,
-        #fragment: fragment,
-      },
-    ),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  _i12.Future<T?> push<T extends Object?>(String? location, {Object? extra}) =>
-      (super.noSuchMethod(
-            Invocation.method(#push, [location], {#extra: extra}),
-            returnValue: _i12.Future<T?>.value(),
-            returnValueForMissingStub: _i12.Future<T?>.value(),
-          )
-          as _i12.Future<T?>);
-
-  @override
-  _i12.Future<T?> pushNamed<T extends Object?>(
-    String? name, {
-    Map<String, String>? pathParameters = const {},
-    Map<String, dynamic>? queryParameters = const {},
-    Object? extra,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #pushNamed,
-              [name],
-              {
-                #pathParameters: pathParameters,
-                #queryParameters: queryParameters,
-                #extra: extra,
-              },
-            ),
-            returnValue: _i12.Future<T?>.value(),
-            returnValueForMissingStub: _i12.Future<T?>.value(),
-          )
-          as _i12.Future<T?>);
-
-  @override
-  _i12.Future<T?> pushReplacement<T extends Object?>(
-    String? location, {
-    Object? extra,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#pushReplacement, [location], {#extra: extra}),
-            returnValue: _i12.Future<T?>.value(),
-            returnValueForMissingStub: _i12.Future<T?>.value(),
-          )
-          as _i12.Future<T?>);
-
-  @override
-  _i12.Future<T?> pushReplacementNamed<T extends Object?>(
-    String? name, {
-    Map<String, String>? pathParameters = const {},
-    Map<String, dynamic>? queryParameters = const {},
-    Object? extra,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #pushReplacementNamed,
-              [name],
-              {
-                #pathParameters: pathParameters,
-                #queryParameters: queryParameters,
-                #extra: extra,
-              },
-            ),
-            returnValue: _i12.Future<T?>.value(),
-            returnValueForMissingStub: _i12.Future<T?>.value(),
-          )
-          as _i12.Future<T?>);
-
-  @override
-  _i12.Future<T?> replace<T>(String? location, {Object? extra}) =>
-      (super.noSuchMethod(
-            Invocation.method(#replace, [location], {#extra: extra}),
-            returnValue: _i12.Future<T?>.value(),
-            returnValueForMissingStub: _i12.Future<T?>.value(),
-          )
-          as _i12.Future<T?>);
-
-  @override
-  _i12.Future<T?> replaceNamed<T>(
-    String? name, {
-    Map<String, String>? pathParameters = const {},
-    Map<String, dynamic>? queryParameters = const {},
-    Object? extra,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #replaceNamed,
-              [name],
-              {
-                #pathParameters: pathParameters,
-                #queryParameters: queryParameters,
-                #extra: extra,
-              },
-            ),
-            returnValue: _i12.Future<T?>.value(),
-            returnValueForMissingStub: _i12.Future<T?>.value(),
-          )
-          as _i12.Future<T?>);
-
-  @override
-  void pop<T extends Object?>([T? result]) => super.noSuchMethod(
-    Invocation.method(#pop, [result]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void refresh() => super.noSuchMethod(
-    Invocation.method(#refresh, []),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void dispose() => super.noSuchMethod(
-    Invocation.method(#dispose, []),
-    returnValueForMissingStub: null,
-  );
+          as _i6.Future<_i4.ServerConnectionResult>);
 }

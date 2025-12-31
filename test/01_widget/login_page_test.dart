@@ -6,9 +6,8 @@ import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/ui/login_page.dart';
 
-import 'login_page_test.mocks.dart';
+import 'router_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<GoRouter>()])
 void main() {
   group('Login Page Tests:', () {
     testWidgets('Renders correctly with server info', (tester) async {
@@ -18,11 +17,7 @@ void main() {
         address: 'https://test.example.com',
       );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LoginPage(server: server),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: LoginPage(server: server)));
 
       expect(find.text('Login to Test Server'), findsOneWidget);
       expect(find.text('Server: https://test.example.com'), findsOneWidget);
@@ -65,16 +60,19 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: LoginPage(
-            server: server,
-            router: router,
-          ),
+          home: LoginPage(server: server, router: router),
         ),
       );
 
       // Fill in the form
-      await tester.enterText(find.byKey(const ValueKey('usernameField')), 'testuser');
-      await tester.enterText(find.byKey(const ValueKey('passwordField')), 'testpass');
+      await tester.enterText(
+        find.byKey(const ValueKey('usernameField')),
+        'testuser',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('passwordField')),
+        'testpass',
+      );
       await tester.pump();
 
       // Tap login button

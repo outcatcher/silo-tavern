@@ -8,17 +8,16 @@ import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
 
 import 'server_creation_page_test.mocks.dart';
+import 'router_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerDomain>(), MockSpec<GoRouter>()])
+@GenerateNiceMocks([MockSpec<ServerDomain>()])
 void main() {
   group('Server Creation Page Tests:', () {
     testWidgets('Renders create form correctly', (tester) async {
       final serverDomain = MockServerDomain();
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: ServerCreationPage(serverDomain: serverDomain),
-        ),
+        MaterialApp(home: ServerCreationPage(serverDomain: serverDomain)),
       );
 
       expect(find.text('Add New Server'), findsOneWidget);
@@ -58,10 +57,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ServerCreationPage(
-            serverDomain: serverDomain,
-            router: router,
-          ),
+          home: ServerCreationPage(serverDomain: serverDomain, router: router),
         ),
       );
 
@@ -78,9 +74,7 @@ void main() {
       final serverDomain = MockServerDomain();
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: ServerCreationPage(serverDomain: serverDomain),
-        ),
+        MaterialApp(home: ServerCreationPage(serverDomain: serverDomain)),
       );
 
       final saveButton = find.byKey(const ValueKey('saveButton')).first;

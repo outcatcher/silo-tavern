@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/ui/under_construction_page.dart';
 
-import 'under_construction_page_test.mocks.dart';
+import 'router_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<GoRouter>()])
 void main() {
   group('Under Construction Page Tests:', () {
     testWidgets('Renders correctly with title', (tester) async {
