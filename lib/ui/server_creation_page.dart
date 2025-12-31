@@ -53,6 +53,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
         ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: IconButton(
+          key: const ValueKey('backButton'),
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             context.go('/servers');
@@ -62,6 +63,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
         ),
         actions: [
           IconButton(
+            key: const ValueKey('saveButton'),
             icon: Icon(
               Icons.check,
               color: Theme.of(context).colorScheme.primary,
@@ -171,6 +173,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
+                      key: const ValueKey('serverNameField'),
                       initialValue: _name,
                       decoration: InputDecoration(
                         labelText: 'Server Name *',
@@ -199,6 +202,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
+                      key: const ValueKey('serverUrlField'),
                       initialValue: _url,
                       decoration: InputDecoration(
                         labelText: 'Server URL *',
@@ -233,16 +237,6 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                       },
                     ),
                     const SizedBox(height: 32),
-                    Text(
-                      'Authentication',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Localhost servers can use any configuration. Remote servers must use HTTPS with authentication.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 20),
                     // Authentication fields removed - handled in login page
                   ],
                 ),

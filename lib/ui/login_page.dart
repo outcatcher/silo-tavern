@@ -25,8 +25,12 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login to ${widget.server.name}'),
+        title: Text(
+          'Login to ${widget.server.name}',
+          key: ValueKey('loginPageTitle'),
+        ),
         leading: IconButton(
+          key: const ValueKey('backButton'),
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(widget.backUrl ?? '/servers'),
         ),
@@ -48,6 +52,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 32),
                   TextFormField(
+                    key: const ValueKey('usernameField'),
                     decoration: const InputDecoration(
                       labelText: 'Username',
                       prefixIcon: Icon(Icons.person),
@@ -66,6 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    key: const ValueKey('passwordField'),
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: 'Password',
@@ -99,6 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
+                      key: const ValueKey('loginButton'),
                       onPressed: _handleLogin,
                       icon: const Icon(Icons.login),
                       label: const Text('Login'),

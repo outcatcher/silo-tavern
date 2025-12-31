@@ -1,36 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
 import 'package:silo_tavern/ui/under_construction_page.dart';
 import 'package:silo_tavern/ui/login_page.dart';
 
-class AppRouter {
-  final ServerDomain serverDomain;
+class Domains {
+  ServerDomain servers;
+  ConnectionDomain connections;
 
-  AppRouter({required this.serverDomain});
+  Domains({required this.servers, required this.connections});
+}
 
-  late final GoRouter router = GoRouter(
+GoRouter appRouter(Domains domains) {
+  return GoRouter(
     routes: [
       GoRoute(path: '/', redirect: (_, _) => '/servers'),
       GoRoute(
         path: '/servers',
         name: 'servers',
-        builder: (context, state) => ServerListPage(serverDomain: serverDomain),
+        builder: (context, state) =>
+            ServerListPage(serverDomain: domains.servers),
       ),
       GoRoute(
         path: '/servers/create',
         name: 'serverCreate',
         builder: (context, state) =>
-            ServerCreationPage(serverDomain: serverDomain),
+            ServerCreationPage(serverDomain: domains.servers),
       ),
       GoRoute(
         path: '/servers/edit/:id',
         name: 'serverEdit',
         builder: (context, state) {
           final serverId = state.pathParameters['id']!;
-          final server = serverDomain.findServerById(serverId);
+          final server = domains.servers.findServerById(serverId);
           if (server == null) {
             // Navigate back if server not found
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -41,7 +46,7 @@ class AppRouter {
             );
           }
           return ServerCreationPage(
-            serverDomain: serverDomain,
+            serverDomain: domains.servers,
             initialServer: server,
           );
         },
@@ -51,7 +56,7 @@ class AppRouter {
         name: 'serverConnect',
         builder: (context, state) {
           final serverId = state.pathParameters['id']!;
-          final server = serverDomain.findServerById(serverId);
+          final server = domains.servers.findServerById(serverId);
           if (server == null) {
             // Navigate back if server not found
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -71,7 +76,7 @@ class AppRouter {
         name: 'serverLogin',
         builder: (context, state) {
           final serverId = state.pathParameters['id']!;
-          final server = serverDomain.findServerById(serverId);
+          final server = domains.servers.findServerById(serverId);
           if (server == null) {
             // Navigate back if server not found
             WidgetsBinding.instance.addPostFrameCallback((_) {

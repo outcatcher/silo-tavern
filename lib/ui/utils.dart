@@ -10,6 +10,7 @@ void showErrorDialog(
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
+          key: const ValueKey('errorDialog'),
           title: Row(
             children: [
               const Icon(Icons.error_outline, color: Colors.red),
@@ -20,6 +21,7 @@ void showErrorDialog(
           content: Text(message),
           actions: [
             TextButton(
+              key: const ValueKey('errorDialogOkButton'),
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('OK'),
             ),
@@ -40,6 +42,7 @@ void showSuccessDialog(
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
+          key: const ValueKey('successDialog'),
           title: Row(
             children: [
               const Icon(Icons.check_circle, color: Colors.green),
@@ -50,6 +53,7 @@ void showSuccessDialog(
           content: Text(message),
           actions: [
             TextButton(
+              key: const ValueKey('successDialogOkButton'),
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('OK'),
             ),

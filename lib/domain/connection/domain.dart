@@ -76,4 +76,20 @@ class ConnectionDomain {
   ConnectionSessionInterface? getClient(String serverId) {
     return _sessions[serverId];
   }
+
+  /// Shallow authentication method for testing purposes
+  /// This method does nothing and always returns success
+  Future<ConnectionResult> authenticateWithServer(server_models.Server server, ConnectionCredentials credentials) async {
+    // This is a shallow implementation for testing purposes
+    // In a real implementation, this would perform actual authentication
+    return ConnectionResult.success();
+  }
+
+  /// Shallow CSRF token method for testing purposes
+  /// This method does nothing and always returns success
+  Future<ConnectionResult> obtainCsrfTokenForServer(server_models.Server server) async {
+    // This is a shallow implementation for testing purposes
+    // In a real implementation, this would obtain a CSRF token
+    return ConnectionResult.success();
+  }
 }

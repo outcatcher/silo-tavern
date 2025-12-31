@@ -9,8 +9,9 @@ import 'utils.dart' as utils;
 
 class ServerListPage extends StatefulWidget {
   final ServerDomain serverDomain;
+  final GoRouter? router;
 
-  const ServerListPage({super.key, required this.serverDomain});
+  const ServerListPage({super.key, required this.serverDomain, this.router});
 
   @override
   State<ServerListPage> createState() => _ServerListPageState();
@@ -20,6 +21,8 @@ class _ServerListPageState extends State<ServerListPage> {
   late List<Server> _servers;
   final Set<String> _deletingServers = {};
 
+  GoRouter get router => widget.router ?? GoRouter.of(context);
+
   @override
   void initState() {
     super.initState();
@@ -27,11 +30,11 @@ class _ServerListPageState extends State<ServerListPage> {
   }
 
   void _addServer() {
-    context.go('/servers/create');
+    router.go('/servers/create');
   }
 
   void _editServer(Server server) async {
-    context.go('/servers/edit/${server.id}');
+    router.go('/servers/edit/${server.id}');
   }
 
   void _deleteServer(Server server) {
@@ -190,10 +193,14 @@ class _ServerListPageState extends State<ServerListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SiloTavern - Servers'),
+        title: const Text(
+          'SiloTavern - Servers',
+          key: ValueKey('serverListTitle'),
+        ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
+            key: ValueKey('addServerIcon'),
             icon: const Icon(Icons.add),
             onPressed: _addServer,
             tooltip: 'Add Server',
@@ -305,6 +312,7 @@ class _ServerListPageState extends State<ServerListPage> {
     return Padding(
       padding: const EdgeInsets.all(48.0),
       child: Column(
+        key: ValueKey('noServers'),
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
@@ -325,6 +333,7 @@ class _ServerListPageState extends State<ServerListPage> {
           const SizedBox(height: 40),
           ElevatedButton.icon(
             onPressed: _addServer,
+            key: ValueKey('addServerButton'),
             icon: const Icon(Icons.add),
             label: const Text('Add Server'),
             style: ElevatedButton.styleFrom(
@@ -371,7 +380,7 @@ class _ServerListPageState extends State<ServerListPage> {
         ),
         onTap: () {
           // Navigate to login page with back URL as query parameter
-          context.go(
+          router.go(
             Uri(
               path: '/servers/login/${server.id}',
               queryParameters: {'backUrl': '/servers'},
