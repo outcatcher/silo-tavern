@@ -7,17 +7,20 @@ import 'package:go_router/go_router.dart';
 class UnderConstructionPage extends StatelessWidget {
   final String title;
   final String? backUrl;
+  final GoRouter? router;
 
-  const UnderConstructionPage({super.key, required this.title, this.backUrl});
+  const UnderConstructionPage({super.key, required this.title, this.backUrl, this.router});
 
   @override
   Widget build(BuildContext context) {
+    final routerInstance = router ?? GoRouter.of(context);
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go(backUrl ?? '/'),
+          onPressed: () => routerInstance.go(backUrl ?? '/'),
         ),
       ),
       body: Center(

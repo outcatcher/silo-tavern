@@ -108,13 +108,14 @@ task build:linux
    - This ensures fast, reliable tests that focus on the specific layer's behavior
    - Mocks done with mockito `@GenerateNiceMocks` annotations.
    - Mocks defined in annotation required generation before being used (`task generate`)
+5. **Widget Isolation**: Widgets should accept optional dependency arguments (like router) for testing in isolation, falling back to context-based resolution when not provided
 
 ### UI Components
 
 1. **Material Design**: Uses Flutter's Material Design widgets
 2. **Gestures**: Implements various gesture handlers (long press, secondary tap) for context menus
 3. **Dismissible Widgets**: Uses `Dismissible` for swipe gestures to edit/delete items
-4. **Navigation**: Uses `context.go()` for screen transitions (NEVER use `Navigator.push()` or `Navigator.pop()`)
+4. **Navigation**: Uses `router.go()` for screen transitions with optional router parameter for testing (NEVER use `Navigator.push()` or `Navigator.pop()`)
 
 ## Key Gotchas
 

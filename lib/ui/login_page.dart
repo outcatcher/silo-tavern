@@ -8,8 +8,9 @@ import 'package:silo_tavern/domain/servers/models.dart';
 class LoginPage extends StatefulWidget {
   final Server server;
   final String? backUrl;
+  final GoRouter? router;
 
-  const LoginPage({super.key, required this.server, this.backUrl});
+  const LoginPage({super.key, required this.server, this.backUrl, this.router});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -20,6 +21,8 @@ class _LoginPageState extends State<LoginPage> {
   late String _username = '';
   late String _password = '';
   bool _obscurePassword = true;
+  
+  GoRouter get router => widget.router ?? GoRouter.of(context);
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
         leading: IconButton(
           key: const ValueKey('backButton'),
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go(widget.backUrl ?? '/servers'),
+          onPressed: () => router.go(widget.backUrl ?? '/servers'),
         ),
       ),
       body: Center(
@@ -127,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
     if (_formKey.currentState!.validate()) {
       // For now, just navigate to the under construction page
       // In the full implementation, this would authenticate with the server
-      context.go(
+      router.go(
         Uri(
           path: '/servers/connect/${widget.server.id}',
           queryParameters: {'backUrl': widget.backUrl ?? '/servers'},

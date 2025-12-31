@@ -13,11 +13,13 @@ enum PageMode { create, edit }
 class ServerCreationPage extends StatefulWidget {
   final ServerDomain serverDomain;
   final Server? initialServer;
+  final GoRouter? router;
 
   const ServerCreationPage({
     super.key,
     required this.serverDomain,
     this.initialServer,
+    this.router,
   });
 
   @override
@@ -32,6 +34,8 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
   // Validation error states
   String? _nameError;
   String? _urlError;
+  
+  GoRouter get router => widget.router ?? GoRouter.of(context);
 
   @override
   void initState() {
@@ -56,7 +60,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
           key: const ValueKey('backButton'),
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go('/servers');
+            router.go('/servers');
           },
           splashRadius: 24.0,
           constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
@@ -123,7 +127,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                     await widget.serverDomain.updateServer(tempServer);
                     // Navigate back to the server list after successful update
                     if (context.mounted) {
-                      context.go('/servers');
+                      router.go('/servers');
                     }
                   } else {
                     // Add new server
@@ -134,7 +138,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                         'Server added successfully!',
                         title: 'Success',
                       );
-                      context.go('/servers');
+                      router.go('/servers');
                     }
                   }
                 } catch (error) {
