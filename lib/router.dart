@@ -4,6 +4,7 @@ import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
 import 'package:silo_tavern/ui/under_construction_page.dart';
+import 'package:silo_tavern/ui/login_page.dart';
 
 class AppRouter {
   final ServerDomain serverDomain;
@@ -63,6 +64,26 @@ class AppRouter {
           // Get back URL from query parameters or default to '/servers'
           final backUrl = state.uri.queryParameters['backUrl'] ?? '/servers';
           return UnderConstructionPage(title: server.name, backUrl: backUrl);
+        },
+      ),
+      GoRoute(
+        path: '/servers/login/:id',
+        name: 'serverLogin',
+        builder: (context, state) {
+          final serverId = state.pathParameters['id']!;
+          final server = serverDomain.findServerById(serverId);
+          if (server == null) {
+            // Navigate back if server not found
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.go('/servers');
+            });
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          // Get back URL from query parameters or default to '/servers'
+          final backUrl = state.uri.queryParameters['backUrl'] ?? '/servers';
+          return LoginPage(server: server, backUrl: backUrl);
         },
       ),
     ],

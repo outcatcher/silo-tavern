@@ -24,15 +24,10 @@ class ServerCreationPage extends StatefulWidget {
   State<ServerCreationPage> createState() => _ServerCreationPageState();
 }
 
-enum AuthenticationType { none, credentials }
-
 class _ServerCreationPageState extends State<ServerCreationPage> {
   final _formKey = GlobalKey<FormState>();
   late String _name = '';
   late String _url = '';
-  AuthenticationType _authType = AuthenticationType.none;
-  late String _username = '';
-  late String _password = '';
 
   // Validation error states
   String? _nameError;
@@ -46,11 +41,6 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
       final server = widget.initialServer!;
       _name = server.name;
       _url = server.address;
-      _authType = server.authentication.useCredentials
-          ? AuthenticationType.credentials
-          : AuthenticationType.none;
-      _username = server.authentication.username;
-      _password = server.authentication.password;
     }
   }
 
@@ -106,12 +96,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                   id: widget.initialServer?.id ?? UuidV7().generate(),
                   name: _name,
                   address: _url,
-                  authentication: _authType == AuthenticationType.credentials
-                      ? AuthenticationInfo.credentials(
-                          username: _username,
-                          password: _password,
-                        )
-                      : const AuthenticationInfo.none(),
+                  authentication: const AuthenticationInfo.none(),
                 );
 
                 // Validate server configuration
@@ -258,94 +243,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        RadioGroup<AuthenticationType>(
-                          groupValue: _authType,
-                          onChanged: (AuthenticationType? value) {
-                            setState(() {
-                              _authType = value!;
-                            });
-                          },
-                          child: Column(
-                            children: [
-                              RadioListTile<AuthenticationType>(
-                                title: const Text('None'),
-                                value: AuthenticationType.none,
-                              ),
-                              RadioListTile<AuthenticationType>(
-                                title: const Text('Credentials'),
-                                value: AuthenticationType.credentials,
-                              ),
-                            ],
-                          ),
-                        ),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          height: _authType == AuthenticationType.credentials
-                              ? null
-                              : 0,
-                          child: _authType == AuthenticationType.credentials
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 20),
-                                    TextFormField(
-                                      initialValue: _username,
-                                      decoration: const InputDecoration(
-                                        labelText: 'User Handle *',
-                                      ),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _username = value;
-                                        });
-                                      },
-                                      validator: (value) {
-                                        if (_authType ==
-                                                AuthenticationType
-                                                    .credentials &&
-                                            (value == null || value.isEmpty)) {
-                                          return 'Please enter a username';
-                                        }
-                                        return null;
-                                      },
-                                      onSaved: (value) {
-                                        _username = value!;
-                                      },
-                                    ),
-                                    const SizedBox(height: 20),
-                                    TextFormField(
-                                      initialValue: _password,
-                                      obscureText: true,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Password *',
-                                      ),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _password = value;
-                                        });
-                                      },
-                                      validator: (value) {
-                                        if (_authType ==
-                                                AuthenticationType
-                                                    .credentials &&
-                                            (value == null || value.isEmpty)) {
-                                          return 'Please enter a password';
-                                        }
-                                        return null;
-                                      },
-                                      onSaved: (value) {
-                                        _password = value!;
-                                      },
-                                    ),
-                                  ],
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                      ],
-                    ),
+                    // Authentication fields removed - handled in login page
                   ],
                 ),
               ),
