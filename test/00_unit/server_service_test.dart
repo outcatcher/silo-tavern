@@ -30,16 +30,11 @@ void main() {
             id: '1',
             name: 'Test Server 1',
             address: 'https://test1.example.com',
-            authentication: AuthenticationInfo.credentials(
-              username: 'user1',
-              password: 'pass1',
-            ),
           ),
           Server(
             id: '2',
             name: 'Local Server',
             address: 'http://localhost:8080',
-            authentication: const AuthenticationInfo.none(),
           ),
         ],
       );
@@ -48,10 +43,6 @@ void main() {
           id: '1',
           name: 'Test Server 1',
           address: 'https://test1.example.com',
-          authentication: AuthenticationInfo.credentials(
-            username: 'user1',
-            password: 'pass1',
-          ),
         ),
       );
       when(storage.createServer(any)).thenAnswer((_) async {});
@@ -85,10 +76,6 @@ void main() {
         id: 'new-server',
         name: 'New Server',
         address: 'https://new.example.com',
-        authentication: AuthenticationInfo.credentials(
-          username: 'user',
-          password: 'pass',
-        ),
       );
 
       await service.addServer(newServer);
@@ -108,7 +95,6 @@ void main() {
         id: originalId,
         name: 'Updated Name',
         address: originalServer.address,
-        authentication: originalServer.authentication,
       );
 
       await service.updateServer(updatedServer);
@@ -150,10 +136,6 @@ void main() {
         id: 'fake-id',
         name: 'Fake Server',
         address: 'https://fake.example.com',
-        authentication: AuthenticationInfo.credentials(
-          username: 'user',
-          password: 'pass',
-        ),
       );
 
       expect(
@@ -174,7 +156,6 @@ void main() {
           id: 'https-remote-no-auth-server',
           name: 'HTTPS Remote No Auth Server',
           address: 'https://external.com',
-          authentication: const AuthenticationInfo.none(),
         );
 
         expect(
@@ -189,10 +170,6 @@ void main() {
           id: 'http-remote-with-auth-server',
           name: 'HTTP Remote With Auth Server',
           address: 'http://external.com',
-          authentication: AuthenticationInfo.credentials(
-            username: 'user',
-            password: 'pass',
-          ),
         );
 
         expect(
@@ -207,7 +184,6 @@ void main() {
           id: 'http-remote-no-auth-server',
           name: 'HTTP Remote No Auth Server',
           address: 'http://external.com',
-          authentication: const AuthenticationInfo.none(),
         );
 
         expect(
@@ -223,10 +199,6 @@ void main() {
           id: 'valid-server',
           name: 'Valid Server',
           address: 'https://example.com',
-          authentication: AuthenticationInfo.credentials(
-            username: 'user',
-            password: 'pass',
-          ),
         );
         await service.addServer(validServer);
         expect(service.findServerById('valid-server'), isNotNull);
@@ -236,7 +208,6 @@ void main() {
           id: 'valid-server',
           name: 'Invalid Server',
           address: 'http://external.com',
-          authentication: const AuthenticationInfo.none(),
         );
 
         expect(
@@ -258,10 +229,6 @@ void main() {
           id: 'valid-server-2',
           name: 'Valid Server 2',
           address: 'https://example.com',
-          authentication: AuthenticationInfo.credentials(
-            username: 'user',
-            password: 'pass',
-          ),
         );
         await service.addServer(validServer);
         expect(service.findServerById('valid-server-2'), isNotNull);
@@ -271,7 +238,6 @@ void main() {
           id: 'valid-server-2',
           name: 'Invalid Server 2',
           address: 'https://external.com',
-          authentication: const AuthenticationInfo.none(),
         );
 
         expect(
@@ -281,13 +247,6 @@ void main() {
 
         // Original server should still exist
         expect(service.findServerById('valid-server-2'), isNotNull);
-        expect(
-          service
-              .findServerById('valid-server-2')!
-              .authentication
-              .useCredentials,
-          isTrue,
-        );
       });
 
       test('Adding server with duplicate ID fails', () async {
@@ -295,20 +254,12 @@ void main() {
           id: 'duplicate-id',
           name: 'Server 1',
           address: 'https://example.com',
-          authentication: AuthenticationInfo.credentials(
-            username: 'user',
-            password: 'pass',
-          ),
         );
 
         final server2 = Server(
           id: 'duplicate-id',
           name: 'Server 2',
           address: 'https://example2.com',
-          authentication: AuthenticationInfo.credentials(
-            username: 'user',
-            password: 'pass',
-          ),
         );
 
         // First server should be added successfully
@@ -342,7 +293,6 @@ void main() {
             id: 'https-remote-no-auth-server',
             name: 'HTTPS Remote No Auth Server',
             address: 'https://external.com',
-            authentication: const AuthenticationInfo.none(),
           );
 
           expect(
@@ -367,10 +317,6 @@ void main() {
             id: 'http-remote-with-auth-server',
             name: 'HTTP Remote With Auth Server',
             address: 'http://external.com',
-            authentication: AuthenticationInfo.credentials(
-              username: 'user',
-              password: 'pass',
-            ),
           );
 
           expect(
@@ -396,10 +342,6 @@ void main() {
             id: 'valid-server-error',
             name: 'Valid Server',
             address: 'https://example.com',
-            authentication: AuthenticationInfo.credentials(
-              username: 'user',
-              password: 'pass',
-            ),
           );
           await service.addServer(validServer);
 
@@ -408,7 +350,6 @@ void main() {
             id: 'valid-server-error',
             name: 'Invalid Server',
             address: 'http://external.com',
-            authentication: const AuthenticationInfo.none(),
           );
 
           expect(

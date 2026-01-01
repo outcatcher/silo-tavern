@@ -34,12 +34,8 @@ class ServerStorage {
     final List<Server> servers = [];
 
     for (final serverData in serversData) {
-      final id = serverData['id'] as String;
-      final authData = await _secureStorage.get(id);
-      final auth = _authFromJson(authData);
-
       final server = _ServiceServer.fromJson(serverData);
-      servers.add(server.toDomain(auth));
+      servers.add(server.toDomain());
     }
 
     return servers;
@@ -52,11 +48,8 @@ class ServerStorage {
       return null;
     }
 
-    final authData = await _secureStorage.get(id);
-    final auth = _authFromJson(authData);
     final server = _ServiceServer.fromJson(serverData);
-
-    return server.toDomain(auth);
+    return server.toDomain();
   }
 
   /// Create a new server
@@ -68,10 +61,6 @@ class ServerStorage {
 
     final serviceServer = _ServiceServer.fromDomain(server);
     await _storage.set(server.id, serviceServer.toJson());
-
-    if (server.authentication.useCredentials) {
-      await _secureStorage.set(server.id, server.authentication.toJson());
-    }
   }
 
   /// Update an existing server
@@ -83,13 +72,6 @@ class ServerStorage {
 
     final serviceServer = _ServiceServer.fromDomain(server);
     await _storage.set(server.id, serviceServer.toJson());
-
-    if (server.authentication.useCredentials) {
-      await _secureStorage.set(server.id, server.authentication.toJson());
-    } else {
-      // If not using credentials, delete any existing auth data
-      await _secureStorage.delete(server.id);
-    }
   }
 
   /// Delete a server and its credentials from storage
@@ -98,14 +80,5 @@ class ServerStorage {
     await _secureStorage.delete(serverId);
   }
 
-  AuthenticationInfo _authFromJson(Map<String, dynamic>? data) {
-    if (data == null) {
-      return AuthenticationInfo.none();
-    }
 
-    return AuthenticationInfo.credentials(
-      username: data['username'] as String,
-      password: data['password'] as String,
-    );
-  }
 }

@@ -7,7 +7,7 @@ Users need to establish connections to configured servers to access their SillyT
 - Add server connection workflow with CSRF token handling
 - Implement authentication with token cookie storage
 - Create under construction page for connected servers
-- Add user feedback through toast notifications
+- Add user feedback through snackbar notifications
 
 ## Impact
 - Affected specs: server-connection

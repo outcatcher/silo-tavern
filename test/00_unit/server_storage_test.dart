@@ -126,11 +126,7 @@ void main() {
       final servers = await storage.listServers();
       expect(servers, hasLength(2));
       expect(servers[0].id, 'test-server-1');
-      expect(servers[0].authentication.useCredentials, false);
       expect(servers[1].id, 'test-server-2');
-      expect(servers[1].authentication.useCredentials, true);
-      expect(servers[1].authentication.username, 'user2');
-      expect(servers[1].authentication.password, 'pass2');
     });
 
     test('List servers handles malformed data gracefully', () async {
@@ -200,9 +196,6 @@ void main() {
       expect(server, isNotNull);
       expect(server!.id, 'test-server');
       expect(server.name, 'Test Server');
-      expect(server.authentication.useCredentials, true);
-      expect(server.authentication.username, 'testuser');
-      expect(server.authentication.password, 'testpass');
     });
 
     test('Create server adds new server to list', () async {
@@ -213,7 +206,6 @@ void main() {
         id: 'new-server',
         name: 'New Server',
         address: 'https://new.example.com',
-        authentication: const AuthenticationInfo.none(),
       );
 
       await expectLater(storage.createServer(newServer), completes);
@@ -231,10 +223,6 @@ void main() {
         id: 'new-server',
         name: 'New Server',
         address: 'https://new.example.com',
-        authentication: AuthenticationInfo.credentials(
-          username: 'testuser',
-          password: 'testpass',
-        ),
       );
 
       await expectLater(storage.createServer(newServer), completes);
@@ -259,7 +247,6 @@ void main() {
         id: 'existing-server',
         name: 'New Server',
         address: 'https://new.example.com',
-        authentication: const AuthenticationInfo.none(),
       );
 
       expect(
@@ -296,7 +283,6 @@ void main() {
         id: 'update-server',
         name: 'New Name',
         address: 'https://new.example.com',
-        authentication: const AuthenticationInfo.none(),
       );
 
       await expectLater(storage.updateServer(updatedServer), completes);
@@ -320,10 +306,6 @@ void main() {
         id: 'update-server',
         name: 'New Name',
         address: 'https://new.example.com',
-        authentication: AuthenticationInfo.credentials(
-          username: 'testuser',
-          password: 'testpass',
-        ),
       );
 
       await expectLater(storage.updateServer(updatedServer), completes);
@@ -343,7 +325,6 @@ void main() {
         id: 'non-existent',
         name: 'New Name',
         address: 'https://new.example.com',
-        authentication: const AuthenticationInfo.none(),
       );
 
       expect(
@@ -378,7 +359,6 @@ void main() {
           id: 'update-server',
           name: 'New Name',
           address: 'https://new.example.com',
-          authentication: const AuthenticationInfo.none(),
         );
 
         await expectLater(storage.updateServer(updatedServer), completes);
@@ -461,7 +441,6 @@ void main() {
         id: 'new-server',
         name: 'New Server',
         address: 'https://new.example.com',
-        authentication: const AuthenticationInfo.none(),
       );
 
       // Test that the method completes (exception is caught internally)
@@ -474,7 +453,6 @@ void main() {
           id: 'test-server',
           name: 'Test Server',
           address: 'https://test.example.com',
-          authentication: const AuthenticationInfo.none(),
         ),
       ];
 

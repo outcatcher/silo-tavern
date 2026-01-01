@@ -102,7 +102,6 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                   id: widget.initialServer?.id ?? UuidV7().generate(),
                   name: _name,
                   address: _url,
-                  authentication: const AuthenticationInfo.none(),
                 );
 
                 // Validate server configuration
@@ -110,13 +109,11 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                   validateServerConfiguration(tempServer);
                 } catch (e) {
                   // Show error dialog
-                  if (mounted) {
-                    utils.showErrorDialog(
-                      context,
-                      'Please use HTTPS with authentication for remote servers.',
-                      title: 'Invalid Configuration',
-                    );
-                  }
+                  utils.showErrorDialog(
+                    context,
+                    'Please use HTTPS with authentication for remote servers.',
+                    title: 'Invalid Configuration',
+                  );
                   return;
                 }
 

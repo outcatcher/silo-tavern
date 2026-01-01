@@ -40,7 +40,7 @@ class _ServerListPageState extends State<ServerListPage> {
   void _deleteServer(Server server) {
     // Optimistic update - remove from local list immediately
     setState(() {
-      _servers.remove(server);
+      _servers.removeWhere((s) => s.id == server.id);
       _deletingServers.add(server.id);
     });
 
@@ -74,9 +74,11 @@ class _ServerListPageState extends State<ServerListPage> {
               _deletingServers.remove(server.id);
               if (insertIndex == -1) {
                 // Insert at the end if no suitable position found
+                server.updateStatus(ServerStatus.ready);
                 _servers.add(server);
               } else {
                 // Insert at the correct position to maintain order
+                server.updateStatus(ServerStatus.ready);
                 _servers.insert(insertIndex, server);
               }
             });
@@ -345,19 +347,63 @@ class _ServerListPageState extends State<ServerListPage> {
     );
   }
 
-  Widget _buildServerCard(BuildContext context, Server server) {
+  Widget _buildServerCard(
+    BuildContext context,
+    Server server,
+  ) {
     final isDeleting = _deletingServers.contains(server.id);
     final isHttps = server.address.startsWith('https');
+
+    // Determine status icon and color
+    IconData statusIcon;
+    Color statusColor;
+
+    switch (server.status) {
+      case ServerStatus.loading:
+        statusIcon = Icons.hourglass_bottom;
+        statusColor = Colors.orange;
+        break;
+      case ServerStatus.ready:
+        statusIcon = Icons.radio_button_unchecked;
+        statusColor = Colors.grey;
+        break;
+      case ServerStatus.unavailable:
+        statusIcon = Icons.error_outline;
+        statusColor = Colors.red;
+        break;
+      case ServerStatus.active:
+        statusIcon = Icons.check_circle;
+        statusColor = Colors.green;
+        break;
+    }
 
     return Card(
       margin: EdgeInsets.zero,
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: isHttps ? Colors.grey[700] : Colors.grey[500],
-          child: Icon(
-            isHttps ? Icons.lock : Icons.lock_open,
-            color: Colors.white,
-          ),
+        leading: Stack(
+          alignment: Alignment.center,
+          children: [
+            CircleAvatar(
+              backgroundColor: isHttps ? Colors.grey[700] : Colors.grey[500],
+              child: Icon(
+                isHttps ? Icons.lock : Icons.lock_open,
+                color: Colors.white,
+              ),
+            ),
+            // Status indicator overlay
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(statusIcon, color: statusColor, size: 16),
+              ),
+            ),
+          ],
         ),
         title: Text(
           server.name,

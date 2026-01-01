@@ -119,7 +119,7 @@ task build:linux
 
 ## Key Gotchas
 
-1. **BuildContext Management**: When showing dialogs after async operations, always check `mounted` before calling `setState()`
+1. **BuildContext Management**: When showing dialogs after async operations, always check `context.mounted` before calling `setState()`
 2. **Gesture Handling**: Both long press and secondary tap are implemented for context menus to support different input methods
 3. **Swipe Actions**: Custom `confirmDismiss` implementation handles different swipe directions for edit/delete actions
 4. **Authentication Security**: Passwords are stored using secure storage mechanisms (via `flutter_secure_storage` dependency)

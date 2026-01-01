@@ -40,7 +40,6 @@ void main() {
             id: '1',
             name: 'Test Server',
             address: 'https://test.example.com',
-            authentication: const AuthenticationInfo.none(),
           ),
         ],
       );
@@ -59,7 +58,7 @@ void main() {
       // Set up router
       router = GoRouter(
         routes: [
-          GoRoute(path: '/', redirect: (_, __) => '/servers'),
+          GoRoute(path: '/', redirect: (_, _) => '/servers'),
           GoRoute(
             path: '/servers',
             name: 'servers',

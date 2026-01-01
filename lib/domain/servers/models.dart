@@ -2,35 +2,36 @@ class Server {
   final String id;
   final String name;
   final String address;
-  final AuthenticationInfo authentication;
+  ServerStatus status;
 
   Server({
     required this.id,
     required this.name,
     required this.address,
-    this.authentication = const AuthenticationInfo.none(),
+    this.status = ServerStatus.ready,
   });
-}
 
-class AuthenticationInfo {
-  final bool useCredentials;
-  final String username;
-  final String password;
-
-  const AuthenticationInfo.credentials({
-    required this.username,
-    required this.password,
-  }) : useCredentials = true;
-
-  const AuthenticationInfo.none()
-    : useCredentials = false,
-      username = '',
-      password = '';
-
-  Map<String, dynamic> toJson() {
-    return {'username': username, 'password': password};
+  void updateStatus(ServerStatus newStatus) {
+    status = newStatus;
   }
 }
+
+/// Represents the connection status of a server
+enum ServerStatus {
+  /// Server is being tested or connected to
+  loading,
+
+  /// Server is configured but not yet connected
+  ready,
+
+  /// Server is unreachable or connection failed
+  unavailable,
+
+  /// Server is successfully connected and active
+  active,
+}
+
+
 
 /// Result of a server connection attempt
 class ServerConnectionResult {

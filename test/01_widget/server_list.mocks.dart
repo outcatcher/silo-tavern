@@ -75,13 +75,13 @@ class MockServerDomain extends _i1.Mock implements _i5.ServerDomain {
           as _i3.ConnectionDomain);
 
   @override
-  List<_i4.Server> get servers =>
+  List<_i4.ServerWithStatus> get servers =>
       (super.noSuchMethod(
             Invocation.getter(#servers),
-            returnValue: <_i4.Server>[],
-            returnValueForMissingStub: <_i4.Server>[],
+            returnValue: <_i4.ServerWithStatus>[],
+            returnValueForMissingStub: <_i4.ServerWithStatus>[],
           )
-          as List<_i4.Server>);
+          as List<_i4.ServerWithStatus>);
 
   @override
   int get serverCount =>
@@ -129,12 +129,19 @@ class MockServerDomain extends _i1.Mock implements _i5.ServerDomain {
           as _i6.Future<void>);
 
   @override
-  _i4.Server? findServerById(String? id) =>
+  _i4.ServerWithStatus? findServerById(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#findServerById, [id]),
             returnValueForMissingStub: null,
           )
-          as _i4.Server?);
+          as _i4.ServerWithStatus?);
+
+  @override
+  void updateServerStatus(String? serverId, _i4.ServerStatus? status) =>
+      super.noSuchMethod(
+        Invocation.method(#updateServerStatus, [serverId, status]),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i6.Future<_i4.ServerConnectionResult> connectToServer(_i4.Server? server) =>

@@ -31,16 +31,11 @@ void main() {
             id: '1',
             name: 'Test Server 1',
             address: 'https://test1.example.com',
-            authentication: AuthenticationInfo.credentials(
-              username: 'user1',
-              password: 'pass1',
-            ),
           ),
           Server(
             id: '2',
             name: 'Local Server',
             address: 'http://localhost:8080',
-            authentication: const AuthenticationInfo.none(),
           ),
         ],
       );
@@ -49,10 +44,7 @@ void main() {
           id: '1',
           name: 'Test Server 1',
           address: 'https://test1.example.com',
-          authentication: AuthenticationInfo.credentials(
-            username: 'user1',
-            password: 'pass1',
-          ),
+
         ),
       );
       when(storage.createServer(any)).thenAnswer((_) async {});

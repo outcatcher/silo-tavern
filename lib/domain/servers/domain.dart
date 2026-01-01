@@ -50,7 +50,12 @@ class ServerDomain {
     _servers.clear();
 
     await locker.protect(() async {
-      _servers.addAll(await _storage.listServers());
+      final servers = await _storage.listServers();
+      // Initialize all loaded servers with 'ready' status
+      for (var server in servers) {
+        server.updateStatus(ServerStatus.ready);
+        _servers.add(server);
+      }
     });
   }
 
@@ -70,6 +75,8 @@ class ServerDomain {
     // Only add server if configuration is allowed
     validateServerConfiguration(server);
 
+    // Add server with 'ready' status
+    server.updateStatus(ServerStatus.ready);
     _servers.add(server);
     await locker.protect(() => _storage.createServer(server));
   }
@@ -83,6 +90,9 @@ class ServerDomain {
 
     // Only add server if configuration is allowed
     validateServerConfiguration(updatedServer);
+    // Update server but preserve current status
+    final currentStatus = _servers[index].status;
+    updatedServer.updateStatus(currentStatus);
     _servers[index] = updatedServer;
     await locker.protect(() => _storage.updateServer(updatedServer));
   }
@@ -102,16 +112,31 @@ class ServerDomain {
     }
   }
 
+  // Update server status
+  void updateServerStatus(String serverId, ServerStatus status) {
+    final index = _servers.indexWhere((s) => s.id == serverId);
+    if (index != -1) {
+      _servers[index].updateStatus(status);
+    }
+  }
+
   // Connect to a server
   Future<ServerConnectionResult> connectToServer(Server server) async {
     try {
+      // Update status to loading
+      updateServerStatus(server.id, ServerStatus.loading);
+      
       // Use the connection domain to connect to the server
       final result = await _connectionDomain.connectToServer(server);
 
       if (result.isSuccess) {
+        // Connection successful - update status to active
+        updateServerStatus(server.id, ServerStatus.active);
         // Connection successful
         return ServerConnectionResult.success(server);
       } else {
+        // Connection failed - update status to unavailable
+        updateServerStatus(server.id, ServerStatus.unavailable);
         // Connection failed
         debugPrint(
           'ServerDomain: Connection failed for server ${server.id}: ${result.errorMessage}',
@@ -122,6 +147,8 @@ class ServerDomain {
         );
       }
     } catch (e) {
+      // Connection failed - update status to unavailable
+      updateServerStatus(server.id, ServerStatus.unavailable);
       // Connection failed
       debugPrint(
         'ServerDomain: Exception during connection to server ${server.id}: $e',
@@ -133,10 +160,9 @@ class ServerDomain {
 
 /// Validates if a server configuration is allowed based on security rules
 /// Local servers are always allowed
-/// Remote servers must be HTTPS and have authentication
+/// Remote servers must be HTTPS
 void validateServerConfiguration(Server server) {
   final isHttps = server.address.startsWith('https://');
-  final hasAuthentication = server.authentication.useCredentials;
   final isLocal = NetworkUtils.isLocalAddress(server.address);
 
   // Local addresses are always allowed
@@ -144,12 +170,8 @@ void validateServerConfiguration(Server server) {
     return;
   }
 
-  // For remote addresses: must be HTTPS AND have authentication
+  // For remote addresses: must be HTTPS
   if (!isHttps) {
     throw ArgumentError('HTTPS must be used for external servers');
-  }
-
-  if (!hasAuthentication) {
-    throw ArgumentError('Authentication must be used for external servers');
   }
 }

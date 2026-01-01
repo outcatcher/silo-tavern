@@ -12,12 +12,12 @@ The system SHALL provide the ability to connect to a configured server with prop
 
 #### Scenario: CSRF request failure
 - **WHEN** the CSRF request fails during server connection
-- **THEN** the system SHALL show an "Error connecting to server" toast notification
+- **THEN** the system SHALL show an "Error connecting to server" snackbar notification
 - **AND** remain on the login page
 
 #### Scenario: Authentication failure
 - **WHEN** the authentication request fails after successful CSRF
-- **THEN** the system SHALL show an "Authentication failed" toast notification
+- **THEN** the system SHALL show an "Authentication failed" snackbar notification
 - **AND** remain on the login page
 
 #### Scenario: Under construction page display

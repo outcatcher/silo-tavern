@@ -51,24 +51,7 @@ class ConnectionDomain {
       return ConnectionResult.failure(e.toString());
     }
 
-    if (server.authentication.useCredentials) {
-      final credentials = ConnectionCredentials(
-        handle: server.authentication.username,
-        password: server.authentication.password,
-      );
-
-      try {
-        await session.authenticate(credentials);
-
-        return ConnectionResult.success();
-      } catch (e) {
-        debugPrint(
-          'ConnectionDomain: Failed to authenticate with server ${server.id}: $e',
-        );
-        return ConnectionResult.failure(e.toString());
-      }
-    }
-
+    // Authentication is no longer supported
     return ConnectionResult.success();
   }
 

@@ -4,10 +4,10 @@
 
 ### Phase 1: UI/UX Changes (Highest Level)
 **Goal**: User-facing changes that don't affect core logic
-- [ ] 1.1 Create login page UI component
+- [x] 1.1 Create login page UI component
 - [ ] 1.2 Implement server status indicators (loading/ready/unavailable/active)
 - [ ] 1.3 Update server list page to integrate status indicators
-- [ ] 1.4 Modify connection flow to redirect to login page
+- [x] 1.4 Modify connection flow to redirect to login page
 
 ### Phase 2: Connection Logic Changes (Middle Level)
 **Goal**: Authentication flow changes

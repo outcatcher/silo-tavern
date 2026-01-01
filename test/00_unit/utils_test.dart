@@ -139,17 +139,12 @@ void main() {
             id: '1',
             name: 'Local HTTP no Auth',
             address: 'http://localhost:8000',
-            authentication: const AuthenticationInfo.none(),
           );
 
           final httpLocalWithAuth = Server(
             id: '2',
             name: 'Local HTTP with Auth',
             address: 'http://127.0.0.1:3000',
-            authentication: AuthenticationInfo.credentials(
-              username: 'user',
-              password: 'pass',
-            ),
           );
 
           // HTTPS local servers
@@ -157,17 +152,12 @@ void main() {
             id: '3',
             name: 'Local HTTPS no Auth',
             address: 'https://localhost:443',
-            authentication: const AuthenticationInfo.none(),
           );
 
           final httpsLocalWithAuth = Server(
             id: '4',
             name: 'Local HTTPS with Auth',
             address: 'https://192.168.1.100:443',
-            authentication: AuthenticationInfo.credentials(
-              username: 'user',
-              password: 'pass',
-            ),
           );
 
           expect(
@@ -194,10 +184,7 @@ void main() {
           id: '1',
           name: 'Remote HTTPS with Auth',
           address: 'https://example.com:443',
-          authentication: AuthenticationInfo.credentials(
-            username: 'user',
-            password: 'pass',
-          ),
+
         );
 
         expect(
@@ -206,17 +193,17 @@ void main() {
         );
       });
 
-      test('Remote HTTPS servers without authentication are forbidden', () {
+      test('Remote HTTPS servers without authentication are allowed', () {
         final httpsRemoteNoAuth = Server(
           id: '1',
           name: 'Remote HTTPS no Auth',
           address: 'https://secure.example.com',
-          authentication: const AuthenticationInfo.none(),
+
         );
 
         expect(
           () => validateServerConfiguration(httpsRemoteNoAuth),
-          throwsA(isA<ArgumentError>()),
+          returnsNormally,
         );
       });
 
@@ -225,10 +212,7 @@ void main() {
           id: '1',
           name: 'Remote HTTP with Auth',
           address: 'http://external.com',
-          authentication: AuthenticationInfo.credentials(
-            username: 'user',
-            password: 'pass',
-          ),
+
         );
 
         expect(
@@ -242,7 +226,7 @@ void main() {
           id: '1',
           name: 'Remote HTTP no Auth',
           address: 'http://external.com',
-          authentication: const AuthenticationInfo.none(),
+
         );
 
         expect(
@@ -257,7 +241,7 @@ void main() {
           id: '1',
           name: 'Boundary Local HTTP no Auth',
           address: 'http://10.0.0.1:8000',
-          authentication: const AuthenticationInfo.none(),
+
         );
         expect(
           () => validateServerConfiguration(httpBoundaryLocalNoAuth),
@@ -269,23 +253,23 @@ void main() {
           id: '2',
           name: 'IPv6 Local HTTP no Auth',
           address: 'http://[::1]:8000',
-          authentication: const AuthenticationInfo.none(),
+
         );
         expect(
           () => validateServerConfiguration(httpIPv6LocalNoAuth),
           returnsNormally,
         );
 
-        // HTTPS server on external IPv4 without auth - should be forbidden
+        // HTTPS server on external IPv4 without auth - should be allowed
         final httpsExternalIPv4NoAuth = Server(
           id: '3',
           name: 'External IPv4 HTTPS no Auth',
           address: 'https://8.8.8.8:443',
-          authentication: const AuthenticationInfo.none(),
+
         );
         expect(
           () => validateServerConfiguration(httpsExternalIPv4NoAuth),
-          throwsA(isA<ArgumentError>()),
+          returnsNormally,
         );
 
         // HTTPS server on external IPv6 with auth - should be allowed
@@ -293,10 +277,7 @@ void main() {
           id: '4',
           name: 'External IPv6 HTTPS with Auth',
           address: 'https://[2001:db8::1]:443',
-          authentication: AuthenticationInfo.credentials(
-            username: 'user',
-            password: 'pass',
-          ),
+
         );
         expect(
           () => validateServerConfiguration(httpsExternalIPv6WithAuth),
@@ -308,10 +289,7 @@ void main() {
           id: '5',
           name: 'External IPv6 HTTP with Auth',
           address: 'http://[2001:db8::1]:8000',
-          authentication: AuthenticationInfo.credentials(
-            username: 'user',
-            password: 'pass',
-          ),
+
         );
         expect(
           () => validateServerConfiguration(httpExternalIPv6WithAuth),

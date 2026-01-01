@@ -54,10 +54,7 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-        authentication: server_models.AuthenticationInfo.credentials(
-          username: 'user',
-          password: 'pass',
-        ),
+
       );
 
       final existingCookies = [Cookie('session', 'abc123')];
@@ -86,10 +83,7 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-        authentication: server_models.AuthenticationInfo.credentials(
-          username: 'user',
-          password: 'pass',
-        ),
+
       );
 
       final session1 = MockConnectionSessionInterface();
@@ -127,7 +121,7 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-        authentication: const server_models.AuthenticationInfo.none(),
+
       );
 
       final session1 = MockConnectionSessionInterface();
@@ -158,10 +152,7 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-        authentication: server_models.AuthenticationInfo.credentials(
-          username: 'user',
-          password: 'pass',
-        ),
+
       );
 
       final session1 = MockConnectionSessionInterface();
@@ -192,10 +183,6 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-        authentication: server_models.AuthenticationInfo.credentials(
-          username: 'user',
-          password: 'wrongpass',
-        ),
       );
 
       final session1 = MockConnectionSessionInterface();
@@ -236,7 +223,7 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-        authentication: const server_models.AuthenticationInfo.none(),
+
       );
 
       final session1 = MockConnectionSessionInterface();
