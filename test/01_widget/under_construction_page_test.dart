@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/ui/under_construction_page.dart';
 
-import 'router_test.mocks.dart';
+import 'mocks.mocks.dart';
 
 void main() {
   group('Under Construction Page Tests:', () {

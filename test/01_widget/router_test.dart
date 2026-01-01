@@ -1,5 +1,128 @@
-import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/domain/servers/domain.dart';
+import 'package:silo_tavern/domain/servers/models.dart';
+import 'package:silo_tavern/router.dart';
+import 'package:silo_tavern/ui/login_page.dart';
+import 'package:silo_tavern/ui/server_creation_page.dart';
+import 'package:silo_tavern/ui/server_list_page.dart';
+import 'package:silo_tavern/ui/under_construction_page.dart';
 
-@GenerateNiceMocks([MockSpec<GoRouter>()])
-void main() {}
+import 'router_test.mocks.dart';
+
+@GenerateNiceMocks([MockSpec<ServerDomain>(), MockSpec<ConnectionDomain>()])
+void main() {
+  group('Router Tests:', () {
+    testWidgets('Root route redirects to servers', (tester) async {
+      final mockServerDomain = MockServerDomain();
+      final mockConnectionDomain = MockConnectionDomain();
+
+      final domains = Domains(
+        servers: mockServerDomain,
+        connections: mockConnectionDomain,
+      );
+      final router = appRouter(domains);
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      router.go('/');
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ServerListPage), findsOneWidget);
+    });
+
+    testWidgets('Servers route shows server list page', (tester) async {
+      final mockServerDomain = MockServerDomain();
+      final mockConnectionDomain = MockConnectionDomain();
+
+      final domains = Domains(
+        servers: mockServerDomain,
+        connections: mockConnectionDomain,
+      );
+      final router = appRouter(domains);
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      router.go('/servers');
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ServerListPage), findsOneWidget);
+    });
+
+    testWidgets('Server create route shows creation page', (tester) async {
+      final mockServerDomain = MockServerDomain();
+      final mockConnectionDomain = MockConnectionDomain();
+
+      final domains = Domains(
+        servers: mockServerDomain,
+        connections: mockConnectionDomain,
+      );
+      final router = appRouter(domains);
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      router.go('/servers/create');
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ServerCreationPage), findsOneWidget);
+    });
+
+    testWidgets('Server connect route shows under construction page', (
+      tester,
+    ) async {
+      final mockServerDomain = MockServerDomain();
+      final mockConnectionDomain = MockConnectionDomain();
+
+      // Mock the findServerById method to return a server
+      final server = Server(
+        id: 'test',
+        name: 'Test Server',
+        address: 'https://test.com',
+      );
+      when(mockServerDomain.findServerById('test')).thenReturn(server);
+
+      final domains = Domains(
+        servers: mockServerDomain,
+        connections: mockConnectionDomain,
+      );
+      final router = appRouter(domains);
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      router.go('/servers/connect/test');
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(UnderConstructionPage), findsOneWidget);
+      expect(find.text('Connect to Server'), findsOneWidget);
+    });
+
+    testWidgets('Server login route shows login page', (tester) async {
+      final mockServerDomain = MockServerDomain();
+      final mockConnectionDomain = MockConnectionDomain();
+
+      // Mock the findServerById method to return a server
+      final server = Server(
+        id: 'test',
+        name: 'Test Server',
+        address: 'https://test.com',
+      );
+      when(mockServerDomain.findServerById('test')).thenReturn(server);
+
+      final domains = Domains(
+        servers: mockServerDomain,
+        connections: mockConnectionDomain,
+      );
+      final router = appRouter(domains);
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      router.go('/servers/login/test');
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(LoginPage), findsOneWidget);
+    });
+  });
+}

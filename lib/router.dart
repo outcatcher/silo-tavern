@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
-import 'package:silo_tavern/ui/server_list_page.dart';
-import 'package:silo_tavern/ui/server_creation_page.dart';
-import 'package:silo_tavern/ui/server_connection_page.dart';
 import 'package:silo_tavern/ui/login_page.dart';
+import 'package:silo_tavern/ui/server_creation_page.dart';
+import 'package:silo_tavern/ui/server_list_page.dart';
+import 'package:silo_tavern/ui/under_construction_page.dart';
 
 class Domains {
   ServerDomain servers;
@@ -68,9 +68,8 @@ GoRouter appRouter(Domains domains) {
           }
           // Get back URL from query parameters or default to '/servers'
           final backUrl = state.uri.queryParameters['backUrl'] ?? '/servers';
-          return ServerConnectionPage(
-            server: server,
-            serverDomain: domains.servers,
+          return UnderConstructionPage(
+            title: 'Connect to Server',
             backUrl: backUrl,
           );
         },

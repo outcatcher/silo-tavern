@@ -4,7 +4,7 @@ import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/ui/login_page.dart';
 
-import 'router_test.mocks.dart';
+import 'mocks.mocks.dart';
 
 void main() {
   group('Login Page Tests:', () {
@@ -95,10 +95,8 @@ void main() {
       final passwordField = find.byKey(const ValueKey('passwordField')).first;
       final visibilityToggle = find.byIcon(Icons.visibility).first;
 
-      // Initially password should be obscured
-      final passwordTextField = tester.widget<TextFormField>(passwordField);
-      // We can't directly access obscureText from TextFormField, so we'll test the behavior
-      // by entering text and checking if it's masked
+      expect(passwordField, findsOneWidget);
+      expect(visibilityToggle, findsOneWidget);
 
       // Tap the visibility toggle
       await tester.tap(visibilityToggle);

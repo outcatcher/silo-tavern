@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 
-import 'router_test.mocks.dart';
-import 'server_list.mocks.dart';
+import 'mocks.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerDomain>()])
 void main() {
   group('Server List Tests:', () {
     testWidgets('Empty server list', (tester) async {
