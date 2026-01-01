@@ -31,8 +31,6 @@ enum ServerStatus {
   active,
 }
 
-
-
 /// Result of a server connection attempt
 class ServerConnectionResult {
   final bool isSuccess;

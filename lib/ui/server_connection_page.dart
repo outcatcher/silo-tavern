@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
@@ -57,32 +58,34 @@ class _ServerConnectionPageState extends State<ServerConnectionPage> {
           _currentStatus = ServerStatus.active;
         });
 
-        // Show success and navigate to main server list after a delay
-        if (mounted) {
-          utils.showSuccessDialog(
-            context,
-            'Connected to ${widget.server.name} successfully!',
-            title: 'Connected',
-          );
-          // Use a timer to delay navigation after dialog is shown
-          Future.delayed(const Duration(seconds: 2), () {
-            if (context.mounted) {
-              router.go(widget.backUrl ?? '/servers');
-            }
-          });
-        }
+        // Navigate to main server list after a short delay
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (context.mounted) {
+            router.go(widget.backUrl ?? '/servers');
+          }
+        });
       } else {
         setState(() {
           _isConnecting = false;
-          _statusMessage = result.errorMessage ?? 'Connection failed';
+          _statusMessage =
+              'Connection failed. Please check your server settings.';
           _currentStatus = ServerStatus.unavailable;
         });
 
-        // Show error
+        // Log technical details
+        if (result.errorMessage != null) {
+          // In a real app, you would use a proper logging framework
+          // For now, we'll just debug print to console
+          debugPrint(
+            'Connection failed technical details: ${result.errorMessage}',
+          );
+        }
+
+        // Show user-friendly error
         if (mounted) {
           utils.showErrorDialog(
             context,
-            result.errorMessage ?? 'Failed to connect to server',
+            'Unable to connect to the server. Please check your connection and server settings, then try again.',
             title: 'Connection Failed',
           );
         }
@@ -90,15 +93,18 @@ class _ServerConnectionPageState extends State<ServerConnectionPage> {
     } catch (e) {
       setState(() {
         _isConnecting = false;
-        _statusMessage = 'Connection error: ${e.toString()}';
+        _statusMessage = 'An unexpected error occurred. Please try again.';
         _currentStatus = ServerStatus.unavailable;
       });
 
-      // Show error
+      // Log technical details
+      debugPrint('Unexpected connection error: ${e.toString()}');
+
+      // Show user-friendly error
       if (mounted) {
         utils.showErrorDialog(
           context,
-          'Error connecting to server: ${e.toString()}',
+          'An unexpected error occurred while connecting to the server. Please try again.',
           title: 'Connection Error',
         );
       }

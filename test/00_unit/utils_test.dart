@@ -184,7 +184,6 @@ void main() {
           id: '1',
           name: 'Remote HTTPS with Auth',
           address: 'https://example.com:443',
-
         );
 
         expect(
@@ -198,7 +197,6 @@ void main() {
           id: '1',
           name: 'Remote HTTPS no Auth',
           address: 'https://secure.example.com',
-
         );
 
         expect(
@@ -212,7 +210,6 @@ void main() {
           id: '1',
           name: 'Remote HTTP with Auth',
           address: 'http://external.com',
-
         );
 
         expect(
@@ -226,7 +223,6 @@ void main() {
           id: '1',
           name: 'Remote HTTP no Auth',
           address: 'http://external.com',
-
         );
 
         expect(
@@ -241,7 +237,6 @@ void main() {
           id: '1',
           name: 'Boundary Local HTTP no Auth',
           address: 'http://10.0.0.1:8000',
-
         );
         expect(
           () => validateServerConfiguration(httpBoundaryLocalNoAuth),
@@ -253,7 +248,6 @@ void main() {
           id: '2',
           name: 'IPv6 Local HTTP no Auth',
           address: 'http://[::1]:8000',
-
         );
         expect(
           () => validateServerConfiguration(httpIPv6LocalNoAuth),
@@ -265,7 +259,6 @@ void main() {
           id: '3',
           name: 'External IPv4 HTTPS no Auth',
           address: 'https://8.8.8.8:443',
-
         );
         expect(
           () => validateServerConfiguration(httpsExternalIPv4NoAuth),
@@ -277,7 +270,6 @@ void main() {
           id: '4',
           name: 'External IPv6 HTTPS with Auth',
           address: 'https://[2001:db8::1]:443',
-
         );
         expect(
           () => validateServerConfiguration(httpsExternalIPv6WithAuth),
@@ -289,7 +281,6 @@ void main() {
           id: '5',
           name: 'External IPv6 HTTP with Auth',
           address: 'http://[2001:db8::1]:8000',
-
         );
         expect(
           () => validateServerConfiguration(httpExternalIPv6WithAuth),

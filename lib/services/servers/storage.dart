@@ -79,6 +79,4 @@ class ServerStorage {
     await _storage.delete(serverId);
     await _secureStorage.delete(serverId);
   }
-
-
 }

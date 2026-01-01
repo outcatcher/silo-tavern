@@ -4,14 +4,20 @@ import 'package:silo_tavern/ui/utils.dart';
 
 void main() {
   group('UI Utils Tests', () {
-    testWidgets('showErrorDialog displays correctly', (WidgetTester tester) async {
+    testWidgets('showErrorDialog displays correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Builder(
               builder: (context) {
                 return ElevatedButton(
-                  onPressed: () => showErrorDialog(context, 'Test error message', title: 'Test Error'),
+                  onPressed: () => showErrorDialog(
+                    context,
+                    'Test error message',
+                    title: 'Test Error',
+                  ),
                   child: const Text('Show Error'),
                 );
               },
@@ -32,14 +38,17 @@ void main() {
       expect(find.byKey(const ValueKey('errorDialogOkButton')), findsOneWidget);
     });
 
-    testWidgets('showErrorDialog OK button dismisses dialog', (WidgetTester tester) async {
+    testWidgets('showErrorDialog OK button dismisses dialog', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Builder(
               builder: (context) {
                 return ElevatedButton(
-                  onPressed: () => showErrorDialog(context, 'Test error message'),
+                  onPressed: () =>
+                      showErrorDialog(context, 'Test error message'),
                   child: const Text('Show Error'),
                 );
               },
@@ -63,14 +72,20 @@ void main() {
       expect(find.byKey(const ValueKey('errorDialog')), findsNothing);
     });
 
-    testWidgets('showSuccessDialog displays correctly', (WidgetTester tester) async {
+    testWidgets('showSuccessDialog displays correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Builder(
               builder: (context) {
                 return ElevatedButton(
-                  onPressed: () => showSuccessDialog(context, 'Test success message', title: 'Test Success'),
+                  onPressed: () => showSuccessDialog(
+                    context,
+                    'Test success message',
+                    title: 'Test Success',
+                  ),
                   child: const Text('Show Success'),
                 );
               },
@@ -88,17 +103,23 @@ void main() {
       expect(find.text('Test Success'), findsOneWidget);
       expect(find.text('Test success message'), findsOneWidget);
       expect(find.byIcon(Icons.check_circle), findsOneWidget);
-      expect(find.byKey(const ValueKey('successDialogOkButton')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('successDialogOkButton')),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('showSuccessDialog OK button dismisses dialog', (WidgetTester tester) async {
+    testWidgets('showSuccessDialog OK button dismisses dialog', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Builder(
               builder: (context) {
                 return ElevatedButton(
-                  onPressed: () => showSuccessDialog(context, 'Test success message'),
+                  onPressed: () =>
+                      showSuccessDialog(context, 'Test success message'),
                   child: const Text('Show Success'),
                 );
               },
@@ -122,8 +143,11 @@ void main() {
       expect(find.byKey(const ValueKey('successDialog')), findsNothing);
     });
 
-    testWidgets('Dialogs handle long titles with ellipsis', (WidgetTester tester) async {
-      final longTitle = 'This is a very long title that should be truncated with ellipsis to fit in the dialog header';
+    testWidgets('Dialogs handle long titles with ellipsis', (
+      WidgetTester tester,
+    ) async {
+      final longTitle =
+          'This is a very long title that should be truncated with ellipsis to fit in the dialog header';
 
       await tester.pumpWidget(
         MaterialApp(
@@ -131,7 +155,11 @@ void main() {
             body: Builder(
               builder: (context) {
                 return ElevatedButton(
-                  onPressed: () => showErrorDialog(context, 'Test message', title: longTitle),
+                  onPressed: () => showErrorDialog(
+                    context,
+                    'Test message',
+                    title: longTitle,
+                  ),
                   child: const Text('Show Error'),
                 );
               },
@@ -149,7 +177,9 @@ void main() {
       expect(find.text(longTitle), findsOneWidget);
     });
 
-    testWidgets('Dialogs are not shown when context is not mounted', (WidgetTester tester) async {
+    testWidgets('Dialogs are not shown when context is not mounted', (
+      WidgetTester tester,
+    ) async {
       BuildContext? capturedContext;
 
       await tester.pumpWidget(
@@ -167,11 +197,7 @@ void main() {
 
       // Remove the widget from the tree to unmount the context
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: const Text('Different Widget'),
-          ),
-        ),
+        MaterialApp(home: Scaffold(body: const Text('Different Widget'))),
       );
 
       // Try to show dialog with unmounted context - should not throw

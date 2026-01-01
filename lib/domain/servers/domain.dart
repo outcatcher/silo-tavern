@@ -125,7 +125,7 @@ class ServerDomain {
     try {
       // Update status to loading
       updateServerStatus(server.id, ServerStatus.loading);
-      
+
       // Use the connection domain to connect to the server
       final result = await _connectionDomain.connectToServer(server);
 

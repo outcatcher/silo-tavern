@@ -50,6 +50,4 @@ void main() {
       // But equal data (this would require == operator override in real implementation)
     });
   });
-
-
 }

@@ -54,7 +54,6 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-
       );
 
       final existingCookies = [Cookie('session', 'abc123')];
@@ -83,7 +82,6 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-
       );
 
       final session1 = MockConnectionSessionInterface();
@@ -121,7 +119,6 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-
       );
 
       final session1 = MockConnectionSessionInterface();
@@ -152,7 +149,6 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-
       );
 
       final session1 = MockConnectionSessionInterface();
@@ -223,7 +219,6 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-
       );
 
       final session1 = MockConnectionSessionInterface();

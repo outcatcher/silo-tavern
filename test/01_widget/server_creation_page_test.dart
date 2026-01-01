@@ -48,12 +48,18 @@ void main() {
       expect(find.byKey(const ValueKey('serverUrlField')), findsOneWidget);
       expect(find.byKey(const ValueKey('saveButton')), findsOneWidget);
       expect(find.byKey(const ValueKey('backButton')), findsOneWidget);
-      
+
       // Verify initial values are populated
       final nameField = find.byKey(const ValueKey('serverNameField'));
       final urlField = find.byKey(const ValueKey('serverUrlField'));
-      expect(tester.widget<TextFormField>(nameField).initialValue, 'Test Server');
-      expect(tester.widget<TextFormField>(urlField).initialValue, 'https://test.example.com');
+      expect(
+        tester.widget<TextFormField>(nameField).initialValue,
+        'Test Server',
+      );
+      expect(
+        tester.widget<TextFormField>(urlField).initialValue,
+        'https://test.example.com',
+      );
     });
 
     testWidgets('Back button navigates with router', (tester) async {
@@ -75,7 +81,9 @@ void main() {
       verify(router.go('/servers')).called(1);
     });
 
-    testWidgets('Save button shows validation errors for empty fields', (tester) async {
+    testWidgets('Save button shows validation errors for empty fields', (
+      tester,
+    ) async {
       final serverDomain = MockServerDomain();
 
       await tester.pumpWidget(
@@ -101,7 +109,10 @@ void main() {
       expect(find.text('Please enter a server name'), findsNothing);
 
       // Enter text and then clear it
-      await tester.enterText(find.byKey(const ValueKey('serverNameField')), 'Test');
+      await tester.enterText(
+        find.byKey(const ValueKey('serverNameField')),
+        'Test',
+      );
       await tester.pump();
       expect(find.text('Please enter a server name'), findsNothing);
 
@@ -122,15 +133,27 @@ void main() {
       expect(find.text('Please enter a server URL'), findsNothing);
 
       // Enter valid URL
-      await tester.enterText(find.byKey(const ValueKey('serverUrlField')), 'https://example.com');
+      await tester.enterText(
+        find.byKey(const ValueKey('serverUrlField')),
+        'https://example.com',
+      );
       await tester.pump();
       expect(find.text('Please enter a server URL'), findsNothing);
-      expect(find.text('Please enter a valid URL (http:// or https://)'), findsNothing);
+      expect(
+        find.text('Please enter a valid URL (http:// or https://)'),
+        findsNothing,
+      );
 
       // Enter invalid URL
-      await tester.enterText(find.byKey(const ValueKey('serverUrlField')), 'invalid-url');
+      await tester.enterText(
+        find.byKey(const ValueKey('serverUrlField')),
+        'invalid-url',
+      );
       await tester.pump();
-      expect(find.text('Please enter a valid URL (http:// or https://)'), findsOneWidget);
+      expect(
+        find.text('Please enter a valid URL (http:// or https://)'),
+        findsOneWidget,
+      );
 
       // Clear the text
       await tester.enterText(find.byKey(const ValueKey('serverUrlField')), '');
@@ -138,7 +161,9 @@ void main() {
       expect(find.text('Please enter a server URL'), findsOneWidget);
     });
 
-    testWidgets('Form validation prevents submission with invalid data', (tester) async {
+    testWidgets('Form validation prevents submission with invalid data', (
+      tester,
+    ) async {
       final serverDomain = MockServerDomain();
 
       await tester.pumpWidget(
@@ -146,8 +171,14 @@ void main() {
       );
 
       // Enter valid name but invalid URL
-      await tester.enterText(find.byKey(const ValueKey('serverNameField')), 'Test Server');
-      await tester.enterText(find.byKey(const ValueKey('serverUrlField')), 'invalid-url');
+      await tester.enterText(
+        find.byKey(const ValueKey('serverNameField')),
+        'Test Server',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('serverUrlField')),
+        'invalid-url',
+      );
       await tester.pump();
 
       final saveButton = find.byKey(const ValueKey('saveButton')).first;
@@ -155,8 +186,11 @@ void main() {
       await tester.pump();
 
       // Should show URL validation error
-      expect(find.text('Please enter a valid URL (http:// or https://)'), findsOneWidget);
-      
+      expect(
+        find.text('Please enter a valid URL (http:// or https://)'),
+        findsOneWidget,
+      );
+
       // Server domain should not be called
       verifyNever(serverDomain.addServer(any));
     });
@@ -174,8 +208,14 @@ void main() {
       );
 
       // Enter valid data
-      await tester.enterText(find.byKey(const ValueKey('serverNameField')), 'Test Server');
-      await tester.enterText(find.byKey(const ValueKey('serverUrlField')), 'https://localhost:3000');
+      await tester.enterText(
+        find.byKey(const ValueKey('serverNameField')),
+        'Test Server',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('serverUrlField')),
+        'https://localhost:3000',
+      );
       await tester.pump();
 
       final saveButton = find.byKey(const ValueKey('saveButton')).first;
@@ -184,17 +224,19 @@ void main() {
 
       // Verify server was added
       verify(serverDomain.addServer(any)).called(1);
-      
+
       // Verify success dialog is shown
       expect(find.byKey(const ValueKey('successDialog')), findsOneWidget);
       expect(find.text('Success'), findsOneWidget);
       expect(find.text('Server added successfully!'), findsOneWidget);
-      
+
       // Verify navigation after success
       verify(router.go('/servers')).called(1);
     });
 
-    testWidgets('Successfully updates existing server with valid data', (tester) async {
+    testWidgets('Successfully updates existing server with valid data', (
+      tester,
+    ) async {
       final serverDomain = MockServerDomain();
       final router = MockGoRouter();
       final existingServer = Server(
@@ -216,8 +258,14 @@ void main() {
       );
 
       // Modify the data with a local server URL to avoid validation issues
-      await tester.enterText(find.byKey(const ValueKey('serverNameField')), 'Updated Server');
-      await tester.enterText(find.byKey(const ValueKey('serverUrlField')), 'https://localhost:3000');
+      await tester.enterText(
+        find.byKey(const ValueKey('serverNameField')),
+        'Updated Server',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('serverUrlField')),
+        'https://localhost:3000',
+      );
       await tester.pump();
 
       final saveButton = find.byKey(const ValueKey('saveButton')).first;
@@ -226,15 +274,17 @@ void main() {
 
       // Verify server was updated
       verify(serverDomain.updateServer(any)).called(1);
-      
+
       // No success dialog for updates
       expect(find.byKey(const ValueKey('successDialog')), findsNothing);
-      
+
       // Verify navigation after update
       verify(router.go('/servers')).called(1);
     });
 
-    testWidgets('Shows error dialog for invalid server configuration', (tester) async {
+    testWidgets('Shows error dialog for invalid server configuration', (
+      tester,
+    ) async {
       final serverDomain = MockServerDomain();
 
       await tester.pumpWidget(
@@ -242,8 +292,14 @@ void main() {
       );
 
       // Enter data that fails server configuration validation (HTTP remote server)
-      await tester.enterText(find.byKey(const ValueKey('serverNameField')), 'Remote Server');
-      await tester.enterText(find.byKey(const ValueKey('serverUrlField')), 'http://remote.example.com');
+      await tester.enterText(
+        find.byKey(const ValueKey('serverNameField')),
+        'Remote Server',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('serverUrlField')),
+        'http://remote.example.com',
+      );
       await tester.pump();
 
       final saveButton = find.byKey(const ValueKey('saveButton')).first;
@@ -253,8 +309,11 @@ void main() {
       // Verify error dialog is shown
       expect(find.byKey(const ValueKey('errorDialog')), findsOneWidget);
       expect(find.text('Invalid Configuration'), findsOneWidget);
-      expect(find.text('Please use HTTPS with authentication for remote servers.'), findsOneWidget);
-      
+      expect(
+        find.text('Please use HTTPS with authentication for remote servers.'),
+        findsOneWidget,
+      );
+
       // Verify server was not added
       verifyNever(serverDomain.addServer(any));
     });
@@ -269,8 +328,14 @@ void main() {
       );
 
       // Enter valid local server data
-      await tester.enterText(find.byKey(const ValueKey('serverNameField')), 'Local Server');
-      await tester.enterText(find.byKey(const ValueKey('serverUrlField')), 'http://localhost:3000');
+      await tester.enterText(
+        find.byKey(const ValueKey('serverNameField')),
+        'Local Server',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('serverUrlField')),
+        'http://localhost:3000',
+      );
       await tester.pump();
 
       final saveButton = find.byKey(const ValueKey('saveButton')).first;
@@ -280,7 +345,10 @@ void main() {
       // Verify error dialog is shown
       expect(find.byKey(const ValueKey('errorDialog')), findsOneWidget);
       expect(find.text('Save Failed'), findsOneWidget);
-      expect(find.text('Failed to save server. Please try again.'), findsOneWidget);
+      expect(
+        find.text('Failed to save server. Please try again.'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('Error dialog can be dismissed', (tester) async {
@@ -300,8 +368,14 @@ void main() {
       expect(find.text('Please enter a server URL'), findsOneWidget);
 
       // Clear fields and try again with invalid configuration
-      await tester.enterText(find.byKey(const ValueKey('serverNameField')), 'Test Server');
-      await tester.enterText(find.byKey(const ValueKey('serverUrlField')), 'http://invalid.com');
+      await tester.enterText(
+        find.byKey(const ValueKey('serverNameField')),
+        'Test Server',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('serverUrlField')),
+        'http://invalid.com',
+      );
       await tester.pump();
 
       await tester.tap(saveButton);
@@ -331,8 +405,14 @@ void main() {
       );
 
       // Enter valid local server data
-      await tester.enterText(find.byKey(const ValueKey('serverNameField')), 'Local Server');
-      await tester.enterText(find.byKey(const ValueKey('serverUrlField')), 'http://localhost:3000');
+      await tester.enterText(
+        find.byKey(const ValueKey('serverNameField')),
+        'Local Server',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('serverUrlField')),
+        'http://localhost:3000',
+      );
       await tester.pump();
 
       final saveButton = find.byKey(const ValueKey('saveButton')).first;

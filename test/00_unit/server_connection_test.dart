@@ -44,7 +44,6 @@ void main() {
           id: '1',
           name: 'Test Server 1',
           address: 'https://test1.example.com',
-
         ),
       );
       when(storage.createServer(any)).thenAnswer((_) async {});

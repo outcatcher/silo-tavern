@@ -347,10 +347,7 @@ class _ServerListPageState extends State<ServerListPage> {
     );
   }
 
-  Widget _buildServerCard(
-    BuildContext context,
-    Server server,
-  ) {
+  Widget _buildServerCard(BuildContext context, Server server) {
     final isDeleting = _deletingServers.contains(server.id);
     final isHttps = server.address.startsWith('https');
 
