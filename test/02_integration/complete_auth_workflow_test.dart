@@ -35,7 +35,7 @@ void main() {
 
       // Mock the storage methods
       final servers = <Server>[];
-      
+
       when(storage.listServers()).thenAnswer((_) async => servers);
       when(storage.createServer(any)).thenAnswer((invocation) async {
         final server = invocation.positionalArguments[0] as Server;
@@ -63,10 +63,7 @@ void main() {
       // Set up router
       router = GoRouter(
         routes: [
-          GoRoute(
-            path: '/',
-            redirect: (_, __) => '/servers',
-          ),
+          GoRoute(path: '/', redirect: (_, __) => '/servers'),
           GoRoute(
             path: '/servers',
             name: 'servers',
@@ -134,7 +131,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 1. Verify we're on the server list page (empty state)
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
       expect(find.text('No servers configured'), findsOneWidget);
 
       // 2. Add a new server - find the add button in the app bar
@@ -149,8 +146,14 @@ void main() {
       expect(find.text('Add New Server'), findsOneWidget);
 
       // 4. Fill in server details
-      await tester.enterText(find.byType(TextFormField).at(0), 'New Test Server');
-      await tester.enterText(find.byType(TextFormField).at(1), 'https://new.test.example.com');
+      await tester.enterText(
+        find.byType(TextFormField).at(0),
+        'New Test Server',
+      );
+      await tester.enterText(
+        find.byType(TextFormField).at(1),
+        'https://new.test.example.com',
+      );
 
       // 5. Save the server - find the save button in the app bar
       final saveButton = find.descendant(
@@ -161,7 +164,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 6. Verify we're back on the server list with the new server
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
       expect(find.text('New Test Server').first, findsOneWidget);
 
       // 7. Tap on the new server to trigger login
@@ -170,7 +173,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 8. Verify we're on the login page
-      expect(find.text('Login to New Test Server'), findsOneWidget);
+      expect(find.byKey(const ValueKey('loginPageTitle')), findsOneWidget);
       expect(find.text('Server: https://new.test.example.com'), findsOneWidget);
 
       // 9. Fill in login credentials
@@ -195,7 +198,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 13. Verify we're back on the server list
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
       expect(find.text('New Test Server').first, findsOneWidget);
     });
 
@@ -214,8 +217,14 @@ void main() {
       await tester.pumpAndSettle();
 
       // Fill in server details
-      await tester.enterText(find.byType(TextFormField).at(0), 'Validation Test Server');
-      await tester.enterText(find.byType(TextFormField).at(1), 'https://validation.test.example.com');
+      await tester.enterText(
+        find.byType(TextFormField).at(0),
+        'Validation Test Server',
+      );
+      await tester.enterText(
+        find.byType(TextFormField).at(1),
+        'https://validation.test.example.com',
+      );
 
       // Save the server
       final saveButton = find.descendant(

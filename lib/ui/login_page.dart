@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   late String _username = '';
   late String _password = '';
   bool _obscurePassword = true;
-  
+
   GoRouter get router => widget.router ?? GoRouter.of(context);
 
   @override

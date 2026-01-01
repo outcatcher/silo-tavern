@@ -20,7 +20,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify we're on the server list page
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
 
       // Tap the add button
       await tester.tap(find.byIcon(Icons.add));
@@ -34,7 +34,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify we're back on the server list page
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
     });
 
     testWidgets('Add server workflow', (WidgetTester tester) async {
@@ -61,7 +61,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify we're back on the server list
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
       expect(find.text('Unique Test Server').first, findsOneWidget);
     });
 
@@ -85,18 +85,11 @@ void main() {
         'https://workflow.example.com',
       );
 
-      // Select credentials authentication
-      await tester.tap(find.text('Credentials'));
-      await tester.pumpAndSettle();
-
-      await tester.enterText(find.byType(TextFormField).at(2), 'testuser');
-      await tester.enterText(find.byType(TextFormField).at(3), 'testpass');
-
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
 
       // Verify server was added
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
       expect(find.text('Workflow Test Server').first, findsOneWidget);
 
       // 2. Edit the server using swipe
@@ -124,7 +117,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify the update
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
       expect(find.text('Updated Workflow Server').first, findsOneWidget);
       expect(find.text('Workflow Test Server'), findsNothing);
 

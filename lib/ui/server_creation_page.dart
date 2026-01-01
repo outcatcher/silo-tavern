@@ -34,7 +34,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
   // Validation error states
   String? _nameError;
   String? _urlError;
-  
+
   GoRouter get router => widget.router ?? GoRouter.of(context);
 
   @override

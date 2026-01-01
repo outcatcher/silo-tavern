@@ -9,12 +9,17 @@ class UnderConstructionPage extends StatelessWidget {
   final String? backUrl;
   final GoRouter? router;
 
-  const UnderConstructionPage({super.key, required this.title, this.backUrl, this.router});
+  const UnderConstructionPage({
+    super.key,
+    required this.title,
+    this.backUrl,
+    this.router,
+  });
 
   @override
   Widget build(BuildContext context) {
     final routerInstance = router ?? GoRouter.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title),

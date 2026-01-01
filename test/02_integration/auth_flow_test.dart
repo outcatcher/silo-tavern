@@ -59,10 +59,7 @@ void main() {
       // Set up router
       router = GoRouter(
         routes: [
-          GoRoute(
-            path: '/',
-            redirect: (_, __) => '/servers',
-          ),
+          GoRoute(path: '/', redirect: (_, __) => '/servers'),
           GoRoute(
             path: '/servers',
             name: 'servers',
@@ -130,7 +127,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 1. Verify we're on the server list page
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
       expect(find.text('Test Server').first, findsOneWidget);
 
       // 2. Tap on the server to trigger login
@@ -139,7 +136,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 3. Verify we're on the login page
-      expect(find.text('Login to Test Server'), findsOneWidget);
+      expect(find.byKey(const ValueKey('loginPageTitle')), findsOneWidget);
       expect(find.text('Server: https://test.example.com'), findsOneWidget);
 
       // 4. Fill in login credentials
@@ -161,7 +158,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 8. Verify we're back on the server list
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
     });
 
     testWidgets('Password visibility toggle works in login flow', (
@@ -176,12 +173,12 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify we're on the login page
-      expect(find.text('Login to Test Server'), findsOneWidget);
+      expect(find.byKey(const ValueKey('loginPageTitle')), findsOneWidget);
 
       // Check that visibility icons are present
       expect(find.byIcon(Icons.visibility), findsOneWidget);
       expect(find.byIcon(Icons.visibility_off), findsNothing);
-      
+
       // Tap visibility icon to show password
       await tester.tap(find.byIcon(Icons.visibility));
       await tester.pumpAndSettle();
@@ -191,9 +188,7 @@ void main() {
       expect(find.byIcon(Icons.visibility_off), findsOneWidget);
     });
 
-    testWidgets('Validation works in login flow', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('Validation works in login flow', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pumpAndSettle();
 
@@ -203,7 +198,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify we're on the login page
-      expect(find.text('Login to Test Server'), findsOneWidget);
+      expect(find.byKey(const ValueKey('loginPageTitle')), findsOneWidget);
 
       // Try to submit without filling fields
       final loginButton = find.text('Login');
@@ -240,7 +235,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify we're on the server list page
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
 
       // Tap on the server to trigger login
       final serverCard = find.text('Test Server').first;
@@ -248,7 +243,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify we're on the login page
-      expect(find.text('Login to Test Server'), findsOneWidget);
+      expect(find.byKey(const ValueKey('loginPageTitle')), findsOneWidget);
 
       // Navigate back to server list
       final backButton = find.byIcon(Icons.arrow_back);
@@ -256,7 +251,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify we're back on the server list
-      expect(find.text('SiloTavern - Servers'), findsOneWidget);
+      expect(find.byKey(const ValueKey('serverListTitle')), findsOneWidget);
     });
   });
 }

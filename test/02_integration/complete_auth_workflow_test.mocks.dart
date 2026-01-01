@@ -9,6 +9,7 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:silo_tavern/domain/connection/domain.dart' as _i7;
 import 'package:silo_tavern/domain/connection/models.dart' as _i2;
 import 'package:silo_tavern/domain/servers/models.dart' as _i6;
+import 'package:silo_tavern/services/connection/models/models.dart' as _i9;
 import 'package:silo_tavern/services/connection/network.dart' as _i8;
 import 'package:silo_tavern/services/connection/storage.dart' as _i3;
 import 'package:silo_tavern/services/servers/storage.dart' as _i4;
@@ -158,4 +159,53 @@ class MockConnectionDomain extends _i1.Mock implements _i7.ConnectionDomain {
             returnValueForMissingStub: null,
           )
           as _i8.ConnectionSessionInterface?);
+
+  @override
+  _i5.Future<_i2.ConnectionResult> authenticateWithServer(
+    _i6.Server? server,
+    _i9.ConnectionCredentials? credentials,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#authenticateWithServer, [server, credentials]),
+            returnValue: _i5.Future<_i2.ConnectionResult>.value(
+              _FakeConnectionResult_2(
+                this,
+                Invocation.method(#authenticateWithServer, [
+                  server,
+                  credentials,
+                ]),
+              ),
+            ),
+            returnValueForMissingStub: _i5.Future<_i2.ConnectionResult>.value(
+              _FakeConnectionResult_2(
+                this,
+                Invocation.method(#authenticateWithServer, [
+                  server,
+                  credentials,
+                ]),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.ConnectionResult>);
+
+  @override
+  _i5.Future<_i2.ConnectionResult> obtainCsrfTokenForServer(
+    _i6.Server? server,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#obtainCsrfTokenForServer, [server]),
+            returnValue: _i5.Future<_i2.ConnectionResult>.value(
+              _FakeConnectionResult_2(
+                this,
+                Invocation.method(#obtainCsrfTokenForServer, [server]),
+              ),
+            ),
+            returnValueForMissingStub: _i5.Future<_i2.ConnectionResult>.value(
+              _FakeConnectionResult_2(
+                this,
+                Invocation.method(#obtainCsrfTokenForServer, [server]),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.ConnectionResult>);
 }
