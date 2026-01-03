@@ -32,6 +32,7 @@ Implement server status indicators (loading/ready/unavailable/active) to provide
 - Implement different icons/colors for each status
 - Add loading spinners for connecting servers
 - Add tooltips with detailed status information
+- Add automatic server status checking on page load
 
 ### 3.2 Update Server Creation Page (if needed)
 - Add status display for newly created servers
@@ -43,7 +44,12 @@ Implement server status indicators (loading/ready/unavailable/active) to provide
 - Add manual status refresh capability
 - Handle connection lifecycle events
 
-### 4.2 Error Handling
+### 4.2 Enhanced Connection Workflow
+- Click on server -> check if csrf exist. IF Not - remove session cookies, refresh csrf token.
+- Open auth page. IF Session cookies exist, skip the step
+- Open 'Under construction page'
+
+### 4.3 Error Handling
 - Graceful handling of connection failures
 - Timeout management for status checks
 - Offline mode considerations
@@ -70,6 +76,6 @@ Implement server status indicators (loading/ready/unavailable/active) to provide
 1. Define ServerStatus enum
 2. Create ServerWithStatus model
 3. Enhance ServerDomain with status tracking
-4. Update ServerListPage UI with status indicators
+4. Update ServerListPage UI with status indicators and automatic checking
 5. Implement status tracking logic
 6. Add comprehensive tests

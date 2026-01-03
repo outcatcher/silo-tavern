@@ -19,6 +19,7 @@ import 'package:silo_tavern/services/connection/models/models.dart';
 abstract class ConnectionSessionInterface {
   Future<void> obtainCsrfToken();
   Future<void> authenticate(ConnectionCredentials credentials);
+  Future<bool> checkServerAvailability();
 }
 
 class DefaultConnectionFactory implements ConnectionSessionFactory {
@@ -75,6 +76,36 @@ class ConnectionSession implements ConnectionSessionInterface {
     } catch (e) {
       debugPrint('Uncaught exception during authentication: $e');
       rethrow;
+    }
+  }
+
+  /// Check if the server is available by making a GET request to the root path
+  @override
+  Future<bool> checkServerAvailability() async {
+    try {
+      // Make a GET request to the root path without following redirects
+      await _client.get(
+        '/',
+        options: Options(
+          followRedirects: false,
+          validateStatus: (status) => status != null && status < 400,
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      );
+
+      // Any response (even 4xx or 5xx) indicates the server is reachable
+      return true;
+    } on DioException catch (e) {
+      debugPrint('Server availability check failed: $e');
+      // If we get a response (even an error response), the server is reachable
+      if (e.type == DioExceptionType.badResponse) {
+        return true;
+      }
+      // If there's no response, the server is likely unreachable
+      return false;
+    } catch (e) {
+      debugPrint('Uncaught exception during server availability check: $e');
+      return false;
     }
   }
 }

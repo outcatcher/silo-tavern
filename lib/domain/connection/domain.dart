@@ -80,4 +80,16 @@ class ConnectionDomain {
     // In a real implementation, this would obtain a CSRF token
     return ConnectionResult.success();
   }
+
+  /// Check if a server is available by making a GET request to the root path
+  Future<bool> checkServerAvailability(server_models.Server server) async {
+    try {
+      // Create a temporary session to check availability
+      final session = sessionFactory.create(server.address);
+      return await session.checkServerAvailability();
+    } catch (e) {
+      debugPrint('Failed to check server availability for ${server.id}: $e');
+      return false;
+    }
+  }
 }

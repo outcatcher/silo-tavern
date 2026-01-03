@@ -208,4 +208,13 @@ class MockConnectionDomain extends _i1.Mock implements _i7.ConnectionDomain {
             ),
           )
           as _i5.Future<_i2.ConnectionResult>);
+
+  @override
+  _i5.Future<bool> checkServerAvailability(_i6.Server? server) =>
+      (super.noSuchMethod(
+            Invocation.method(#checkServerAvailability, [server]),
+            returnValue: _i5.Future<bool>.value(false),
+            returnValueForMissingStub: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
 }

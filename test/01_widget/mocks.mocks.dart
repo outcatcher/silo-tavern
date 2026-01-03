@@ -557,6 +557,15 @@ class MockServerDomain extends _i1.Mock implements _i17.ServerDomain {
                 ),
           )
           as _i16.Future<_i10.ServerConnectionResult>);
+
+  @override
+  _i16.Future<void> checkAllServerStatuses() =>
+      (super.noSuchMethod(
+            Invocation.method(#checkAllServerStatuses, []),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
+          )
+          as _i16.Future<void>);
 }
 
 /// A class which mocks [ConnectionDomain].
@@ -668,4 +677,13 @@ class MockConnectionDomain extends _i1.Mock implements _i9.ConnectionDomain {
             ),
           )
           as _i16.Future<_i11.ConnectionResult>);
+
+  @override
+  _i16.Future<bool> checkServerAvailability(_i10.Server? server) =>
+      (super.noSuchMethod(
+            Invocation.method(#checkServerAvailability, [server]),
+            returnValue: _i16.Future<bool>.value(false),
+            returnValueForMissingStub: _i16.Future<bool>.value(false),
+          )
+          as _i16.Future<bool>);
 }

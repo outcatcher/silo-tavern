@@ -27,6 +27,20 @@ class _ServerListPageState extends State<ServerListPage> {
   void initState() {
     super.initState();
     _servers = List.from(widget.serverDomain.servers);
+
+    // Check server statuses when the page loads
+    _checkServerStatuses();
+  }
+
+  void _checkServerStatuses() async {
+    await widget.serverDomain.checkAllServerStatuses((s) {
+      if (mounted) {
+        final index = _servers.lastIndexWhere((srv) => srv.id == s.id);
+        setState(() {
+          _servers[index].status = s.status;
+        });
+      }
+    });
   }
 
   void _addServer() {
