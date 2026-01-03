@@ -8,6 +8,10 @@ import 'mocks.mocks.dart';
 
 void main() {
   group('Login Page Tests:', () {
+    tearDown(() {
+      resetMockitoState();
+    });
+
     testWidgets('Renders correctly with server info', (tester) async {
       final server = Server(
         id: '1',

@@ -16,10 +16,19 @@ import 'router_test.mocks.dart';
 @GenerateNiceMocks([MockSpec<ServerDomain>(), MockSpec<ConnectionDomain>()])
 void main() {
   group('Router Tests:', () {
-    testWidgets('Root route redirects to servers', (tester) async {
-      final mockServerDomain = MockServerDomain();
-      final mockConnectionDomain = MockConnectionDomain();
+    late MockServerDomain mockServerDomain;
+    late MockConnectionDomain mockConnectionDomain;
 
+    setUp(() {
+      mockServerDomain = MockServerDomain();
+      mockConnectionDomain = MockConnectionDomain();
+    });
+
+    tearDown(() {
+      resetMockitoState();
+    });
+
+    testWidgets('Root route redirects to servers', (tester) async {
       final domains = Domains(
         servers: mockServerDomain,
         connections: mockConnectionDomain,
@@ -35,9 +44,6 @@ void main() {
     });
 
     testWidgets('Servers route shows server list page', (tester) async {
-      final mockServerDomain = MockServerDomain();
-      final mockConnectionDomain = MockConnectionDomain();
-
       final domains = Domains(
         servers: mockServerDomain,
         connections: mockConnectionDomain,
@@ -53,9 +59,6 @@ void main() {
     });
 
     testWidgets('Server create route shows creation page', (tester) async {
-      final mockServerDomain = MockServerDomain();
-      final mockConnectionDomain = MockConnectionDomain();
-
       final domains = Domains(
         servers: mockServerDomain,
         connections: mockConnectionDomain,
@@ -73,9 +76,6 @@ void main() {
     testWidgets('Server connect route shows under construction page', (
       tester,
     ) async {
-      final mockServerDomain = MockServerDomain();
-      final mockConnectionDomain = MockConnectionDomain();
-
       // Mock the findServerById method to return a server
       final server = Server(
         id: 'test',
@@ -100,9 +100,6 @@ void main() {
     });
 
     testWidgets('Server login route shows login page', (tester) async {
-      final mockServerDomain = MockServerDomain();
-      final mockConnectionDomain = MockConnectionDomain();
-
       // Mock the findServerById method to return a server
       final server = Server(
         id: 'test',

@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/ui/under_construction_page.dart';
 
 import 'mocks.mocks.dart';
 
 void main() {
+  late MockGoRouter router;
+
+  setUp(() {
+    router = MockGoRouter();
+  });
+
+  tearDown(() {
+    resetMockitoState();
+  });
+
   group('Under Construction Page Tests:', () {
     testWidgets('Renders correctly with title', (tester) async {
-      final router = GoRouter(
-        routes: [
-          GoRoute(
-            path: '/',
-            builder: (context, state) =>
-                const UnderConstructionPage(title: 'Test Feature'),
-          ),
-        ],
+      await tester.pumpWidget(
+        MaterialApp(
+          home: UnderConstructionPage(title: 'Test Feature', router: router),
+        ),
       );
-
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
 
       expect(find.text('Test Feature'), findsOneWidget);
       expect(find.text('Under Construction'), findsOneWidget);
@@ -28,21 +31,11 @@ void main() {
     });
 
     testWidgets('Back button navigates with router', (tester) async {
-      final mockRouter = MockGoRouter();
-
-      final router = GoRouter(
-        routes: [
-          GoRoute(
-            path: '/',
-            builder: (context, state) => UnderConstructionPage(
-              title: 'Test Feature',
-              router: mockRouter,
-            ),
-          ),
-        ],
+      await tester.pumpWidget(
+        MaterialApp(
+          home: UnderConstructionPage(title: 'Test Feature', router: router),
+        ),
       );
-
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
 
       final backButton = find.byType(IconButton).first;
       expect(backButton, findsOneWidget);
@@ -50,26 +43,19 @@ void main() {
       await tester.tap(backButton);
       await tester.pumpAndSettle();
 
-      verify(mockRouter.go('/')).called(1);
+      verify(router.go('/')).called(1);
     });
 
     testWidgets('Back button navigates with custom backUrl', (tester) async {
-      final mockRouter = MockGoRouter();
-
-      final router = GoRouter(
-        routes: [
-          GoRoute(
-            path: '/',
-            builder: (context, state) => UnderConstructionPage(
-              title: 'Test Feature',
-              backUrl: '/custom',
-              router: mockRouter,
-            ),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: UnderConstructionPage(
+            title: 'Test Feature',
+            backUrl: '/custom',
+            router: router,
           ),
-        ],
+        ),
       );
-
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
 
       final backButton = find.byType(IconButton).first;
       expect(backButton, findsOneWidget);
@@ -77,7 +63,7 @@ void main() {
       await tester.tap(backButton);
       await tester.pumpAndSettle();
 
-      verify(mockRouter.go('/custom')).called(1);
+      verify(router.go('/custom')).called(1);
     });
   });
 }

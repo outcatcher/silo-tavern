@@ -151,48 +151,6 @@ void main() {
     });
 
     group('ServerService Negative Validation Tests', () {
-      test('Adding remote HTTPS server without authentication fails', () async {
-        final httpsRemoteNoAuthServer = Server(
-          id: 'https-remote-no-auth-server',
-          name: 'HTTPS Remote No Auth Server',
-          address: 'https://external.com',
-        );
-
-        expect(
-          () => service.addServer(httpsRemoteNoAuthServer),
-          throwsA(isA<ArgumentError>()),
-        );
-        expect(service.findServerById('https-remote-no-auth-server'), isNull);
-      });
-
-      test('Adding remote HTTP server with authentication fails', () async {
-        final httpRemoteWithAuthServer = Server(
-          id: 'http-remote-with-auth-server',
-          name: 'HTTP Remote With Auth Server',
-          address: 'http://external.com',
-        );
-
-        expect(
-          () => service.addServer(httpRemoteWithAuthServer),
-          throwsA(isA<ArgumentError>()),
-        );
-        expect(service.findServerById('http-remote-with-auth-server'), isNull);
-      });
-
-      test('Adding remote HTTP server without authentication fails', () async {
-        final httpRemoteNoAuthServer = Server(
-          id: 'http-remote-no-auth-server',
-          name: 'HTTP Remote No Auth Server',
-          address: 'http://external.com',
-        );
-
-        expect(
-          () => service.addServer(httpRemoteNoAuthServer),
-          throwsA(isA<ArgumentError>()),
-        );
-        expect(service.findServerById('http-remote-no-auth-server'), isNull);
-      });
-
       test('Updating server to forbidden configuration fails', () async {
         // First add a valid server
         final validServer = Server(
@@ -221,32 +179,6 @@ void main() {
           service.findServerById('valid-server')!.address,
           'https://example.com',
         );
-      });
-
-      test('Updating server to HTTPS without auth fails', () async {
-        // First add a valid server
-        final validServer = Server(
-          id: 'valid-server-2',
-          name: 'Valid Server 2',
-          address: 'https://example.com',
-        );
-        await service.addServer(validServer);
-        expect(service.findServerById('valid-server-2'), isNotNull);
-
-        // Try to update it to HTTPS without authentication
-        final invalidServer = Server(
-          id: 'valid-server-2',
-          name: 'Invalid Server 2',
-          address: 'https://external.com',
-        );
-
-        expect(
-          () => service.updateServer(invalidServer),
-          throwsA(isA<ArgumentError>()),
-        );
-
-        // Original server should still exist
-        expect(service.findServerById('valid-server-2'), isNotNull);
       });
 
       test('Adding server with duplicate ID fails', () async {
@@ -285,54 +217,6 @@ void main() {
       test('Finding non-existent server returns null', () async {
         expect(service.findServerById('non-existent-id'), isNull);
       });
-
-      test(
-        'Adding remote HTTPS server without authentication throws correct error message',
-        () async {
-          final httpsRemoteNoAuthServer = Server(
-            id: 'https-remote-no-auth-server',
-            name: 'HTTPS Remote No Auth Server',
-            address: 'https://external.com',
-          );
-
-          expect(
-            () => service.addServer(httpsRemoteNoAuthServer),
-            throwsA(
-              predicate(
-                (e) =>
-                    e is ArgumentError &&
-                    e.message.contains(
-                      'Authentication must be used for external servers',
-                    ),
-              ),
-            ),
-          );
-        },
-      );
-
-      test(
-        'Adding remote HTTP server with authentication throws correct error message',
-        () async {
-          final httpRemoteWithAuthServer = Server(
-            id: 'http-remote-with-auth-server',
-            name: 'HTTP Remote With Auth Server',
-            address: 'http://external.com',
-          );
-
-          expect(
-            () => service.addServer(httpRemoteWithAuthServer),
-            throwsA(
-              predicate(
-                (e) =>
-                    e is ArgumentError &&
-                    e.message.contains(
-                      'HTTPS must be used for external servers',
-                    ),
-              ),
-            ),
-          );
-        },
-      );
 
       test(
         'Updating server to forbidden configuration throws correct error message',

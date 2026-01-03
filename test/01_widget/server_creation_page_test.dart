@@ -7,10 +7,20 @@ import 'package:silo_tavern/ui/server_creation_page.dart';
 import 'mocks.mocks.dart';
 
 void main() {
+  late MockServerDomain serverDomain;
+  late MockGoRouter router;
+
+  setUp(() {
+    serverDomain = MockServerDomain();
+    router = MockGoRouter();
+  });
+
+  tearDown(() {
+    resetMockitoState();
+  });
+
   group('Server Creation Page Tests:', () {
     testWidgets('Renders create form correctly', (tester) async {
-      final serverDomain = MockServerDomain();
-
       await tester.pumpWidget(
         MaterialApp(home: ServerCreationPage(serverDomain: serverDomain)),
       );
@@ -23,7 +33,6 @@ void main() {
     });
 
     testWidgets('Renders edit form correctly', (tester) async {
-      final serverDomain = MockServerDomain();
       final server = Server(
         id: '1',
         name: 'Test Server',
@@ -59,9 +68,6 @@ void main() {
     });
 
     testWidgets('Back button navigates with router', (tester) async {
-      final serverDomain = MockServerDomain();
-      final router = MockGoRouter();
-
       await tester.pumpWidget(
         MaterialApp(
           home: ServerCreationPage(serverDomain: serverDomain, router: router),
@@ -80,8 +86,6 @@ void main() {
     testWidgets('Save button shows validation errors for empty fields', (
       tester,
     ) async {
-      final serverDomain = MockServerDomain();
-
       await tester.pumpWidget(
         MaterialApp(home: ServerCreationPage(serverDomain: serverDomain)),
       );
@@ -95,8 +99,6 @@ void main() {
     });
 
     testWidgets('Real-time validation for name field', (tester) async {
-      final serverDomain = MockServerDomain();
-
       await tester.pumpWidget(
         MaterialApp(home: ServerCreationPage(serverDomain: serverDomain)),
       );
@@ -119,8 +121,6 @@ void main() {
     });
 
     testWidgets('Real-time validation for URL field', (tester) async {
-      final serverDomain = MockServerDomain();
-
       await tester.pumpWidget(
         MaterialApp(home: ServerCreationPage(serverDomain: serverDomain)),
       );
@@ -160,8 +160,6 @@ void main() {
     testWidgets('Form validation prevents submission with invalid data', (
       tester,
     ) async {
-      final serverDomain = MockServerDomain();
-
       await tester.pumpWidget(
         MaterialApp(home: ServerCreationPage(serverDomain: serverDomain)),
       );
@@ -192,9 +190,6 @@ void main() {
     });
 
     testWidgets('Successfully adds new server with valid data', (tester) async {
-      final serverDomain = MockServerDomain();
-      final router = MockGoRouter();
-
       when(serverDomain.addServer(any)).thenAnswer((_) async {});
 
       await tester.pumpWidget(
@@ -233,8 +228,6 @@ void main() {
     testWidgets('Successfully updates existing server with valid data', (
       tester,
     ) async {
-      final serverDomain = MockServerDomain();
-      final router = MockGoRouter();
       final existingServer = Server(
         id: '1',
         name: 'Original Server',
@@ -281,8 +274,6 @@ void main() {
     testWidgets('Shows error dialog for invalid server configuration', (
       tester,
     ) async {
-      final serverDomain = MockServerDomain();
-
       await tester.pumpWidget(
         MaterialApp(home: ServerCreationPage(serverDomain: serverDomain)),
       );
@@ -315,8 +306,6 @@ void main() {
     });
 
     testWidgets('Shows error dialog when server save fails', (tester) async {
-      final serverDomain = MockServerDomain();
-
       when(serverDomain.addServer(any)).thenThrow(Exception('Save failed'));
 
       await tester.pumpWidget(
@@ -348,8 +337,6 @@ void main() {
     });
 
     testWidgets('Error dialog can be dismissed', (tester) async {
-      final serverDomain = MockServerDomain();
-
       await tester.pumpWidget(
         MaterialApp(home: ServerCreationPage(serverDomain: serverDomain)),
       );
@@ -389,9 +376,6 @@ void main() {
     });
 
     testWidgets('Success dialog can be dismissed', (tester) async {
-      final serverDomain = MockServerDomain();
-      final router = MockGoRouter();
-
       when(serverDomain.addServer(any)).thenAnswer((_) async {});
 
       await tester.pumpWidget(
