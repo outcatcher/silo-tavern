@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/domain/connection/models.dart';
 import 'package:silo_tavern/services/servers/storage.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
@@ -60,6 +61,11 @@ void main() {
       // Initialize the domain
       await domain.initialize();
 
+      // Mock the authenticateWithServer method to return success
+      when(
+        connectionDomain.authenticateWithServer(any, any),
+      ).thenAnswer((_) async => ConnectionResult.success());
+
       // Set up router
       router = GoRouter(
         routes: [
@@ -103,7 +109,7 @@ void main() {
                   body: Center(child: Text('Server not found')),
                 );
               }
-              return LoginPage(server: server);
+              return LoginPage(server: server, connectionDomain: connectionDomain);
             },
           ),
           GoRoute(
@@ -169,7 +175,7 @@ void main() {
 
       // 7. Tap on the new server to trigger login
       final serverCard = find.text('New Test Server').first;
-      await tester.tap(serverCard);
+      await tester.tap(serverCard, warnIfMissed: false);
       await tester.pumpAndSettle();
 
       // 8. Verify we're on the login page
@@ -236,7 +242,7 @@ void main() {
 
       // Tap on the server to trigger login
       final serverCard = find.text('Validation Test Server').first;
-      await tester.tap(serverCard);
+      await tester.tap(serverCard, warnIfMissed: false);
       await tester.pumpAndSettle();
 
       // Verify we're on the login page

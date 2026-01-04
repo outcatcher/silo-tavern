@@ -91,7 +91,11 @@ GoRouter appRouter(Domains domains) {
           }
           // Get back URL from query parameters or default to '/servers'
           final backUrl = state.uri.queryParameters['backUrl'] ?? '/servers';
-          return LoginPage(server: server, backUrl: backUrl);
+          return LoginPage(
+            server: server,
+            backUrl: backUrl,
+            connectionDomain: domains.connections,
+          );
         },
       ),
     ],

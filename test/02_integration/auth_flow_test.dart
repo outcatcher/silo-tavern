@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/domain/connection/models.dart';
 import 'package:silo_tavern/services/servers/storage.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
@@ -55,6 +56,11 @@ void main() {
       // Initialize the domain
       await domain.initialize();
 
+      // Mock the authenticateWithServer method to return success
+      when(
+        connectionDomain.authenticateWithServer(any, any),
+      ).thenAnswer((_) async => ConnectionResult.success());
+
       // Set up router
       router = GoRouter(
         routes: [
@@ -98,7 +104,7 @@ void main() {
                   body: Center(child: Text('Server not found')),
                 );
               }
-              return LoginPage(server: server);
+              return LoginPage(server: server, connectionDomain: connectionDomain);
             },
           ),
           GoRoute(

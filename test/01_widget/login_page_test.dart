@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:silo_tavern/domain/connection/models.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/ui/login_page.dart';
 
@@ -8,6 +9,14 @@ import 'mocks.mocks.dart';
 
 void main() {
   group('Login Page Tests:', () {
+    late MockConnectionDomain connectionDomain;
+    late MockGoRouter router;
+
+    setUp(() {
+      connectionDomain = MockConnectionDomain();
+      router = MockGoRouter();
+    });
+
     tearDown(() {
       resetMockitoState();
     });
@@ -19,7 +28,11 @@ void main() {
         address: 'https://test.example.com',
       );
 
-      await tester.pumpWidget(MaterialApp(home: LoginPage(server: server)));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(server: server, connectionDomain: connectionDomain),
+        ),
+      );
 
       expect(find.text('Login to Test Server'), findsOneWidget);
       expect(find.text('Server: https://test.example.com'), findsOneWidget);
@@ -35,11 +48,14 @@ void main() {
         name: 'Test Server',
         address: 'https://test.example.com',
       );
-      final router = MockGoRouter();
 
       await tester.pumpWidget(
         MaterialApp(
-          home: LoginPage(server: server, router: router),
+          home: LoginPage(
+            server: server,
+            router: router,
+            connectionDomain: connectionDomain,
+          ),
         ),
       );
 
@@ -59,10 +75,20 @@ void main() {
         address: 'https://test.example.com',
       );
       final router = MockGoRouter();
+      final connectionDomain = MockConnectionDomain();
+
+      // Mock the authenticateWithServer method to return success
+      when(
+        connectionDomain.authenticateWithServer(any, any),
+      ).thenAnswer((_) async => ConnectionResult.success());
 
       await tester.pumpWidget(
         MaterialApp(
-          home: LoginPage(server: server, router: router),
+          home: LoginPage(
+            server: server,
+            router: router,
+            connectionDomain: connectionDomain,
+          ),
         ),
       );
 
@@ -93,7 +119,11 @@ void main() {
         address: 'https://test.example.com',
       );
 
-      await tester.pumpWidget(MaterialApp(home: LoginPage(server: server)));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(server: server, connectionDomain: connectionDomain),
+        ),
+      );
 
       // Find the password field and visibility toggle
       final passwordField = find.byKey(const ValueKey('passwordField')).first;

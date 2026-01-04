@@ -69,25 +69,50 @@ class ConnectionDomain {
     return _sessions[serverId];
   }
 
-  /// Shallow authentication method for testing purposes
-  /// This method does nothing and always returns success
+  /// Authenticate with a server using the provided credentials
   Future<ConnectionResult> authenticateWithServer(
     server_models.Server server,
     ConnectionCredentials credentials,
   ) async {
-    // This is a shallow implementation for testing purposes
-    // In a real implementation, this would perform actual authentication
-    return ConnectionResult.success();
+    try {
+      // Get or create a session for this server
+      final session = _sessions[server.id] ?? sessionFactory.create(server.address);
+      _sessions[server.id] = session;
+      
+      // Perform authentication
+      await session.authenticate(credentials);
+      
+      // Authentication successful
+      return ConnectionResult.success();
+    } catch (e) {
+      debugPrint('ConnectionDomain: Failed to authenticate with server ${server.id}: $e');
+      return ConnectionResult.failure(e.toString());
+    }
   }
 
-  /// Shallow CSRF token method for testing purposes
-  /// This method does nothing and always returns success
+  /// Obtain a CSRF token for a server
   Future<ConnectionResult> obtainCsrfTokenForServer(
     server_models.Server server,
   ) async {
-    // This is a shallow implementation for testing purposes
-    // In a real implementation, this would obtain a CSRF token
-    return ConnectionResult.success();
+    try {
+      // Get or create a session for this server
+      final session = _sessions[server.id] ?? sessionFactory.create(server.address);
+      _sessions[server.id] = session;
+      
+      // Obtain CSRF token
+      await session.obtainCsrfToken();
+      
+      // Save the obtained CSRF token
+      final token = session.getCsrfToken();
+      if (token != null) {
+        await secureStorage.saveCsrfToken(server.id, token);
+      }
+      
+      return ConnectionResult.success();
+    } catch (e) {
+      debugPrint('ConnectionDomain: Failed to obtain CSRF token for server ${server.id}: $e');
+      return ConnectionResult.failure(e.toString());
+    }
   }
 
   /// Check if a server is available by making a GET request to the root path
