@@ -14,6 +14,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:silo_tavern/domain/connection/models.dart';
+import 'package:silo_tavern/services/connection/debug_logger.dart';
 import 'package:silo_tavern/services/connection/models/models.dart';
 
 abstract class ConnectionSessionInterface {
@@ -38,6 +39,7 @@ class DefaultConnectionFactory implements ConnectionSessionFactory {
     final dio = Dio(BaseOptions(baseUrl: serverURL));
 
     dio.interceptors.add(cookieManager);
+    dio.interceptors.add(DebugLogger());
 
     return ConnectionSession._(dio);
   }

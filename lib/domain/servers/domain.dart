@@ -118,43 +118,6 @@ class ServerDomain {
     _serversMap[serverId]?.updateStatus(status);
   }
 
-  // Connect to a server
-  Future<ServerConnectionResult> connectToServer(Server server) async {
-    try {
-      // Update status to loading
-      updateServerStatus(server.id, ServerStatus.loading);
-
-      // Use the connection domain to connect to the server
-      final result = await _connectionDomain.connectToServer(server);
-
-      if (result.isSuccess) {
-        // Connection successful - update status to online
-        updateServerStatus(server.id, ServerStatus.online);
-        // Connection successful
-        return ServerConnectionResult.success(server);
-      } else {
-        // Connection failed - update status to offline
-        updateServerStatus(server.id, ServerStatus.offline);
-        // Connection failed
-        debugPrint(
-          'ServerDomain: Connection failed for server ${server.id}: ${result.errorMessage}',
-        );
-        return ServerConnectionResult.failure(
-          server,
-          result.errorMessage ?? 'Unknown error',
-        );
-      }
-    } catch (e) {
-      // Connection failed - update status to offline
-      updateServerStatus(server.id, ServerStatus.offline);
-      // Connection failed
-      debugPrint(
-        'ServerDomain: Exception during connection to server ${server.id}: $e',
-      );
-      return ServerConnectionResult.failure(server, e.toString());
-    }
-  }
-
   Future<void> _checkServerStatus(
     Server server,
     void Function(Server server) serverUpdateCallback,

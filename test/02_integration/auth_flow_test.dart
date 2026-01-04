@@ -60,6 +60,11 @@ void main() {
       when(
         connectionDomain.authenticateWithServer(any, any),
       ).thenAnswer((_) async => ConnectionResult.success());
+      
+      // Mock the obtainCsrfTokenForServer method to return success
+      when(
+        connectionDomain.obtainCsrfTokenForServer(any),
+      ).thenAnswer((_) async => ConnectionResult.success());
 
       // Set up router
       router = GoRouter(
@@ -68,7 +73,7 @@ void main() {
           GoRoute(
             path: '/servers',
             name: 'servers',
-            builder: (context, state) => ServerListPage(serverDomain: domain),
+            builder: (context, state) => ServerListPage(serverDomain: domain, connectionDomain: connectionDomain),
           ),
           GoRoute(
             path: '/servers/create',
@@ -104,7 +109,10 @@ void main() {
                   body: Center(child: Text('Server not found')),
                 );
               }
-              return LoginPage(server: server, connectionDomain: connectionDomain);
+              return LoginPage(
+                server: server,
+                connectionDomain: connectionDomain,
+              );
             },
           ),
           GoRoute(

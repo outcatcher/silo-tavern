@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 
@@ -9,9 +10,15 @@ import 'utils.dart' as utils;
 
 class ServerListPage extends StatefulWidget {
   final ServerDomain serverDomain;
+  final ConnectionDomain connectionDomain;
   final GoRouter? router;
 
-  const ServerListPage({super.key, required this.serverDomain, this.router});
+  const ServerListPage({
+    super.key,
+    required this.serverDomain,
+    required this.connectionDomain,
+    this.router,
+  });
 
   @override
   State<ServerListPage> createState() => _ServerListPageState();
@@ -431,14 +438,77 @@ class _ServerListPageState extends State<ServerListPage> {
           horizontal: 16,
           vertical: 12,
         ),
-        onTap: () {
-          // Navigate to login page with back URL as query parameter
-          router.go(
-            Uri(
-              path: '/servers/login/${server.id}',
-              queryParameters: {'backUrl': '/servers'},
-            ).toString(),
+        onTap: () async {
+          // Show a loading dialog immediately while obtaining CSRF token in background
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) {
+              return const Dialog(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(width: 20),
+                      Text('Preparing secure connection...'),
+                    ],
+                  ),
+                ),
+              );
+            },
           );
+
+          try {
+            final result = await widget.connectionDomain
+                .obtainCsrfTokenForServer(server);
+
+            // Close the dialog
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+
+            // Check if the operation was successful
+            if (result.isSuccess) {
+              // Navigate to login page with back URL as query parameter
+              if (context.mounted) {
+                router.go(
+                  Uri(
+                    path: '/servers/login/${server.id}',
+                    queryParameters: {'backUrl': '/servers'},
+                  ).toString(),
+                );
+              }
+            } else {
+              // Show error if CSRF token retrieval failed
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      result.errorMessage ?? 'Failed to prepare secure connection',
+                    ),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            }
+          } catch (e) {
+            // Close the dialog
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+
+            // Show error if an exception occurred
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
         },
       ),
     );

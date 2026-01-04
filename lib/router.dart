@@ -21,8 +21,10 @@ GoRouter appRouter(Domains domains) {
       GoRoute(
         path: '/servers',
         name: 'servers',
-        builder: (context, state) =>
-            ServerListPage(serverDomain: domains.servers),
+        builder: (context, state) => ServerListPage(
+          serverDomain: domains.servers,
+          connectionDomain: domains.connections,
+        ),
       ),
       GoRoute(
         path: '/servers/create',

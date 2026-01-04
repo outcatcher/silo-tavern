@@ -27,43 +27,6 @@ class ConnectionDomain {
     );
   }
 
-  /// Connect to a server using server model from server domain
-  Future<ConnectionResult> connectToServer(server_models.Server server) async {
-    final existingCookies = await secureStorage.loadSessionCookies(server.id);
-    final existingCsrfToken = await secureStorage.loadCsrfToken(server.id);
-
-    final session = sessionFactory.create(
-      server.address,
-      cookies: existingCookies,
-    );
-    _sessions[server.id] = session;
-
-    // Restoring session with existing CSRF token
-    if (existingCookies != null && existingCsrfToken != null) {
-      // Set the CSRF token in the session's headers
-      session.setCsrfToken(existingCsrfToken);
-      return ConnectionResult.success();
-    }
-
-    try {
-      await session.obtainCsrfToken();
-      
-      // Save the obtained CSRF token
-      final token = session.getCsrfToken();
-      if (token != null) {
-        await secureStorage.saveCsrfToken(server.id, token);
-      }
-    } catch (e) {
-      debugPrint(
-        'ConnectionDomain: Failed to obtain CSRF token for server ${server.id}: $e',
-      );
-      return ConnectionResult.failure(e.toString());
-    }
-
-    // Authentication is no longer supported
-    return ConnectionResult.success();
-  }
-
   /// Get an authenticated client for making requests to the server
   ConnectionSessionInterface? getClient(String serverId) {
     return _sessions[serverId];
@@ -76,16 +39,19 @@ class ConnectionDomain {
   ) async {
     try {
       // Get or create a session for this server
-      final session = _sessions[server.id] ?? sessionFactory.create(server.address);
+      final session =
+          _sessions[server.id] ?? sessionFactory.create(server.address);
       _sessions[server.id] = session;
-      
+
       // Perform authentication
       await session.authenticate(credentials);
-      
+
       // Authentication successful
       return ConnectionResult.success();
     } catch (e) {
-      debugPrint('ConnectionDomain: Failed to authenticate with server ${server.id}: $e');
+      debugPrint(
+        'ConnectionDomain: Failed to authenticate with server ${server.id}: $e',
+      );
       return ConnectionResult.failure(e.toString());
     }
   }
@@ -96,21 +62,24 @@ class ConnectionDomain {
   ) async {
     try {
       // Get or create a session for this server
-      final session = _sessions[server.id] ?? sessionFactory.create(server.address);
+      final session =
+          _sessions[server.id] ?? sessionFactory.create(server.address);
       _sessions[server.id] = session;
-      
+
       // Obtain CSRF token
       await session.obtainCsrfToken();
-      
+
       // Save the obtained CSRF token
       final token = session.getCsrfToken();
       if (token != null) {
         await secureStorage.saveCsrfToken(server.id, token);
       }
-      
+
       return ConnectionResult.success();
     } catch (e) {
-      debugPrint('ConnectionDomain: Failed to obtain CSRF token for server ${server.id}: $e');
+      debugPrint(
+        'ConnectionDomain: Failed to obtain CSRF token for server ${server.id}: $e',
+      );
       return ConnectionResult.failure(e.toString());
     }
   }
@@ -125,5 +94,11 @@ class ConnectionDomain {
       debugPrint('Failed to check server availability for ${server.id}: $e');
       return false;
     }
+  }
+
+  /// Test-only method to add a session to the domain
+  @visibleForTesting
+  void testOnlyAddSession(String serverId, ConnectionSessionInterface session) {
+    _sessions[serverId] = session;
   }
 }
