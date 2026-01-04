@@ -20,6 +20,9 @@ abstract class ConnectionSessionInterface {
   Future<void> obtainCsrfToken();
   Future<void> authenticate(ConnectionCredentials credentials);
   Future<bool> checkServerAvailability();
+  
+  void setCsrfToken(String token);
+  String? getCsrfToken();
 }
 
 class DefaultConnectionFactory implements ConnectionSessionFactory {
@@ -63,6 +66,16 @@ class ConnectionSession implements ConnectionSessionInterface {
       debugPrint('Uncaught exception during obtaining CSRF: $e');
       rethrow;
     }
+  }
+
+  /// Set CSRF token in the client headers
+  void setCsrfToken(String token) {
+    _client.options.headers['X-CSRF-Token'] = token;
+  }
+
+  /// Get CSRF token from the client headers
+  String? getCsrfToken() {
+    return _client.options.headers['X-CSRF-Token'] as String?;
   }
 
   /// Authenticate with the server and obtain session cookies

@@ -61,6 +61,12 @@ void main() {
       when(
         secureStorage.loadSessionCookies('1'),
       ).thenAnswer((_) async => existingCookies);
+      when(
+        secureStorage.loadCsrfToken('1'),
+      ).thenAnswer((_) async => null);
+      when(
+        secureStorage.loadCsrfToken('1'),
+      ).thenAnswer((_) async => null);
 
       // Act
       final result = await domain.connectToServer(server);
@@ -89,8 +95,10 @@ void main() {
       sessionFactory.sessions[server.address] = session1;
 
       when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => null);
+      when(secureStorage.loadCsrfToken('1')).thenAnswer((_) async => null);
       when(session1.obtainCsrfToken()).thenAnswer((_) async {});
       when(session1.authenticate(any)).thenAnswer((_) async {});
+      when(session1.getCsrfToken()).thenAnswer((_) => 'test-token');
 
       // Act
       final result = await domain.connectToServer(server);
@@ -102,15 +110,7 @@ void main() {
       // Verify interactions
       verify(secureStorage.loadSessionCookies('1')).called(1);
       verify(session1.obtainCsrfToken()).called(1);
-      verify(
-        session1.authenticate(
-          argThat(
-            predicate<ConnectionCredentials>(
-              (creds) => creds.handle == 'user' && creds.password == 'pass',
-            ),
-          ),
-        ),
-      ).called(1);
+      verifyNever(session1.authenticate(any)); // Authentication is no longer supported
     });
 
     test('Connect to server successfully without credentials', () async {
@@ -126,7 +126,9 @@ void main() {
       sessionFactory.sessions[server.address] = session1;
 
       when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => null);
+      when(secureStorage.loadCsrfToken('1')).thenAnswer((_) async => null);
       when(session1.obtainCsrfToken()).thenAnswer((_) async {});
+      when(session1.getCsrfToken()).thenAnswer((_) => 'test-token');
 
       // Act
       final result = await domain.connectToServer(server);
@@ -156,6 +158,7 @@ void main() {
       sessionFactory.sessions[server.address] = session1;
 
       when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => null);
+      when(secureStorage.loadCsrfToken('1')).thenAnswer((_) async => null);
       when(session1.obtainCsrfToken()).thenThrow(Exception('Network error'));
 
       // Act
@@ -186,31 +189,21 @@ void main() {
       sessionFactory.sessions[server.address] = session1;
 
       when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => null);
+      when(secureStorage.loadCsrfToken('1')).thenAnswer((_) async => null);
       when(session1.obtainCsrfToken()).thenAnswer((_) async {});
-      when(
-        session1.authenticate(any),
-      ).thenThrow(Exception('Invalid credentials'));
+      when(session1.getCsrfToken()).thenAnswer((_) => 'test-token');
 
       // Act
       final result = await domain.connectToServer(server);
 
       // Assert
-      expect(result.isSuccess, isFalse);
-      expect(result.errorMessage, contains('Invalid credentials'));
+      expect(result.isSuccess, isTrue); // Authentication is no longer supported, so connection should succeed
+      expect(result.errorMessage, isNull);
 
       // Verify interactions
       verify(secureStorage.loadSessionCookies('1')).called(1);
       verify(session1.obtainCsrfToken()).called(1);
-      verify(
-        session1.authenticate(
-          argThat(
-            predicate<ConnectionCredentials>(
-              (creds) =>
-                  creds.handle == 'user' && creds.password == 'wrongpass',
-            ),
-          ),
-        ),
-      ).called(1);
+      verifyNever(session1.authenticate(any)); // Authentication is no longer supported
     });
 
     test('Get client returns session for connected server', () async {
@@ -226,7 +219,9 @@ void main() {
       sessionFactory.sessions[server.address] = session1;
 
       when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => null);
+      when(secureStorage.loadCsrfToken('1')).thenAnswer((_) async => null);
       when(session1.obtainCsrfToken()).thenAnswer((_) async {});
+      when(session1.getCsrfToken()).thenAnswer((_) => 'test-token');
 
       // Connect to server first to create the session
       await domain.connectToServer(server);

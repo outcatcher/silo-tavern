@@ -30,6 +30,7 @@ class ConnectionDomain {
   /// Connect to a server using server model from server domain
   Future<ConnectionResult> connectToServer(server_models.Server server) async {
     final existingCookies = await secureStorage.loadSessionCookies(server.id);
+    final existingCsrfToken = await secureStorage.loadCsrfToken(server.id);
 
     final session = sessionFactory.create(
       server.address,
@@ -37,13 +38,21 @@ class ConnectionDomain {
     );
     _sessions[server.id] = session;
 
-    // Restoring session
-    if (existingCookies != null) {
+    // Restoring session with existing CSRF token
+    if (existingCookies != null && existingCsrfToken != null) {
+      // Set the CSRF token in the session's headers
+      session.setCsrfToken(existingCsrfToken);
       return ConnectionResult.success();
     }
 
     try {
       await session.obtainCsrfToken();
+      
+      // Save the obtained CSRF token
+      final token = session.getCsrfToken();
+      if (token != null) {
+        await secureStorage.saveCsrfToken(server.id, token);
+      }
     } catch (e) {
       debugPrint(
         'ConnectionDomain: Failed to obtain CSRF token for server ${server.id}: $e',

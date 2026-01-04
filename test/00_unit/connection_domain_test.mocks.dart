@@ -57,6 +57,12 @@ class MockConnectionSessionInterface extends _i1.Mock
             returnValueForMissingStub: _i3.Future<bool>.value(false),
           )
           as _i3.Future<bool>);
+
+  @override
+  void setCsrfToken(String? token) => super.noSuchMethod(
+    Invocation.method(#setCsrfToken, [token]),
+    returnValueForMissingStub: null,
+  );
 }
 
 /// A class which mocks [ConnectionStorage].
@@ -83,4 +89,31 @@ class MockConnectionStorage extends _i1.Mock implements _i5.ConnectionStorage {
             returnValueForMissingStub: _i3.Future<List<_i6.Cookie>?>.value(),
           )
           as _i3.Future<List<_i6.Cookie>?>);
+
+  @override
+  _i3.Future<void> saveCsrfToken(String? serverId, String? token) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveCsrfToken, [serverId, token]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
+  _i3.Future<String?> loadCsrfToken(String? serverId) =>
+      (super.noSuchMethod(
+            Invocation.method(#loadCsrfToken, [serverId]),
+            returnValue: _i3.Future<String?>.value(),
+            returnValueForMissingStub: _i3.Future<String?>.value(),
+          )
+          as _i3.Future<String?>);
+
+  @override
+  _i3.Future<void> deleteCsrfToken(String? serverId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteCsrfToken, [serverId]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 }
