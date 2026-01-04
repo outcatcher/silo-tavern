@@ -8,7 +8,7 @@ class Server {
     required this.id,
     required this.name,
     required this.address,
-    this.status = ServerStatus.ready,
+    this.status = ServerStatus.offline,
   });
 
   void updateStatus(ServerStatus newStatus) {
@@ -18,17 +18,14 @@ class Server {
 
 /// Represents the connection status of a server
 enum ServerStatus {
-  /// Server is being tested or connected to
+  /// Server is being tested
   loading,
 
-  /// Server is configured but not yet connected
-  ready,
+  /// Server is online and available
+  online,
 
-  /// Server is unreachable or connection failed
-  unavailable,
-
-  /// Server is successfully connected and active
-  active,
+  /// Server is offline or unreachable
+  offline,
 }
 
 /// Result of a server connection attempt

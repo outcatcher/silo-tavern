@@ -40,19 +40,19 @@ void main() {
           id: '1',
           name: 'Server 1',
           address: 'https://server1.com',
-          status: ServerStatus.ready,
+          status: ServerStatus.offline,
         ),
         Server(
           id: '2',
           name: 'Server 2',
           address: 'https://server2.com',
-          status: ServerStatus.active,
+          status: ServerStatus.online,
         ),
         Server(
           id: '3',
           name: 'Server 3',
           address: 'https://server3.com',
-          status: ServerStatus.unavailable,
+          status: ServerStatus.offline,
         ),
       ];
 
@@ -67,15 +67,7 @@ void main() {
       expect(find.text('Server 3'), findsOneWidget);
 
       // Check that status indicators are present
-      expect(
-        find.byIcon(Icons.radio_button_unchecked),
-        findsOneWidget,
-      ); // ready status
-      expect(find.byIcon(Icons.check_circle), findsOneWidget); // active status
-      expect(
-        find.byIcon(Icons.error_outline),
-        findsOneWidget,
-      ); // unavailable status
+      expect(find.byIcon(Icons.circle), findsNWidgets(3)); // All servers have circle icons
     });
 
     testWidgets('Create Triggers Creation', (tester) async {
@@ -113,7 +105,7 @@ void main() {
           id: '1',
           name: 'Test Server',
           address: 'https://test.com',
-          status: ServerStatus.ready,
+          status: ServerStatus.offline,
         ),
       ];
 
@@ -145,7 +137,7 @@ void main() {
           id: '1',
           name: 'Test Server',
           address: 'https://test.com',
-          status: ServerStatus.ready,
+          status: ServerStatus.offline,
         ),
       ];
 
@@ -174,7 +166,7 @@ void main() {
           id: '1',
           name: 'Test Server',
           address: 'https://test.com',
-          status: ServerStatus.ready,
+          status: ServerStatus.offline,
         ),
       ];
 
@@ -206,7 +198,7 @@ void main() {
           id: '1',
           name: 'Test Server',
           address: 'https://test.com',
-          status: ServerStatus.ready,
+          status: ServerStatus.offline,
         ),
       ];
 
@@ -240,7 +232,7 @@ void main() {
           id: '1',
           name: 'Test Server',
           address: 'https://test.com',
-          status: ServerStatus.ready,
+          status: ServerStatus.offline,
         ),
       ];
 
@@ -271,7 +263,7 @@ void main() {
           id: '1',
           name: 'Test Server',
           address: 'https://test.com',
-          status: ServerStatus.ready,
+          status: ServerStatus.offline,
         ),
       ];
 

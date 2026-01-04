@@ -51,9 +51,9 @@ class ServerDomain {
 
     await _serverListLocker.protect(() async {
       final servers = await _storage.listServers();
-      // Initialize all loaded servers with 'ready' status
+      // Initialize all loaded servers with 'offline' status
       for (var server in servers) {
-        server.updateStatus(ServerStatus.ready);
+        server.updateStatus(ServerStatus.offline);
         _serversMap[server.id] = server;
       }
     });
@@ -80,8 +80,8 @@ class ServerDomain {
     // Only add server if configuration is allowed
     validateServerConfiguration(server);
 
-    // Add server with 'ready' status
-    server.updateStatus(ServerStatus.ready);
+    // Add server with 'offline' status
+    server.updateStatus(ServerStatus.offline);
     _serversMap[server.id] = server;
     await _serverListLocker.protect(() => _storage.createServer(server));
   }
@@ -128,13 +128,13 @@ class ServerDomain {
       final result = await _connectionDomain.connectToServer(server);
 
       if (result.isSuccess) {
-        // Connection successful - update status to active
-        updateServerStatus(server.id, ServerStatus.active);
+        // Connection successful - update status to online
+        updateServerStatus(server.id, ServerStatus.online);
         // Connection successful
         return ServerConnectionResult.success(server);
       } else {
-        // Connection failed - update status to unavailable
-        updateServerStatus(server.id, ServerStatus.unavailable);
+        // Connection failed - update status to offline
+        updateServerStatus(server.id, ServerStatus.offline);
         // Connection failed
         debugPrint(
           'ServerDomain: Connection failed for server ${server.id}: ${result.errorMessage}',
@@ -145,8 +145,8 @@ class ServerDomain {
         );
       }
     } catch (e) {
-      // Connection failed - update status to unavailable
-      updateServerStatus(server.id, ServerStatus.unavailable);
+      // Connection failed - update status to offline
+      updateServerStatus(server.id, ServerStatus.offline);
       // Connection failed
       debugPrint(
         'ServerDomain: Exception during connection to server ${server.id}: $e',
@@ -170,22 +170,15 @@ class ServerDomain {
 
       // Update status based on availability
       if (isAvailable) {
-        // If server was previously unavailable, set to ready
-        // If it was already active, keep it active
-        if (server.status == ServerStatus.unavailable) {
-          updateServerStatus(server.id, ServerStatus.ready);
-        } else if (server.status == ServerStatus.loading) {
-          updateServerStatus(server.id, ServerStatus.ready);
-        }
-        // If it was already active or ready, keep the current status
+        updateServerStatus(server.id, ServerStatus.online);
       } else {
-        updateServerStatus(server.id, ServerStatus.unavailable);
+        updateServerStatus(server.id, ServerStatus.offline);
       }
     } catch (e) {
       debugPrint(
         'ServerDomain: Exception during status check for server ${server.id}: $e',
       );
-      updateServerStatus(server.id, ServerStatus.unavailable);
+      updateServerStatus(server.id, ServerStatus.offline);
     } finally {
       serverUpdateCallback(server);
     }

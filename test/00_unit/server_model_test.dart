@@ -17,7 +17,7 @@ void main() {
       expect(server.id, '1');
       expect(server.name, 'Test Server');
       expect(server.address, 'https://test.example.com');
-      expect(server.status, ServerStatus.ready);
+      expect(server.status, ServerStatus.offline);
     });
 
     test('Server creation with custom values', () {

@@ -88,11 +88,11 @@ class _ServerListPageState extends State<ServerListPage> {
               _deletingServers.remove(server.id);
               if (insertIndex == -1) {
                 // Insert at the end if no suitable position found
-                server.updateStatus(ServerStatus.ready);
+                server.updateStatus(ServerStatus.offline);
                 _servers.add(server);
               } else {
                 // Insert at the correct position to maintain order
-                server.updateStatus(ServerStatus.ready);
+                server.updateStatus(ServerStatus.offline);
                 _servers.insert(insertIndex, server);
               }
             });
@@ -374,17 +374,13 @@ class _ServerListPageState extends State<ServerListPage> {
         statusIcon = Icons.hourglass_bottom;
         statusColor = Colors.orange;
         break;
-      case ServerStatus.ready:
-        statusIcon = Icons.radio_button_unchecked;
-        statusColor = Colors.grey;
-        break;
-      case ServerStatus.unavailable:
-        statusIcon = Icons.error_outline;
-        statusColor = Colors.red;
-        break;
-      case ServerStatus.active:
-        statusIcon = Icons.check_circle;
+      case ServerStatus.online:
+        statusIcon = Icons.circle;
         statusColor = Colors.green;
+        break;
+      case ServerStatus.offline:
+        statusIcon = Icons.circle;
+        statusColor = Colors.red;
         break;
     }
 
