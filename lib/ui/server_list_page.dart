@@ -486,7 +486,7 @@ class _ServerListPageState extends State<ServerListPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      result.errorMessage ?? 'Failed to prepare secure connection',
+                      _getUserFriendlyErrorMessage(result.errorMessage),
                     ),
                     backgroundColor: Colors.red,
                   ),
@@ -503,7 +503,7 @@ class _ServerListPageState extends State<ServerListPage> {
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Error: $e'),
+                  content: Text(_getUserFriendlyErrorMessage(e.toString())),
                   backgroundColor: Colors.red,
                 ),
               );
@@ -512,5 +512,39 @@ class _ServerListPageState extends State<ServerListPage> {
         },
       ),
     );
+  }
+
+  /// Converts technical error messages to user-friendly messages
+  String _getUserFriendlyErrorMessage(String? technicalMessage) {
+    if (technicalMessage == null || technicalMessage.isEmpty) {
+      return 'Failed to prepare secure connection. Please try again.';
+    }
+
+    // Handle common network errors
+    if (technicalMessage.contains('SocketException') ||
+        technicalMessage.contains('Connection refused') ||
+        technicalMessage.contains('Failed host lookup')) {
+      return 'Unable to connect to the server. Please check your network connection and try again.';
+    }
+
+    // Handle timeout errors
+    if (technicalMessage.contains('timeout') ||
+        technicalMessage.contains('timed out')) {
+      return 'Connection timed out. The server may be busy or unreachable. Please try again.';
+    }
+
+    // Handle certificate errors
+    if (technicalMessage.contains('CERTIFICATE_VERIFY_FAILED') ||
+        technicalMessage.contains('HandshakeException')) {
+      return 'Security certificate verification failed. Please check that the server\'s SSL/TLS certificate is valid.';
+    }
+
+    // Handle general HTTP errors
+    if (technicalMessage.contains('HTTP status error')) {
+      return 'Server responded with an error. Please check that the server is running and accessible.';
+    }
+
+    // Default fallback message
+    return 'Failed to prepare secure connection. Please try again.';
   }
 }
