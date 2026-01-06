@@ -36,7 +36,9 @@ class DefaultConnectionFactory implements ConnectionSessionFactory {
     cookieJar.saveFromResponse(Uri.parse(serverURL), cookies ?? const []);
 
     final cookieManager = CookieManager(cookieJar);
-    final dio = Dio(BaseOptions(baseUrl: serverURL));
+    final dio = Dio(
+      BaseOptions(baseUrl: serverURL, contentType: 'application/json'),
+    );
 
     dio.interceptors.add(cookieManager);
     dio.interceptors.add(DebugLogger());

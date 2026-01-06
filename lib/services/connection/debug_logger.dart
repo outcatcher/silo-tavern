@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/v6.dart';
@@ -21,11 +23,12 @@ class DebugLogger extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final xRequestIdVal = err.requestOptions.headers[xRequestId];
+    final jsonBody = jsonEncode(err.requestOptions.data);
     debugPrint(
       'Error on request ($xRequestIdVal):\n'
       'Path: ${err.requestOptions.path}\n'
       'Query Params: ${err.requestOptions.queryParameters}\n'
-      'Request Body: ${err.requestOptions.data}\n'
+      'Request Body: $jsonBody\n'
       'Headers: ${err.requestOptions.headers}\n'
       'Error: ${err.error.toString()}',
     );
