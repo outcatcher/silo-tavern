@@ -40,9 +40,25 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _isLoadingCsrf = false; // Start with loading state disabled
-    // Only check CSRF token if needed (e.g., if we detect it's missing)
-    // For now, we assume it's already been handled before navigating to this page
+    _checkForExistingSession();
+  }
+
+  /// Check if there's already an existing session for this server
+  void _checkForExistingSession() async {
+    // Check if we already have a session for this server
+    if (widget.connectionDomain.hasExistingSession(widget.server)) {
+      // Skip login and go directly to connect page
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          router.go(
+            Uri(
+              path: '/servers/connect/${widget.server.id}',
+              queryParameters: {'backUrl': widget.backUrl ?? utils.defaultPage},
+            ).toString(),
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -56,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
         leading: IconButton(
           key: const ValueKey('backButton'),
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => router.go(widget.backUrl ?? '/servers'),
+          onPressed: () => router.go(widget.backUrl ?? utils.defaultPage),
         ),
       ),
       body: Center(
@@ -67,8 +83,8 @@ class _LoginPageState extends State<LoginPage> {
             child: _isLoadingCsrf
                 ? _buildLoadingState()
                 : _csrfError != null
-                    ? _buildErrorState()
-                    : _buildLoginForm(),
+                ? _buildErrorState()
+                : _buildLoginForm(),
           ),
         ),
       ),
@@ -118,9 +134,7 @@ class _LoginPageState extends State<LoginPage> {
               prefixIcon: const Icon(Icons.lock),
               suffixIcon: IconButton(
                 icon: Icon(
-                  _obscurePassword
-                      ? Icons.visibility
-                      : Icons.visibility_off,
+                  _obscurePassword ? Icons.visibility : Icons.visibility_off,
                 ),
                 onPressed: () {
                   setState(() {
@@ -160,9 +174,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.login),
-              label: Text(
-                _isAuthenticating ? 'Logging in...' : 'Login',
-              ),
+              label: Text(_isAuthenticating ? 'Logging in...' : 'Login'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -188,18 +200,18 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildErrorState() {
-    Future<void> _retryCsrfCheck() async {
+    Future<void> retryCsrfCheck() async {
       setState(() {
         _isLoadingCsrf = true;
         _csrfError = null;
       });
-      
+
       try {
         // Try to obtain CSRF token for the server
         final result = await widget.connectionDomain.obtainCsrfTokenForServer(
           widget.server,
         );
-        
+
         if (context.mounted) {
           setState(() {
             _isLoadingCsrf = false;
@@ -217,15 +229,11 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
     }
-    
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(
-          Icons.error_outline,
-          size: 48,
-          color: Colors.red,
-        ),
+        const Icon(Icons.error_outline, size: 48, color: Colors.red),
         const SizedBox(height: 16),
         Text(
           'Failed to prepare secure connection',
@@ -241,7 +249,7 @@ class _LoginPageState extends State<LoginPage> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _retryCsrfCheck,
+            onPressed: retryCsrfCheck,
             child: const Text('Retry'),
           ),
         ),
@@ -249,7 +257,7 @@ class _LoginPageState extends State<LoginPage> {
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
-            onPressed: () => router.go(widget.backUrl ?? '/servers'),
+            onPressed: () => router.go(widget.backUrl ?? utils.defaultPage),
             child: const Text('Back to Servers'),
           ),
         ),
@@ -282,13 +290,15 @@ class _LoginPageState extends State<LoginPage> {
             router.go(
               Uri(
                 path: '/servers/connect/${widget.server.id}',
-                queryParameters: {'backUrl': widget.backUrl ?? '/servers'},
+                queryParameters: {
+                  'backUrl': widget.backUrl ?? utils.defaultPage,
+                },
               ).toString(),
             );
           }
         } else {
           // Authentication failed - show error
-          if (context.mounted) {
+          if (mounted) {
             utils.showErrorDialog(
               context,
               _getUserFriendlyAuthErrorMessage(result.errorMessage),
@@ -298,7 +308,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       } catch (e) {
         // Unexpected error
-        if (context.mounted) {
+        if (mounted) {
           utils.showErrorDialog(
             context,
             _getUserFriendlyAuthErrorMessage(e.toString()),
@@ -322,7 +332,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     // Handle common authentication errors
-    if (technicalMessage.contains('401') || 
+    if (technicalMessage.contains('401') ||
         technicalMessage.contains('Unauthorized') ||
         technicalMessage.contains('invalid credentials') ||
         technicalMessage.contains('Invalid credentials')) {

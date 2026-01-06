@@ -96,6 +96,11 @@ class ConnectionDomain {
     }
   }
 
+  /// Check if a server session already exists
+  bool hasExistingSession(server_models.Server server) {
+    return _sessions.containsKey(server.id);
+  }
+
   /// Test-only method to add a session to the domain
   @visibleForTesting
   void testOnlyAddSession(String serverId, ConnectionSessionInterface session) {

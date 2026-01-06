@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const String defaultPage = '/servers';
+
 void showErrorDialog(
   BuildContext context,
   String message, {

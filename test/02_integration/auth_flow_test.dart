@@ -60,7 +60,7 @@ void main() {
       when(
         connectionDomain.authenticateWithServer(any, any),
       ).thenAnswer((_) async => ConnectionResult.success());
-      
+
       // Mock the obtainCsrfTokenForServer method to return success
       when(
         connectionDomain.obtainCsrfTokenForServer(any),
@@ -73,7 +73,10 @@ void main() {
           GoRoute(
             path: '/servers',
             name: 'servers',
-            builder: (context, state) => ServerListPage(serverDomain: domain, connectionDomain: connectionDomain),
+            builder: (context, state) => ServerListPage(
+              serverDomain: domain,
+              connectionDomain: connectionDomain,
+            ),
           ),
           GoRoute(
             path: '/servers/create',

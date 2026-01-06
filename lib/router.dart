@@ -6,6 +6,7 @@ import 'package:silo_tavern/ui/login_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/ui/under_construction_page.dart';
+import 'package:silo_tavern/ui/utils.dart';
 
 class Domains {
   ServerDomain servers;
@@ -17,7 +18,7 @@ class Domains {
 GoRouter appRouter(Domains domains) {
   return GoRouter(
     routes: [
-      GoRoute(path: '/', redirect: (_, _) => '/servers'),
+      GoRoute(path: '/', redirect: (_, _) => defaultPage),
       GoRoute(
         path: '/servers',
         name: 'servers',
@@ -41,7 +42,7 @@ GoRouter appRouter(Domains domains) {
           if (server == null) {
             // Navigate back if server not found
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.go('/servers');
+              context.go(defaultPage);
             });
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
@@ -62,14 +63,14 @@ GoRouter appRouter(Domains domains) {
           if (server == null) {
             // Navigate back if server not found
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.go('/servers');
+              context.go(defaultPage);
             });
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }
           // Get back URL from query parameters or default to '/servers'
-          final backUrl = state.uri.queryParameters['backUrl'] ?? '/servers';
+          final backUrl = state.uri.queryParameters['backUrl'] ?? defaultPage;
           return UnderConstructionPage(
             title: 'Connect to Server',
             backUrl: backUrl,
@@ -85,14 +86,14 @@ GoRouter appRouter(Domains domains) {
           if (server == null) {
             // Navigate back if server not found
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.go('/servers');
+              context.go(defaultPage);
             });
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          // Get back URL from query parameters or default to '/servers'
-          final backUrl = state.uri.queryParameters['backUrl'] ?? '/servers';
+          // Get back URL from query parameters or default to defaultPage
+          final backUrl = state.uri.queryParameters['backUrl'] ?? defaultPage;
           return LoginPage(
             server: server,
             backUrl: backUrl,

@@ -27,7 +27,12 @@ void main() {
       when(serverDomain.servers).thenReturn([]);
 
       await tester.pumpWidget(
-        MaterialApp(home: ServerListPage(serverDomain: serverDomain, connectionDomain: connectionDomain)),
+        MaterialApp(
+          home: ServerListPage(
+            serverDomain: serverDomain,
+            connectionDomain: connectionDomain,
+          ),
+        ),
       );
 
       final title = find.byKey(const ValueKey('serverListTitle'));
@@ -62,7 +67,12 @@ void main() {
       when(serverDomain.servers).thenReturn(servers);
 
       await tester.pumpWidget(
-        MaterialApp(home: ServerListPage(serverDomain: serverDomain, connectionDomain: connectionDomain)),
+        MaterialApp(
+          home: ServerListPage(
+            serverDomain: serverDomain,
+            connectionDomain: connectionDomain,
+          ),
+        ),
       );
 
       expect(find.text('Server 1'), findsOneWidget);
@@ -81,7 +91,11 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ServerListPage(serverDomain: serverDomain, connectionDomain: connectionDomain, router: router),
+          home: ServerListPage(
+            serverDomain: serverDomain,
+            connectionDomain: connectionDomain,
+            router: router,
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -116,9 +130,9 @@ void main() {
       ];
 
       when(serverDomain.servers).thenReturn(servers);
-      when(connectionDomain.obtainCsrfTokenForServer(any)).thenAnswer(
-        (_) async => ConnectionResult.success(),
-      );
+      when(
+        connectionDomain.obtainCsrfTokenForServer(any),
+      ).thenAnswer((_) async => ConnectionResult.success());
       // Set up the mock expectation before tapping
       when(
         router.go('/servers/login/1?backUrl=%2Fservers'),
@@ -126,7 +140,11 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ServerListPage(serverDomain: serverDomain, connectionDomain: connectionDomain, router: router),
+          home: ServerListPage(
+            serverDomain: serverDomain,
+            connectionDomain: connectionDomain,
+            router: router,
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -153,7 +171,12 @@ void main() {
       when(serverDomain.servers).thenReturn(servers);
 
       await tester.pumpWidget(
-        MaterialApp(home: ServerListPage(serverDomain: serverDomain, connectionDomain: connectionDomain)),
+        MaterialApp(
+          home: ServerListPage(
+            serverDomain: serverDomain,
+            connectionDomain: connectionDomain,
+          ),
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -183,7 +206,11 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ServerListPage(serverDomain: serverDomain, connectionDomain: connectionDomain, router: router),
+          home: ServerListPage(
+            serverDomain: serverDomain,
+            connectionDomain: connectionDomain,
+            router: router,
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -215,7 +242,12 @@ void main() {
       when(serverDomain.removeServer('1')).thenAnswer((_) async {});
 
       await tester.pumpWidget(
-        MaterialApp(home: ServerListPage(serverDomain: serverDomain, connectionDomain: connectionDomain)),
+        MaterialApp(
+          home: ServerListPage(
+            serverDomain: serverDomain,
+            connectionDomain: connectionDomain,
+          ),
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -249,7 +281,11 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ServerListPage(serverDomain: serverDomain, connectionDomain: connectionDomain, router: router),
+          home: ServerListPage(
+            serverDomain: serverDomain,
+            connectionDomain: connectionDomain,
+            router: router,
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -280,7 +316,12 @@ void main() {
       when(serverDomain.removeServer('1')).thenAnswer((_) async {});
 
       await tester.pumpWidget(
-        MaterialApp(home: ServerListPage(serverDomain: serverDomain, connectionDomain: connectionDomain)),
+        MaterialApp(
+          home: ServerListPage(
+            serverDomain: serverDomain,
+            connectionDomain: connectionDomain,
+          ),
+        ),
       );
       await tester.pumpAndSettle();
 
