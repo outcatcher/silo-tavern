@@ -41,12 +41,10 @@ class _ServerListPageState extends State<ServerListPage> {
 
   void _checkServerStatuses() async {
     await widget.serverDomain.checkAllServerStatuses((s) {
-      if (mounted) {
-        final index = _servers.lastIndexWhere((srv) => srv.id == s.id);
-        setState(() {
-          _servers[index].status = s.status;
-        });
-      }
+      final index = _servers.lastIndexWhere((srv) => srv.id == s.id);
+      setState(() {
+        _servers[index].status = s.status;
+      });
     });
   }
 
