@@ -10,9 +10,10 @@ import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/connection/models.dart';
 import 'package:silo_tavern/domain/servers/models.dart' as server_models;
-import 'package:silo_tavern/services/connection/models/models.dart';
+
 import 'package:silo_tavern/services/connection/network.dart';
 import 'package:silo_tavern/services/connection/storage.dart';
+import 'package:silo_tavern/services/connection/models/models.dart';
 
 import 'connection_domain_test.mocks.dart';
 
@@ -29,8 +30,8 @@ class FakeSessionFactory implements ConnectionSessionFactory {
 }
 
 @GenerateNiceMocks([
-  MockSpec<ConnectionSessionInterface>(),
   MockSpec<ConnectionStorage>(),
+  MockSpec<ConnectionSessionInterface>(),
 ])
 void main() {
   group('ConnectionDomain Tests', () {
@@ -41,193 +42,10 @@ void main() {
     setUp(() {
       secureStorage = MockConnectionStorage();
       sessionFactory = FakeSessionFactory();
-
       domain = ConnectionDomain(
         sessionFactory: sessionFactory,
         secureStorage: secureStorage,
       );
-    });
-
-    test('Connect to server with existing session cookies', () async {
-      // Arrange
-      final server = server_models.Server(
-        id: '1',
-        name: 'Test Server',
-        address: 'https://test.example.com',
-        authentication: server_models.AuthenticationInfo.credentials(
-          username: 'user',
-          password: 'pass',
-        ),
-      );
-
-      final existingCookies = [Cookie('session', 'abc123')];
-
-      when(
-        secureStorage.loadSessionCookies('1'),
-      ).thenAnswer((_) async => existingCookies);
-
-      // Act
-      final result = await domain.connectToServer(server);
-
-      // Assert
-      expect(result.isSuccess, isTrue);
-      expect(result.errorMessage, isNull);
-
-      // Verify that session cookies were loaded but no CSRF token or auth was requested
-      verify(secureStorage.loadSessionCookies('1')).called(1);
-      verifyNever(
-        secureStorage.saveSessionCookies(any, any),
-      ); // No saving should happen
-    });
-
-    test('Connect to server successfully with credentials', () async {
-      // Arrange
-      final server = server_models.Server(
-        id: '1',
-        name: 'Test Server',
-        address: 'https://test.example.com',
-        authentication: server_models.AuthenticationInfo.credentials(
-          username: 'user',
-          password: 'pass',
-        ),
-      );
-
-      final session1 = MockConnectionSessionInterface();
-
-      sessionFactory.sessions[server.address] = session1;
-
-      when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => null);
-      when(session1.obtainCsrfToken()).thenAnswer((_) async {});
-      when(session1.authenticate(any)).thenAnswer((_) async {});
-
-      // Act
-      final result = await domain.connectToServer(server);
-
-      // Assert
-      expect(result.isSuccess, isTrue);
-      expect(result.errorMessage, isNull);
-
-      // Verify interactions
-      verify(secureStorage.loadSessionCookies('1')).called(1);
-      verify(session1.obtainCsrfToken()).called(1);
-      verify(
-        session1.authenticate(
-          argThat(
-            predicate<ConnectionCredentials>(
-              (creds) => creds.handle == 'user' && creds.password == 'pass',
-            ),
-          ),
-        ),
-      ).called(1);
-    });
-
-    test('Connect to server successfully without credentials', () async {
-      // Arrange
-      final server = server_models.Server(
-        id: '1',
-        name: 'Test Server',
-        address: 'https://test.example.com',
-        authentication: const server_models.AuthenticationInfo.none(),
-      );
-
-      final session1 = MockConnectionSessionInterface();
-
-      sessionFactory.sessions[server.address] = session1;
-
-      when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => null);
-      when(session1.obtainCsrfToken()).thenAnswer((_) async {});
-
-      // Act
-      final result = await domain.connectToServer(server);
-
-      // Assert
-      expect(result.isSuccess, isTrue);
-      expect(result.errorMessage, isNull);
-
-      // Verify interactions
-      verify(secureStorage.loadSessionCookies('1')).called(1);
-      verify(session1.obtainCsrfToken()).called(1);
-      verifyNever(
-        session1.authenticate(any),
-      ); // Should not be called for no credentials
-    });
-
-    test('Connect to server fails when CSRF token request fails', () async {
-      // Arrange
-      final server = server_models.Server(
-        id: '1',
-        name: 'Test Server',
-        address: 'https://test.example.com',
-        authentication: server_models.AuthenticationInfo.credentials(
-          username: 'user',
-          password: 'pass',
-        ),
-      );
-
-      final session1 = MockConnectionSessionInterface();
-
-      sessionFactory.sessions[server.address] = session1;
-
-      when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => null);
-      when(session1.obtainCsrfToken()).thenThrow(Exception('Network error'));
-
-      // Act
-      final result = await domain.connectToServer(server);
-
-      // Assert
-      expect(result.isSuccess, isFalse);
-      expect(result.errorMessage, contains('Network error'));
-
-      // Verify interactions
-      verify(secureStorage.loadSessionCookies('1')).called(1);
-      verify(session1.obtainCsrfToken()).called(1);
-      verifyNever(
-        session1.authenticate(any),
-      ); // Should not be called if CSRF fails
-    });
-
-    test('Connect to server fails when authentication fails', () async {
-      // Arrange
-      final server = server_models.Server(
-        id: '1',
-        name: 'Test Server',
-        address: 'https://test.example.com',
-        authentication: server_models.AuthenticationInfo.credentials(
-          username: 'user',
-          password: 'wrongpass',
-        ),
-      );
-
-      final session1 = MockConnectionSessionInterface();
-
-      sessionFactory.sessions[server.address] = session1;
-
-      when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => null);
-      when(session1.obtainCsrfToken()).thenAnswer((_) async {});
-      when(
-        session1.authenticate(any),
-      ).thenThrow(Exception('Invalid credentials'));
-
-      // Act
-      final result = await domain.connectToServer(server);
-
-      // Assert
-      expect(result.isSuccess, isFalse);
-      expect(result.errorMessage, contains('Invalid credentials'));
-
-      // Verify interactions
-      verify(secureStorage.loadSessionCookies('1')).called(1);
-      verify(session1.obtainCsrfToken()).called(1);
-      verify(
-        session1.authenticate(
-          argThat(
-            predicate<ConnectionCredentials>(
-              (creds) =>
-                  creds.handle == 'user' && creds.password == 'wrongpass',
-            ),
-          ),
-        ),
-      ).called(1);
     });
 
     test('Get client returns session for connected server', () async {
@@ -236,34 +54,187 @@ void main() {
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
-        authentication: const server_models.AuthenticationInfo.none(),
       );
 
       final session1 = MockConnectionSessionInterface();
-
       sessionFactory.sessions[server.address] = session1;
 
-      when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => null);
-      when(session1.obtainCsrfToken()).thenAnswer((_) async {});
-
-      // Connect to server first to create the session
-      await domain.connectToServer(server);
+      // Simulate connecting to the server to create the session
+      domain.testOnlyAddSession('1', session1);
 
       // Act
       final client = domain.getClient('1');
 
       // Assert
-      expect(client, isNotNull);
-      expect(client, equals(session1));
+      expect(client, session1);
     });
 
     test('Get client returns null for non-connected server', () async {
       // Act
-      final client = domain.getClient('nonexistent');
+      final client = domain.getClient('non-existent');
 
       // Assert
       expect(client, isNull);
     });
+
+    test('Authenticate with server successfully', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+
+      final credentials = ConnectionCredentials(
+        handle: 'user',
+        password: 'pass',
+      );
+
+      final session = MockConnectionSessionInterface();
+      sessionFactory.sessions[server.address] = session;
+
+      when(session.authenticate(credentials)).thenAnswer((_) async {});
+
+      // Act
+      final result = await domain.authenticateWithServer(server, credentials);
+
+      // Assert
+      expect(result.isSuccess, isTrue);
+      expect(result.errorMessage, isNull);
+      verify(session.authenticate(credentials)).called(1);
+    });
+
+    test(
+      'Authenticate with server fails when authentication throws exception',
+      () async {
+        // Arrange
+        final server = server_models.Server(
+          id: '1',
+          name: 'Test Server',
+          address: 'https://test.example.com',
+        );
+
+        final credentials = ConnectionCredentials(
+          handle: 'user',
+          password: 'wrong',
+        );
+
+        final session = MockConnectionSessionInterface();
+        sessionFactory.sessions[server.address] = session;
+
+        when(
+          session.authenticate(credentials),
+        ).thenThrow(Exception('Auth failed'));
+
+        // Act
+        final result = await domain.authenticateWithServer(server, credentials);
+
+        // Assert
+        expect(result.isSuccess, isFalse);
+        expect(result.errorMessage, isNotNull);
+        verify(session.authenticate(credentials)).called(1);
+      },
+    );
+
+    test('Obtain CSRF token for server successfully', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+
+      final session = MockConnectionSessionInterface();
+      sessionFactory.sessions[server.address] = session;
+
+      when(session.obtainCsrfToken()).thenAnswer((_) async {});
+      when(session.getCsrfToken()).thenAnswer((_) => 'test-csrf-token');
+
+      // Act
+      final result = await domain.obtainCsrfTokenForServer(server);
+
+      // Assert
+      expect(result.isSuccess, isTrue);
+      expect(result.errorMessage, isNull);
+      verify(session.obtainCsrfToken()).called(1);
+      verify(session.getCsrfToken()).called(1);
+      verify(secureStorage.saveCsrfToken('1', 'test-csrf-token')).called(1);
+    });
+
+    test(
+      'Obtain CSRF token for server fails when request throws exception',
+      () async {
+        // Arrange
+        final server = server_models.Server(
+          id: '1',
+          name: 'Test Server',
+          address: 'https://test.example.com',
+        );
+
+        final session = MockConnectionSessionInterface();
+        sessionFactory.sessions[server.address] = session;
+
+        when(session.obtainCsrfToken()).thenThrow(Exception('CSRF failed'));
+
+        // Act
+        final result = await domain.obtainCsrfTokenForServer(server);
+
+        // Assert
+        expect(result.isSuccess, isFalse);
+        expect(result.errorMessage, isNotNull);
+        verify(session.obtainCsrfToken()).called(1);
+        verifyNever(secureStorage.saveCsrfToken(any, any));
+      },
+    );
+
+    test(
+      'Check server availability returns true for available server',
+      () async {
+        // Arrange
+        final server = server_models.Server(
+          id: '1',
+          name: 'Test Server',
+          address: 'https://test.example.com',
+        );
+
+        final session = MockConnectionSessionInterface();
+        sessionFactory.sessions[server.address] = session;
+
+        when(session.checkServerAvailability()).thenAnswer((_) async => true);
+
+        // Act
+        final isAvailable = await domain.checkServerAvailability(server);
+
+        // Assert
+        expect(isAvailable, isTrue);
+        verify(session.checkServerAvailability()).called(1);
+      },
+    );
+
+    test(
+      'Check server availability returns false when request throws exception',
+      () async {
+        // Arrange
+        final server = server_models.Server(
+          id: '1',
+          name: 'Test Server',
+          address: 'https://test.example.com',
+        );
+
+        final session = MockConnectionSessionInterface();
+        sessionFactory.sessions[server.address] = session;
+
+        when(
+          session.checkServerAvailability(),
+        ).thenThrow(Exception('Unavailable'));
+
+        // Act
+        final isAvailable = await domain.checkServerAvailability(server);
+
+        // Assert
+        expect(isAvailable, isFalse);
+      },
+    );
 
     test(
       'Default instance factory creates domain with proper dependencies',
@@ -273,5 +244,34 @@ void main() {
         expect(ConnectionDomain.defaultInstance, isA<Function>());
       },
     );
+
+    test('Has existing session returns false for non-connected server', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: 'non-existent',
+        name: 'Non-existent Server',
+        address: 'https://nonexistent.example.com',
+      );
+      // Act
+      final hasSession = domain.hasExistingSession(server);
+      // Assert
+      expect(hasSession, isFalse);
+    });
+
+    test('Has existing session returns true for connected server', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+      final session = MockConnectionSessionInterface();
+      // Add session to domain using test-only method
+      domain.testOnlyAddSession('1', session);
+      // Act
+      final hasSession = domain.hasExistingSession(server);
+      // Assert
+      expect(hasSession, isTrue);
+    });
   });
 }

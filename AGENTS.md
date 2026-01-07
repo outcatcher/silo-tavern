@@ -103,20 +103,23 @@ task build:linux
 2. **Grouping**: Related tests are grouped using `group()` for better organization
 3. **State Management**: Widget tests focus on verifying UI state changes in response to user interactions
 4. **Mocking Strategy**: Unit tests MUST mock underlying layers instead of using real implementations:
-   - UI layer tests should mock domain services
-   - Domain layer tests should mock service layer dependencies
+   - UI layer tests MUST mock domain services
+   - Domain layer tests MUST mock service layer dependencies
    - This ensures fast, reliable tests that focus on the specific layer's behavior
+   - Mocks done with mockito `@GenerateNiceMocks` annotations.
+   - Mocks defined in annotation required generation before being used (`task generate`)
+5. **Widget Isolation**: Widgets should accept optional dependency arguments (like router) for testing in isolation, falling back to context-based resolution when not provided
 
 ### UI Components
 
 1. **Material Design**: Uses Flutter's Material Design widgets
 2. **Gestures**: Implements various gesture handlers (long press, secondary tap) for context menus
 3. **Dismissible Widgets**: Uses `Dismissible` for swipe gestures to edit/delete items
-4. **Navigation**: Uses `context.go()` for screen transitions (NEVER use `Navigator.push()` or `Navigator.pop()`)
+4. **Navigation**: Uses `router.go()` for screen transitions with optional router parameter for testing (NEVER use `Navigator.push()` or `Navigator.pop()`)
 
 ## Key Gotchas
 
-1. **BuildContext Management**: When showing dialogs after async operations, always check `mounted` before calling `setState()`
+1. **BuildContext Management**: When showing dialogs after async operations, always check `context.mounted` before calling `setState()`
 2. **Gesture Handling**: Both long press and secondary tap are implemented for context menus to support different input methods
 3. **Swipe Actions**: Custom `confirmDismiss` implementation handles different swipe directions for edit/delete actions
 4. **Authentication Security**: Passwords are stored using secure storage mechanisms (via `flutter_secure_storage` dependency)

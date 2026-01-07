@@ -7,6 +7,7 @@ class ConnectionStorage {
   final JsonSecureStorage _secureStorage;
 
   static const String _sessionKeyPrefix = 'sessions';
+  static const String _csrfTokenKeySuffix = '_csrf_token';
 
   ConnectionStorage(this._secureStorage);
 
@@ -64,6 +65,43 @@ class ConnectionStorage {
         'ConnectionStorage: Failed to load session cookies for server $serverId: $e',
       );
       return null;
+    }
+  }
+
+  Future<void> saveCsrfToken(String serverId, String token) async {
+    try {
+      final key = '$serverId$_csrfTokenKeySuffix';
+      await _secureStorage.set(key, token);
+    } catch (e) {
+      debugPrint(
+        'ConnectionStorage: Failed to save CSRF token for server $serverId: $e',
+      );
+      rethrow;
+    }
+  }
+
+  Future<String?> loadCsrfToken(String serverId) async {
+    try {
+      final key = '$serverId$_csrfTokenKeySuffix';
+      final token = await _secureStorage.get(key);
+      return token is String ? token : null;
+    } catch (e) {
+      debugPrint(
+        'ConnectionStorage: Failed to load CSRF token for server $serverId: $e',
+      );
+      return null;
+    }
+  }
+
+  Future<void> deleteCsrfToken(String serverId) async {
+    try {
+      final key = '$serverId$_csrfTokenKeySuffix';
+      await _secureStorage.delete(key);
+    } catch (e) {
+      debugPrint(
+        'ConnectionStorage: Failed to delete CSRF token for server $serverId: $e',
+      );
+      rethrow;
     }
   }
 }
