@@ -244,5 +244,34 @@ void main() {
         expect(ConnectionDomain.defaultInstance, isA<Function>());
       },
     );
+
+    test('Has existing session returns false for non-connected server', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: 'non-existent',
+        name: 'Non-existent Server',
+        address: 'https://nonexistent.example.com',
+      );
+      // Act
+      final hasSession = domain.hasExistingSession(server);
+      // Assert
+      expect(hasSession, isFalse);
+    });
+
+    test('Has existing session returns true for connected server', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+      final session = MockConnectionSessionInterface();
+      // Add session to domain using test-only method
+      domain.testOnlyAddSession('1', session);
+      // Act
+      final hasSession = domain.hasExistingSession(server);
+      // Assert
+      expect(hasSession, isTrue);
+    });
   });
 }

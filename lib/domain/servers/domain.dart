@@ -132,11 +132,10 @@ class ServerDomain {
       );
 
       // Update status based on availability
-      if (isAvailable) {
-        updateServerStatus(server.id, ServerStatus.online);
-      } else {
-        updateServerStatus(server.id, ServerStatus.offline);
-      }
+      updateServerStatus(
+        server.id,
+        isAvailable ? ServerStatus.online : ServerStatus.offline,
+      );
     } catch (e) {
       debugPrint(
         'ServerDomain: Exception during status check for server ${server.id}: $e',

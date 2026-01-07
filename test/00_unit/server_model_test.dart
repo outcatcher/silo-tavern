@@ -49,5 +49,65 @@ void main() {
       expect(server1, isNot(same(server2)));
       // But equal data (this would require == operator override in real implementation)
     });
+
+    test('Server updateStatus changes status', () {
+      final server = Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+
+      expect(server.status, ServerStatus.offline);
+
+      server.updateStatus(ServerStatus.online);
+      expect(server.status, ServerStatus.online);
+
+      server.updateStatus(ServerStatus.loading);
+      expect(server.status, ServerStatus.loading);
+    });
+  });
+
+  group('ServerStatus Tests', () {
+    test('All ServerStatus values are defined', () {
+      expect(ServerStatus.values, hasLength(3));
+      expect(ServerStatus.values.contains(ServerStatus.loading), isTrue);
+      expect(ServerStatus.values.contains(ServerStatus.online), isTrue);
+      expect(ServerStatus.values.contains(ServerStatus.offline), isTrue);
+    });
+
+    test('ServerStatus toString works correctly', () {
+      expect(ServerStatus.loading.toString(), 'ServerStatus.loading');
+      expect(ServerStatus.online.toString(), 'ServerStatus.online');
+      expect(ServerStatus.offline.toString(), 'ServerStatus.offline');
+    });
+  });
+
+  group('ServerConnectionResult Tests', () {
+    late Server testServer;
+
+    setUp(() {
+      testServer = Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+    });
+
+    test('ServerConnectionResult.success creates correct result', () {
+      final result = ServerConnectionResult.success(testServer);
+
+      expect(result.isSuccess, isTrue);
+      expect(result.server, testServer);
+      expect(result.errorMessage, isNull);
+    });
+
+    test('ServerConnectionResult.failure creates correct result', () {
+      const errorMessage = 'Connection failed';
+      final result = ServerConnectionResult.failure(testServer, errorMessage);
+
+      expect(result.isSuccess, isFalse);
+      expect(result.server, testServer);
+      expect(result.errorMessage, errorMessage);
+    });
   });
 }
