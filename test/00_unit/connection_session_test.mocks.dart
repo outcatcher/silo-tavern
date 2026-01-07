@@ -15,6 +15,7 @@ import 'package:dio/src/redirect_record.dart' as _i11;
 import 'package:dio/src/response.dart' as _i6;
 import 'package:dio/src/transformer.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i12;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -1217,4 +1218,351 @@ class MockResponse<T> extends _i1.Mock implements _i6.Response<T> {
     Invocation.setter(#extra, value),
     returnValueForMissingStub: null,
   );
+}
+
+/// A class which mocks [BaseOptions].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockBaseOptions extends _i1.Mock implements _i2.BaseOptions {
+  @override
+  String get method =>
+      (super.noSuchMethod(
+            Invocation.getter(#method),
+            returnValue: _i12.dummyValue<String>(
+              this,
+              Invocation.getter(#method),
+            ),
+            returnValueForMissingStub: _i12.dummyValue<String>(
+              this,
+              Invocation.getter(#method),
+            ),
+          )
+          as String);
+
+  @override
+  Map<String, dynamic> get headers =>
+      (super.noSuchMethod(
+            Invocation.getter(#headers),
+            returnValue: <String, dynamic>{},
+            returnValueForMissingStub: <String, dynamic>{},
+          )
+          as Map<String, dynamic>);
+
+  @override
+  bool get preserveHeaderCase =>
+      (super.noSuchMethod(
+            Invocation.getter(#preserveHeaderCase),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  _i2.ResponseType get responseType =>
+      (super.noSuchMethod(
+            Invocation.getter(#responseType),
+            returnValue: _i2.ResponseType.json,
+            returnValueForMissingStub: _i2.ResponseType.json,
+          )
+          as _i2.ResponseType);
+
+  @override
+  _i2.ValidateStatus get validateStatus =>
+      (super.noSuchMethod(
+            Invocation.getter(#validateStatus),
+            returnValue: (int? status) => false,
+            returnValueForMissingStub: (int? status) => false,
+          )
+          as _i2.ValidateStatus);
+
+  @override
+  bool get receiveDataWhenStatusError =>
+      (super.noSuchMethod(
+            Invocation.getter(#receiveDataWhenStatusError),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  Map<String, dynamic> get extra =>
+      (super.noSuchMethod(
+            Invocation.getter(#extra),
+            returnValue: <String, dynamic>{},
+            returnValueForMissingStub: <String, dynamic>{},
+          )
+          as Map<String, dynamic>);
+
+  @override
+  bool get followRedirects =>
+      (super.noSuchMethod(
+            Invocation.getter(#followRedirects),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  int get maxRedirects =>
+      (super.noSuchMethod(
+            Invocation.getter(#maxRedirects),
+            returnValue: 0,
+            returnValueForMissingStub: 0,
+          )
+          as int);
+
+  @override
+  bool get persistentConnection =>
+      (super.noSuchMethod(
+            Invocation.getter(#persistentConnection),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  _i2.ListFormat get listFormat =>
+      (super.noSuchMethod(
+            Invocation.getter(#listFormat),
+            returnValue: _i2.ListFormat.csv,
+            returnValueForMissingStub: _i2.ListFormat.csv,
+          )
+          as _i2.ListFormat);
+
+  @override
+  set method(String? value) => super.noSuchMethod(
+    Invocation.setter(#method, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set headers(Map<String, dynamic>? headers) => super.noSuchMethod(
+    Invocation.setter(#headers, headers),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set preserveHeaderCase(bool? value) => super.noSuchMethod(
+    Invocation.setter(#preserveHeaderCase, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set sendTimeout(Duration? value) => super.noSuchMethod(
+    Invocation.setter(#sendTimeout, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set receiveTimeout(Duration? value) => super.noSuchMethod(
+    Invocation.setter(#receiveTimeout, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set contentType(String? contentType) => super.noSuchMethod(
+    Invocation.setter(#contentType, contentType),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set responseType(_i2.ResponseType? value) => super.noSuchMethod(
+    Invocation.setter(#responseType, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set validateStatus(_i2.ValidateStatus? value) => super.noSuchMethod(
+    Invocation.setter(#validateStatus, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set receiveDataWhenStatusError(bool? value) => super.noSuchMethod(
+    Invocation.setter(#receiveDataWhenStatusError, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set extra(Map<String, dynamic>? value) => super.noSuchMethod(
+    Invocation.setter(#extra, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set followRedirects(bool? value) => super.noSuchMethod(
+    Invocation.setter(#followRedirects, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set maxRedirects(int? value) => super.noSuchMethod(
+    Invocation.setter(#maxRedirects, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set persistentConnection(bool? value) => super.noSuchMethod(
+    Invocation.setter(#persistentConnection, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set requestEncoder(_i2.RequestEncoder? value) => super.noSuchMethod(
+    Invocation.setter(#requestEncoder, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set responseDecoder(_i2.ResponseDecoder? value) => super.noSuchMethod(
+    Invocation.setter(#responseDecoder, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set listFormat(_i2.ListFormat? value) => super.noSuchMethod(
+    Invocation.setter(#listFormat, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  String get baseUrl =>
+      (super.noSuchMethod(
+            Invocation.getter(#baseUrl),
+            returnValue: _i12.dummyValue<String>(
+              this,
+              Invocation.getter(#baseUrl),
+            ),
+            returnValueForMissingStub: _i12.dummyValue<String>(
+              this,
+              Invocation.getter(#baseUrl),
+            ),
+          )
+          as String);
+
+  @override
+  Map<String, dynamic> get queryParameters =>
+      (super.noSuchMethod(
+            Invocation.getter(#queryParameters),
+            returnValue: <String, dynamic>{},
+            returnValueForMissingStub: <String, dynamic>{},
+          )
+          as Map<String, dynamic>);
+
+  @override
+  set baseUrl(String? value) => super.noSuchMethod(
+    Invocation.setter(#baseUrl, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set queryParameters(Map<String, dynamic>? value) => super.noSuchMethod(
+    Invocation.setter(#queryParameters, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set connectTimeout(Duration? value) => super.noSuchMethod(
+    Invocation.setter(#connectTimeout, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i2.BaseOptions copyWith({
+    String? method,
+    String? baseUrl,
+    Map<String, dynamic>? queryParameters,
+    String? path,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    Duration? sendTimeout,
+    Map<String, Object?>? extra,
+    Map<String, Object?>? headers,
+    bool? preserveHeaderCase,
+    _i2.ResponseType? responseType,
+    String? contentType,
+    _i2.ValidateStatus? validateStatus,
+    bool? receiveDataWhenStatusError,
+    bool? followRedirects,
+    int? maxRedirects,
+    bool? persistentConnection,
+    _i2.RequestEncoder? requestEncoder,
+    _i2.ResponseDecoder? responseDecoder,
+    _i2.ListFormat? listFormat,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#copyWith, [], {
+              #method: method,
+              #baseUrl: baseUrl,
+              #queryParameters: queryParameters,
+              #path: path,
+              #connectTimeout: connectTimeout,
+              #receiveTimeout: receiveTimeout,
+              #sendTimeout: sendTimeout,
+              #extra: extra,
+              #headers: headers,
+              #preserveHeaderCase: preserveHeaderCase,
+              #responseType: responseType,
+              #contentType: contentType,
+              #validateStatus: validateStatus,
+              #receiveDataWhenStatusError: receiveDataWhenStatusError,
+              #followRedirects: followRedirects,
+              #maxRedirects: maxRedirects,
+              #persistentConnection: persistentConnection,
+              #requestEncoder: requestEncoder,
+              #responseDecoder: responseDecoder,
+              #listFormat: listFormat,
+            }),
+            returnValue: _FakeBaseOptions_0(
+              this,
+              Invocation.method(#copyWith, [], {
+                #method: method,
+                #baseUrl: baseUrl,
+                #queryParameters: queryParameters,
+                #path: path,
+                #connectTimeout: connectTimeout,
+                #receiveTimeout: receiveTimeout,
+                #sendTimeout: sendTimeout,
+                #extra: extra,
+                #headers: headers,
+                #preserveHeaderCase: preserveHeaderCase,
+                #responseType: responseType,
+                #contentType: contentType,
+                #validateStatus: validateStatus,
+                #receiveDataWhenStatusError: receiveDataWhenStatusError,
+                #followRedirects: followRedirects,
+                #maxRedirects: maxRedirects,
+                #persistentConnection: persistentConnection,
+                #requestEncoder: requestEncoder,
+                #responseDecoder: responseDecoder,
+                #listFormat: listFormat,
+              }),
+            ),
+            returnValueForMissingStub: _FakeBaseOptions_0(
+              this,
+              Invocation.method(#copyWith, [], {
+                #method: method,
+                #baseUrl: baseUrl,
+                #queryParameters: queryParameters,
+                #path: path,
+                #connectTimeout: connectTimeout,
+                #receiveTimeout: receiveTimeout,
+                #sendTimeout: sendTimeout,
+                #extra: extra,
+                #headers: headers,
+                #preserveHeaderCase: preserveHeaderCase,
+                #responseType: responseType,
+                #contentType: contentType,
+                #validateStatus: validateStatus,
+                #receiveDataWhenStatusError: receiveDataWhenStatusError,
+                #followRedirects: followRedirects,
+                #maxRedirects: maxRedirects,
+                #persistentConnection: persistentConnection,
+                #requestEncoder: requestEncoder,
+                #responseDecoder: responseDecoder,
+                #listFormat: listFormat,
+              }),
+            ),
+          )
+          as _i2.BaseOptions);
 }

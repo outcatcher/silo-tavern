@@ -107,7 +107,9 @@ class ConnectionSession implements ConnectionSessionInterface {
         '/',
         options: Options(
           followRedirects: false,
+          // coverage:ignore-start
           validateStatus: (status) => status != null && status < 400,
+          // coverage:ignore-end
           receiveTimeout: const Duration(seconds: 10),
         ),
       );

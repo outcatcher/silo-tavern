@@ -7,6 +7,7 @@ import 'package:uuid/v6.dart';
 const xRequestId = 'X-Request-Id';
 
 class DebugLogger extends Interceptor {
+  @visibleForTesting
   final Map<String, DateTime> pastRequests = {};
 
   @override
