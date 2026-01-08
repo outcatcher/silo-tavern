@@ -146,5 +146,254 @@ void main() {
       // Icon should change back to visibility
       expect(find.byIcon(Icons.visibility), findsOneWidget);
     });
+
+    testWidgets('Existing session skips login and navigates directly', (tester) async {
+      final server = Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+      final router = MockGoRouter();
+
+      // Mock that there's already an existing session
+      when(connectionDomain.hasExistingSession(server)).thenReturn(true);
+      when(router.go(any)).thenAnswer((_) async {});
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(
+            server: server,
+            router: router,
+            connectionDomain: connectionDomain,
+          ),
+        ),
+      );
+
+      // Wait for post-frame callback
+      await tester.pumpAndSettle();
+
+      // Should navigate directly to connect page
+      verify(router.go(any)).called(1);
+    });
+
+    testWidgets('Form validation prevents submission with empty fields', (tester) async {
+      final server = Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+      final router = MockGoRouter();
+      final connectionDomain = MockConnectionDomain();
+
+      when(connectionDomain.hasExistingSession(server)).thenReturn(false);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(
+            server: server,
+            router: router,
+            connectionDomain: connectionDomain,
+          ),
+        ),
+      );
+
+      // Wait for initial load
+      await tester.pumpAndSettle();
+
+      // Try to submit empty form
+      final loginButton = find.byKey(const ValueKey('loginButton')).first;
+      await tester.tap(loginButton);
+      await tester.pumpAndSettle();
+
+      // Should show validation errors
+      expect(find.text('Please enter your username'), findsOneWidget);
+      expect(find.text('Please enter your password'), findsOneWidget);
+    });
+
+    testWidgets('Successful login navigates to connect page', (tester) async {
+      final server = Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+      final router = MockGoRouter();
+      final connectionDomain = MockConnectionDomain();
+
+      when(connectionDomain.hasExistingSession(server)).thenReturn(false);
+      when(connectionDomain.authenticateWithServer(any, any))
+          .thenAnswer((_) async => ConnectionResult.success());
+      when(router.go(any)).thenAnswer((_) async {});
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(
+            server: server,
+            router: router,
+            connectionDomain: connectionDomain,
+          ),
+        ),
+      );
+
+      // Wait for initial load
+      await tester.pumpAndSettle();
+
+      // Fill in the form
+      await tester.enterText(
+        find.byKey(const ValueKey('usernameField')),
+        'testuser',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('passwordField')),
+        'testpass',
+      );
+      await tester.pump();
+
+      // Tap login button
+      final loginButton = find.byKey(const ValueKey('loginButton')).first;
+      await tester.tap(loginButton);
+      await tester.pumpAndSettle();
+
+      // Should authenticate and navigate
+      verify(connectionDomain.authenticateWithServer(any, any)).called(1);
+      verify(router.go(any)).called(1);
+    });
+
+    testWidgets('Login shows error dialog on authentication failure', (tester) async {
+      final server = Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+      final router = MockGoRouter();
+      final connectionDomain = MockConnectionDomain();
+
+      when(connectionDomain.hasExistingSession(server)).thenReturn(false);
+      when(connectionDomain.authenticateWithServer(any, any))
+          .thenAnswer((_) async => ConnectionResult.failure('Invalid credentials'));
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(
+            server: server,
+            router: router,
+            connectionDomain: connectionDomain,
+          ),
+        ),
+      );
+
+      // Wait for initial load
+      await tester.pumpAndSettle();
+
+      // Fill in the form
+      await tester.enterText(
+        find.byKey(const ValueKey('usernameField')),
+        'testuser',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('passwordField')),
+        'wrongpass',
+      );
+      await tester.pump();
+
+      // Tap login button
+      final loginButton = find.byKey(const ValueKey('loginButton')).first;
+      await tester.tap(loginButton);
+      await tester.pumpAndSettle();
+
+      // Should show error dialog
+      expect(find.byKey(const ValueKey('errorDialog')), findsOneWidget);
+      expect(find.text('Login Failed'), findsOneWidget);
+      expect(find.text('Invalid username or password. Please check your credentials and try again.'), findsOneWidget);
+
+      // Close dialog
+      await tester.tap(find.byKey(const ValueKey('errorDialogOkButton')).first);
+      await tester.pumpAndSettle();
+
+      // Button should be enabled again
+      expect(find.byKey(const ValueKey('loginButton')), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    });
+
+    testWidgets('Enter key submits form in password field', (tester) async {
+      final server = Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+      final router = MockGoRouter();
+      final connectionDomain = MockConnectionDomain();
+
+      when(connectionDomain.hasExistingSession(server)).thenReturn(false);
+      when(connectionDomain.authenticateWithServer(any, any))
+          .thenAnswer((_) async => ConnectionResult.success());
+      when(router.go(any)).thenAnswer((_) async {});
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(
+            server: server,
+            router: router,
+            connectionDomain: connectionDomain,
+          ),
+        ),
+      );
+
+      // Wait for initial load
+      await tester.pumpAndSettle();
+
+      // Fill in the form
+      await tester.enterText(
+        find.byKey(const ValueKey('usernameField')),
+        'testuser',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('passwordField')),
+        'testpass',
+      );
+      await tester.pump();
+
+      // Submit with Enter key in password field
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      // Should authenticate and navigate
+      verify(connectionDomain.authenticateWithServer(any, any)).called(1);
+      verify(router.go(any)).called(1);
+    });
+
+    testWidgets('Tab key moves focus from username to password', (tester) async {
+      final server = Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+
+      when(connectionDomain.hasExistingSession(server)).thenReturn(false);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginPage(
+            server: server,
+            connectionDomain: connectionDomain,
+          ),
+        ),
+      );
+
+      // Wait for initial load
+      await tester.pumpAndSettle();
+
+      // Fill in username
+      await tester.enterText(
+        find.byKey(const ValueKey('usernameField')),
+        'testuser',
+      );
+
+      // Submit with Enter key in username field (should move focus to password)
+      await tester.testTextInput.receiveAction(TextInputAction.next);
+      await tester.pump();
+
+      // Focus should be on password field
+      expect(FocusScope.of(tester.element(find.byKey(const ValueKey('passwordField')))).hasFocus, isTrue);
+    });
   });
 }
