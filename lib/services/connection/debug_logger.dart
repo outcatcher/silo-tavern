@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/v6.dart';
+import 'package:uuid/v7.dart';
 
 const xRequestId = 'X-Request-Id';
 
@@ -12,7 +12,7 @@ class DebugLogger extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    final xRequestIdVal = UuidV6().generate();
+    final xRequestIdVal = UuidV7().generate();
     options.headers[xRequestId] = xRequestIdVal;
     pastRequests[xRequestIdVal] = DateTime.timestamp();
 

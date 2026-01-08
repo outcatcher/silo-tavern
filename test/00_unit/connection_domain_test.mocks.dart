@@ -112,6 +112,17 @@ class MockConnectionSessionInterface extends _i1.Mock
           as _i3.Future<bool>);
 
   @override
+  _i3.Future<List<_i4.Cookie>> getSessionCookies() =>
+      (super.noSuchMethod(
+            Invocation.method(#getSessionCookies, []),
+            returnValue: _i3.Future<List<_i4.Cookie>>.value(<_i4.Cookie>[]),
+            returnValueForMissingStub: _i3.Future<List<_i4.Cookie>>.value(
+              <_i4.Cookie>[],
+            ),
+          )
+          as _i3.Future<List<_i4.Cookie>>);
+
+  @override
   void setCsrfToken(String? token) => super.noSuchMethod(
     Invocation.method(#setCsrfToken, [token]),
     returnValueForMissingStub: null,

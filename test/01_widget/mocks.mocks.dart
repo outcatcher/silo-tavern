@@ -569,26 +569,33 @@ class MockConnectionDomain extends _i1.Mock implements _i8.ConnectionDomain {
   @override
   _i14.Future<_i9.ConnectionResult> authenticateWithServer(
     _i16.Server? server,
-    _i18.ConnectionCredentials? credentials,
-  ) =>
+    _i18.ConnectionCredentials? credentials, {
+    bool? rememberMe = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#authenticateWithServer, [server, credentials]),
+            Invocation.method(
+              #authenticateWithServer,
+              [server, credentials],
+              {#rememberMe: rememberMe},
+            ),
             returnValue: _i14.Future<_i9.ConnectionResult>.value(
               _FakeConnectionResult_9(
                 this,
-                Invocation.method(#authenticateWithServer, [
-                  server,
-                  credentials,
-                ]),
+                Invocation.method(
+                  #authenticateWithServer,
+                  [server, credentials],
+                  {#rememberMe: rememberMe},
+                ),
               ),
             ),
             returnValueForMissingStub: _i14.Future<_i9.ConnectionResult>.value(
               _FakeConnectionResult_9(
                 this,
-                Invocation.method(#authenticateWithServer, [
-                  server,
-                  credentials,
-                ]),
+                Invocation.method(
+                  #authenticateWithServer,
+                  [server, credentials],
+                  {#rememberMe: rememberMe},
+                ),
               ),
             ),
           )
@@ -632,6 +639,15 @@ class MockConnectionDomain extends _i1.Mock implements _i8.ConnectionDomain {
             returnValueForMissingStub: false,
           )
           as bool);
+
+  @override
+  _i14.Future<bool> hasPersistentSession(_i16.Server? server) =>
+      (super.noSuchMethod(
+            Invocation.method(#hasPersistentSession, [server]),
+            returnValue: _i14.Future<bool>.value(false),
+            returnValueForMissingStub: _i14.Future<bool>.value(false),
+          )
+          as _i14.Future<bool>);
 
   @override
   void testOnlyAddSession(
