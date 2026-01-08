@@ -35,8 +35,9 @@ class ConnectionDomain {
   /// Authenticate with a server using the provided credentials
   Future<ConnectionResult> authenticateWithServer(
     server_models.Server server,
-    ConnectionCredentials credentials,
-  ) async {
+    ConnectionCredentials credentials, {
+    bool rememberMe = false,
+  }) async {
     try {
       // Get or create a session for this server
       final session =
@@ -45,6 +46,12 @@ class ConnectionDomain {
 
       // Perform authentication
       await session.authenticate(credentials);
+
+      // If rememberMe is true, save session cookies to secure storage
+      if (rememberMe) {
+        final cookies = await session.getSessionCookies();
+        await secureStorage.saveSessionCookies(server.id, cookies);
+      }
 
       // Authentication successful
       return ConnectionResult.success();
@@ -99,6 +106,17 @@ class ConnectionDomain {
   /// Check if a server session already exists
   bool hasExistingSession(server_models.Server server) {
     return _sessions.containsKey(server.id);
+  }
+
+  /// Check if a server has a persistent session
+  Future<bool> hasPersistentSession(server_models.Server server) async {
+    try {
+      final cookies = await secureStorage.loadSessionCookies(server.id);
+      return cookies != null && cookies.isNotEmpty;
+    } catch (e) {
+      debugPrint('ConnectionDomain: Failed to check for persistent session for server ${server.id}: $e');
+      return false;
+    }
   }
 
   /// Test-only method to add a session to the domain

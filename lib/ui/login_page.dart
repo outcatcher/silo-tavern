@@ -44,7 +44,7 @@ String getFriendlyAuthErrorMessage(String? technicalMessage) {
 
 /// Page for authenticating with a server
 ///
-/// Shows a login form with username and password fields
+/// Shows a login form with username and password fields and a "Remember me" checkbox
 class LoginPage extends StatefulWidget {
   final Server server;
   final String? backUrl;
@@ -67,6 +67,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   late String _username = '';
   late String _password = '';
+  bool _rememberMe = false;
   bool _obscurePassword = true;
   bool _isAuthenticating = false;
   bool _isLoadingCsrf = false;
@@ -83,7 +84,8 @@ class _LoginPageState extends State<LoginPage> {
   /// Check if there's already an existing session for this server
   void _checkForExistingSession() async {
     // Check if we already have a session for this server
-    if (widget.connectionDomain.hasExistingSession(widget.server)) {
+    if (widget.connectionDomain.hasExistingSession(widget.server) ||
+        await widget.connectionDomain.hasPersistentSession(widget.server)) {
       // Skip login and go directly to connect page
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -198,7 +200,19 @@ class _LoginPageState extends State<LoginPage> {
               return null;
             },
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 16),
+          CheckboxListTile(
+            key: const ValueKey('rememberMeCheckbox'),
+            title: const Text('Remember me'),
+            value: _rememberMe,
+            onChanged: (value) {
+              setState(() {
+                _rememberMe = value ?? false;
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+          const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -319,6 +333,7 @@ class _LoginPageState extends State<LoginPage> {
         final result = await widget.connectionDomain.authenticateWithServer(
           widget.server,
           credentials,
+          rememberMe: _rememberMe,
         );
 
         if (result.isSuccess) {

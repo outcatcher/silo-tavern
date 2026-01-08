@@ -21,6 +21,7 @@ abstract class ConnectionSessionInterface {
   Future<void> obtainCsrfToken();
   Future<void> authenticate(ConnectionCredentials credentials);
   Future<bool> checkServerAvailability();
+  Future<List<Cookie>> getSessionCookies();
 
   void setCsrfToken(String token);
   String? getCsrfToken();
@@ -128,5 +129,16 @@ class ConnectionSession implements ConnectionSessionInterface {
       debugPrint('Uncaught exception during server availability check: $e');
       return false;
     }
+  }
+
+  /// Get session cookies from the client
+  @override
+  Future<List<Cookie>> getSessionCookies() async {
+    // Get cookies from the cookie jar
+    final cookieManager = _client.interceptors
+        .firstWhere((interceptor) => interceptor is CookieManager) as CookieManager;
+    final cookieJar = cookieManager.cookieJar;
+    final cookies = await cookieJar.loadForRequest(Uri.parse(_client.options.baseUrl));
+    return cookies;
   }
 }
