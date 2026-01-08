@@ -155,8 +155,8 @@ void main() {
       );
       final router = MockGoRouter();
 
-      // Mock that there's already an existing session
-      when(connectionDomain.hasExistingSession(server)).thenReturn(true);
+      // Mock that there's already a persistent session
+      when(connectionDomain.hasPersistentSession(server)).thenAnswer((_) async => true);
       when(router.go(any)).thenAnswer((_) async {});
 
       await tester.pumpWidget(
@@ -185,7 +185,7 @@ void main() {
       final router = MockGoRouter();
       final connectionDomain = MockConnectionDomain();
 
-      when(connectionDomain.hasExistingSession(server)).thenReturn(false);
+      when(connectionDomain.hasPersistentSession(server)).thenAnswer((_) async => false);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -267,7 +267,7 @@ void main() {
       final router = MockGoRouter();
       final connectionDomain = MockConnectionDomain();
 
-      when(connectionDomain.hasExistingSession(server)).thenReturn(false);
+      when(connectionDomain.hasPersistentSession(server)).thenAnswer((_) async => false);
       when(connectionDomain.authenticateWithServer(any, any))
           .thenAnswer((_) async => ConnectionResult.failure('Invalid credentials'));
 
@@ -323,7 +323,7 @@ void main() {
       final router = MockGoRouter();
       final connectionDomain = MockConnectionDomain();
 
-      when(connectionDomain.hasExistingSession(server)).thenReturn(false);
+      when(connectionDomain.hasPersistentSession(server)).thenAnswer((_) async => false);
       when(connectionDomain.authenticateWithServer(any, any))
           .thenAnswer((_) async => ConnectionResult.success());
       when(router.go(any)).thenAnswer((_) async {});
@@ -368,7 +368,7 @@ void main() {
         address: 'https://test.example.com',
       );
 
-      when(connectionDomain.hasExistingSession(server)).thenReturn(false);
+      when(connectionDomain.hasPersistentSession(server)).thenAnswer((_) async => false);
 
       await tester.pumpWidget(
         MaterialApp(

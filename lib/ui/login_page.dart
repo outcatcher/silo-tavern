@@ -83,9 +83,9 @@ class _LoginPageState extends State<LoginPage> {
 
   /// Check if there's already an existing session for this server
   void _checkForExistingSession() async {
-    // Check if we already have a session for this server
-    if (widget.connectionDomain.hasExistingSession(widget.server) ||
-        await widget.connectionDomain.hasPersistentSession(widget.server)) {
+    // Check if we already have persistent session cookies for this server
+    // We only skip the login page for authenticated sessions with saved cookies
+    if (await widget.connectionDomain.hasPersistentSession(widget.server)) {
       // Skip login and go directly to connect page
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
