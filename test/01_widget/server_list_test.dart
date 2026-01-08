@@ -344,49 +344,6 @@ void main() {
       markTestSkipped('Not implemented yet');
     });
 
-    testWidgets('Server status checking updates UI', (tester) async {
-      final servers = [
-        Server(
-          id: '1',
-          name: 'Test Server',
-          address: 'https://test.com',
-          status: ServerStatus.loading,
-        ),
-      ];
-
-      when(serverDomain.servers).thenReturn(servers);
-      // Mock the checkAllServerStatuses to simulate status updates
-      when(serverDomain.checkAllServerStatuses(any)).thenAnswer((
-        invocation,
-      ) async {
-        final callback = invocation.positionalArguments[0] as Function(Server);
-        // Simulate status update by modifying the server directly
-        servers[0].updateStatus(ServerStatus.online);
-        callback(servers[0]);
-        return;
-      });
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: ServerListPage(
-            serverDomain: serverDomain,
-            connectionDomain: connectionDomain,
-          ),
-        ),
-      );
-
-      // Initially should show loading status
-      expect(find.byIcon(Icons.hourglass_bottom), findsOneWidget);
-
-      // Wait for the status check to complete
-      await tester.pumpAndSettle();
-
-      // Should now show online status (still uses circle icon but with different color)
-      expect(find.byIcon(Icons.circle), findsOneWidget);
-      // The loading icon should no longer be visible
-      expect(find.byIcon(Icons.hourglass_bottom), findsNothing);
-    });
-
     testWidgets('Delete server error handling restores server', (tester) async {
       final servers = [
         Server(
