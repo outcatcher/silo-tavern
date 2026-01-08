@@ -5,6 +5,43 @@ import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/services/connection/models/models.dart';
 import 'package:silo_tavern/ui/utils.dart' as utils;
 
+/// Converts technical authentication error messages to user-friendly messages
+String getFriendlyAuthErrorMessage(String? technicalMessage) {
+  if (technicalMessage == null || technicalMessage.isEmpty) {
+    return 'Authentication failed. Please check your credentials and try again.';
+  }
+
+  // Handle common authentication errors
+  if (technicalMessage.contains('401') ||
+      technicalMessage.contains('Unauthorized') ||
+      technicalMessage.contains('invalid credentials') ||
+      technicalMessage.contains('Invalid credentials')) {
+    return 'Invalid username or password. Please check your credentials and try again.';
+  }
+
+  // Handle network connectivity issues
+  if (technicalMessage.contains('SocketException') ||
+      technicalMessage.contains('Connection refused') ||
+      technicalMessage.contains('Failed host lookup')) {
+    return 'Unable to connect to the server. Please check your network connection and try again.';
+  }
+
+  // Handle timeout errors
+  if (technicalMessage.contains('timeout') ||
+      technicalMessage.contains('timed out')) {
+    return 'Connection timed out. The server may be busy or unreachable. Please try again.';
+  }
+
+  // Handle certificate errors
+  if (technicalMessage.contains('CERTIFICATE_VERIFY_FAILED') ||
+      technicalMessage.contains('HandshakeException')) {
+    return 'Security certificate verification failed. Please check that the server\'s SSL/TLS certificate is valid.';
+  }
+
+  // Default fallback message
+  return 'Authentication failed. Please check your credentials and try again.';
+}
+
 /// Page for authenticating with a server
 ///
 /// Shows a login form with username and password fields
@@ -327,38 +364,6 @@ class _LoginPageState extends State<LoginPage> {
 
   /// Converts technical authentication error messages to user-friendly messages
   String _getUserFriendlyAuthErrorMessage(String? technicalMessage) {
-    if (technicalMessage == null || technicalMessage.isEmpty) {
-      return 'Authentication failed. Please check your credentials and try again.';
-    }
-
-    // Handle common authentication errors
-    if (technicalMessage.contains('401') ||
-        technicalMessage.contains('Unauthorized') ||
-        technicalMessage.contains('invalid credentials') ||
-        technicalMessage.contains('Invalid credentials')) {
-      return 'Invalid username or password. Please check your credentials and try again.';
-    }
-
-    // Handle network connectivity issues
-    if (technicalMessage.contains('SocketException') ||
-        technicalMessage.contains('Connection refused') ||
-        technicalMessage.contains('Failed host lookup')) {
-      return 'Unable to connect to the server. Please check your network connection and try again.';
-    }
-
-    // Handle timeout errors
-    if (technicalMessage.contains('timeout') ||
-        technicalMessage.contains('timed out')) {
-      return 'Connection timed out. The server may be busy or unreachable. Please try again.';
-    }
-
-    // Handle certificate errors
-    if (technicalMessage.contains('CERTIFICATE_VERIFY_FAILED') ||
-        technicalMessage.contains('HandshakeException')) {
-      return 'Security certificate verification failed. Please check that the server\'s SSL/TLS certificate is valid.';
-    }
-
-    // Default fallback message
-    return 'Authentication failed. Please check your credentials and try again.';
+    return getFriendlyAuthErrorMessage(technicalMessage);
   }
 }
