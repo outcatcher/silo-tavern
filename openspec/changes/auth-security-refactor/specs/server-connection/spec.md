@@ -34,12 +34,18 @@ The system SHALL prompt users for authentication credentials when connecting to 
 #### Scenario: Login page display
 - **WHEN** a user selects a server from the list
 - **THEN** the system SHALL display a login form with username and password fields
+- **AND** provide a "Remember me" checkbox
 - **AND** provide a way to cancel the connection attempt
 
 #### Scenario: Session cookie storage
 - **WHEN** authentication is successful
 - **THEN** the system SHALL securely store the session cookie
 - **AND** use the stored cookie for subsequent API calls to the same server
+
+#### Scenario: Remember me functionality
+- **WHEN** a user successfully authenticates with "Remember me" selected
+- **THEN** the system SHALL persist the session cookies for future use
+- **AND** automatically log the user in on subsequent visits to the same server
 
 #### Scenario: Session expiration handling
 - **WHEN** a stored session cookie expires
