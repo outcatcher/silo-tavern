@@ -340,10 +340,6 @@ void main() {
       verify(serverDomain.removeServer('1')).called(1);
     });
 
-    testWidgets('Server status updates trigger UI refresh', (tester) async {
-      markTestSkipped('Not implemented yet');
-    });
-
     testWidgets('Delete server error handling restores server', (tester) async {
       final servers = [
         Server(
@@ -555,6 +551,38 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       verify(router.go(any)).called(1);
+    });
+
+    testWidgets('Interactive server list status update', (tester) async {
+      final servers = [
+        Server(
+          id: '1',
+          name: 'Test Server',
+          address: 'https://test.com',
+          status: ServerStatus.offline,
+        ),
+      ];
+      when(serverDomain.servers).thenReturn(servers);
+
+      when(serverDomain.checkAllServerStatuses(any)).thenAnswer((inv) async {
+        final updatedServer = servers[0];
+        updatedServer.status = ServerStatus.online;
+
+        inv.positionalArguments[0](updatedServer);
+      });
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ServerListPage(
+            serverDomain: serverDomain,
+            connectionDomain: connectionDomain,
+            router: router,
+          ),
+        ),
+      );
+
+      verify(serverDomain.checkAllServerStatuses(any)).called(1);
+      expect(servers[0].status, ServerStatus.online);
     });
   });
 }
