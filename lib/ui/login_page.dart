@@ -70,8 +70,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
   bool _obscurePassword = true;
   bool _isAuthenticating = false;
-  bool _isLoadingCsrf = false;
-  String? _csrfError;
 
   GoRouter get router => widget.router ?? GoRouter.of(context);
 
@@ -100,11 +98,7 @@ class _LoginPageState extends State<LoginPage> {
           constraints: const BoxConstraints(maxWidth: 400),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
-            child: _isLoadingCsrf
-                ? _buildLoadingState()
-                : _csrfError != null
-                ? _buildErrorState()
-                : _buildLoginForm(),
+            child: _buildLoginForm(),
           ),
         ),
       ),
@@ -214,86 +208,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildLoadingState() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const CircularProgressIndicator(),
-        const SizedBox(height: 16),
-        Text(
-          'Preparing secure connection...',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildErrorState() {
-    Future<void> retryCsrfCheck() async {
-      setState(() {
-        _isLoadingCsrf = true;
-        _csrfError = null;
-      });
-
-      try {
-        // Try to obtain CSRF token for the server
-        final result = await widget.connectionDomain.obtainCsrfTokenForServer(
-          widget.server,
-        );
-
-        if (context.mounted) {
-          setState(() {
-            _isLoadingCsrf = false;
-            if (!result.isSuccess) {
-              _csrfError = result.errorMessage;
-            }
-          });
-        }
-      } catch (e) {
-        if (context.mounted) {
-          setState(() {
-            _isLoadingCsrf = false;
-            _csrfError = e.toString();
-          });
-        }
-      }
-    }
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.error_outline, size: 48, color: Colors.red),
-        const SizedBox(height: 16),
-        Text(
-          'Failed to prepare secure connection',
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          _csrfError ?? 'Unknown error',
-          style: Theme.of(context).textTheme.bodyMedium,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: retryCsrfCheck,
-            child: const Text('Retry'),
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
-            onPressed: () => router.go(widget.backUrl ?? utils.defaultPage),
-            child: const Text('Back to Servers'),
-          ),
-        ),
-      ],
     );
   }
 
