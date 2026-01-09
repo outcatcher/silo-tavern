@@ -273,5 +273,166 @@ void main() {
       // Assert
       expect(hasSession, isTrue);
     });
+
+    test('Has persistent session returns true when cookies exist', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+      
+      final cookies = [Cookie('session', 'abc123')];
+      when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => cookies);
+
+      // Act
+      final hasPersistentSession = await domain.hasPersistentSession(server);
+
+      // Assert
+      expect(hasPersistentSession, isTrue);
+      verify(secureStorage.loadSessionCookies('1')).called(1);
+    });
+
+    test('Has persistent session returns false when no cookies exist', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+      
+      when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => null);
+
+      // Act
+      final hasPersistentSession = await domain.hasPersistentSession(server);
+
+      // Assert
+      expect(hasPersistentSession, isFalse);
+      verify(secureStorage.loadSessionCookies('1')).called(1);
+    });
+
+    test('Has persistent session returns false when empty cookies list', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+      
+      when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => []);
+
+      // Act
+      final hasPersistentSession = await domain.hasPersistentSession(server);
+
+      // Assert
+      expect(hasPersistentSession, isFalse);
+      verify(secureStorage.loadSessionCookies('1')).called(1);
+    });
+
+    test('Has persistent session returns false when storage throws exception', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+      
+      when(secureStorage.loadSessionCookies('1')).thenThrow(Exception('Storage error'));
+
+      // Act
+      final hasPersistentSession = await domain.hasPersistentSession(server);
+
+      // Assert
+      expect(hasPersistentSession, isFalse);
+      verify(secureStorage.loadSessionCookies('1')).called(1);
+    });
+
+    test('Authenticate with server saves cookies when rememberMe is true', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+
+      final credentials = ConnectionCredentials(
+        handle: 'user',
+        password: 'pass',
+      );
+
+      final session = MockConnectionSessionInterface();
+      sessionFactory.sessions[server.address] = session;
+      
+      final cookies = [Cookie('session', 'abc123')];
+      when(session.authenticate(credentials)).thenAnswer((_) async {});
+      when(session.getSessionCookies()).thenAnswer((_) async => cookies);
+
+      // Act
+      final result = await domain.authenticateWithServer(server, credentials, rememberMe: true);
+
+      // Assert
+      expect(result.isSuccess, isTrue);
+      verify(session.authenticate(credentials)).called(1);
+      verify(session.getSessionCookies()).called(1);
+      verify(secureStorage.saveSessionCookies('1', cookies)).called(1);
+    });
+
+    test('Authenticate with server does not save cookies when rememberMe is false', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+
+      final credentials = ConnectionCredentials(
+        handle: 'user',
+        password: 'pass',
+      );
+
+      final session = MockConnectionSessionInterface();
+      sessionFactory.sessions[server.address] = session;
+      
+      when(session.authenticate(credentials)).thenAnswer((_) async {});
+
+      // Act
+      final result = await domain.authenticateWithServer(server, credentials, rememberMe: false);
+
+      // Assert
+      expect(result.isSuccess, isTrue);
+      verify(session.authenticate(credentials)).called(1);
+      verifyNever(session.getSessionCookies());
+      verifyNever(secureStorage.saveSessionCookies(any, any));
+    });
+
+    test('Authenticate with server handles getSessionCookies exception when rememberMe is true', () async {
+      // Arrange
+      final server = server_models.Server(
+        id: '1',
+        name: 'Test Server',
+        address: 'https://test.example.com',
+      );
+
+      final credentials = ConnectionCredentials(
+        handle: 'user',
+        password: 'pass',
+      );
+
+      final session = MockConnectionSessionInterface();
+      sessionFactory.sessions[server.address] = session;
+      
+      when(session.authenticate(credentials)).thenAnswer((_) async {});
+      when(session.getSessionCookies()).thenThrow(Exception('Failed to get cookies'));
+
+      // Act
+      final result = await domain.authenticateWithServer(server, credentials, rememberMe: true);
+
+      // Assert
+      expect(result.isSuccess, isFalse);
+      expect(result.errorMessage, contains('Failed to get cookies'));
+      verify(session.authenticate(credentials)).called(1);
+      verify(session.getSessionCookies()).called(1);
+      verifyNever(secureStorage.saveSessionCookies(any, any));
+    });
   });
 }
