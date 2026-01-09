@@ -469,14 +469,27 @@ class _ServerListPageState extends State<ServerListPage> {
 
             // Check if the operation was successful
             if (result.isSuccess) {
-              // Navigate to login page with back URL as query parameter
-              if (context.mounted) {
-                router.go(
-                  Uri(
-                    path: '/servers/login/${server.id}',
-                    queryParameters: {'backUrl': '/servers'},
-                  ).toString(),
-                );
+              // Check if there's a persistent session before navigating to login
+              if (await widget.connectionDomain.hasPersistentSession(server)) {
+                // Skip login and go directly to connect page
+                if (context.mounted) {
+                  router.go(
+                    Uri(
+                      path: '/servers/connect/${server.id}',
+                      queryParameters: {'backUrl': '/servers'},
+                    ).toString(),
+                  );
+                }
+              } else {
+                // Navigate to login page with back URL as query parameter
+                if (context.mounted) {
+                  router.go(
+                    Uri(
+                      path: '/servers/login/${server.id}',
+                      queryParameters: {'backUrl': '/servers'},
+                    ).toString(),
+                  );
+                }
               }
             } else {
               // Show error if CSRF token retrieval failed

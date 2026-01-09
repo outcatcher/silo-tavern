@@ -78,26 +78,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _checkForExistingSession();
-  }
-
-  /// Check if there's already an existing session for this server
-  void _checkForExistingSession() async {
-    // Check if we already have persistent session cookies for this server
-    // We only skip the login page for authenticated sessions with saved cookies
-    if (await widget.connectionDomain.hasPersistentSession(widget.server)) {
-      // Skip login and go directly to connect page
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          router.go(
-            Uri(
-              path: '/servers/connect/${widget.server.id}',
-              queryParameters: {'backUrl': widget.backUrl ?? utils.defaultPage},
-            ).toString(),
-          );
-        }
-      });
-    }
+    // No need to check for existing session here since it's checked in server list page
   }
 
   @override

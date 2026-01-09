@@ -147,17 +147,13 @@ void main() {
       expect(find.byIcon(Icons.visibility), findsOneWidget);
     });
 
-    testWidgets('Existing session skips login and navigates directly', (tester) async {
+    testWidgets('Back button navigates with default back URL', (tester) async {
       final server = Server(
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
       );
       final router = MockGoRouter();
-
-      // Mock that there's already a persistent session
-      when(connectionDomain.hasPersistentSession(server)).thenAnswer((_) async => true);
-      when(router.go(any)).thenAnswer((_) async {});
 
       await tester.pumpWidget(
         MaterialApp(
@@ -169,11 +165,13 @@ void main() {
         ),
       );
 
-      // Wait for post-frame callback
+      final backButton = find.byKey(const ValueKey('backButton')).first;
+      expect(backButton, findsOneWidget);
+
+      await tester.tap(backButton);
       await tester.pumpAndSettle();
 
-      // Should navigate directly to connect page
-      verify(router.go(any)).called(1);
+      verify(router.go('/servers')).called(1);
     });
 
     testWidgets('Form validation prevents submission with empty fields', (tester) async {
