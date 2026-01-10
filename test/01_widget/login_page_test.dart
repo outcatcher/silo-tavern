@@ -174,7 +174,9 @@ void main() {
       verify(router.go('/servers')).called(1);
     });
 
-    testWidgets('Form validation prevents submission with empty fields', (tester) async {
+    testWidgets('Form validation prevents submission with empty fields', (
+      tester,
+    ) async {
       final server = Server(
         id: '1',
         name: 'Test Server',
@@ -183,7 +185,9 @@ void main() {
       final router = MockGoRouter();
       final connectionDomain = MockConnectionDomain();
 
-      when(connectionDomain.hasPersistentSession(server)).thenAnswer((_) async => false);
+      when(
+        connectionDomain.hasPersistentSession(server),
+      ).thenAnswer((_) async => false);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -218,8 +222,9 @@ void main() {
       final connectionDomain = MockConnectionDomain();
 
       when(connectionDomain.hasExistingSession(server)).thenReturn(false);
-      when(connectionDomain.authenticateWithServer(any, any))
-          .thenAnswer((_) async => ConnectionResult.success());
+      when(
+        connectionDomain.authenticateWithServer(any, any),
+      ).thenAnswer((_) async => ConnectionResult.success());
       when(router.go(any)).thenAnswer((_) async {});
 
       await tester.pumpWidget(
@@ -256,7 +261,9 @@ void main() {
       verify(router.go(any)).called(1);
     });
 
-    testWidgets('Login shows error dialog on authentication failure', (tester) async {
+    testWidgets('Login shows error dialog on authentication failure', (
+      tester,
+    ) async {
       final server = Server(
         id: '1',
         name: 'Test Server',
@@ -265,9 +272,12 @@ void main() {
       final router = MockGoRouter();
       final connectionDomain = MockConnectionDomain();
 
-      when(connectionDomain.hasPersistentSession(server)).thenAnswer((_) async => false);
-      when(connectionDomain.authenticateWithServer(any, any))
-          .thenAnswer((_) async => ConnectionResult.failure('Invalid credentials'));
+      when(
+        connectionDomain.hasPersistentSession(server),
+      ).thenAnswer((_) async => false);
+      when(connectionDomain.authenticateWithServer(any, any)).thenAnswer(
+        (_) async => ConnectionResult.failure('Invalid credentials'),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
@@ -301,7 +311,12 @@ void main() {
       // Should show error dialog
       expect(find.byKey(const ValueKey('errorDialog')), findsOneWidget);
       expect(find.text('Login Failed'), findsOneWidget);
-      expect(find.text('Invalid username or password. Please check your credentials and try again.'), findsOneWidget);
+      expect(
+        find.text(
+          'Invalid username or password. Please check your credentials and try again.',
+        ),
+        findsOneWidget,
+      );
 
       // Close dialog
       await tester.tap(find.byKey(const ValueKey('errorDialogOkButton')).first);
@@ -321,9 +336,12 @@ void main() {
       final router = MockGoRouter();
       final connectionDomain = MockConnectionDomain();
 
-      when(connectionDomain.hasPersistentSession(server)).thenAnswer((_) async => false);
-      when(connectionDomain.authenticateWithServer(any, any))
-          .thenAnswer((_) async => ConnectionResult.success());
+      when(
+        connectionDomain.hasPersistentSession(server),
+      ).thenAnswer((_) async => false);
+      when(
+        connectionDomain.authenticateWithServer(any, any),
+      ).thenAnswer((_) async => ConnectionResult.success());
       when(router.go(any)).thenAnswer((_) async {});
 
       await tester.pumpWidget(
@@ -359,21 +377,22 @@ void main() {
       verify(router.go(any)).called(1);
     });
 
-    testWidgets('Tab key moves focus from username to password', (tester) async {
+    testWidgets('Tab key moves focus from username to password', (
+      tester,
+    ) async {
       final server = Server(
         id: '1',
         name: 'Test Server',
         address: 'https://test.example.com',
       );
 
-      when(connectionDomain.hasPersistentSession(server)).thenAnswer((_) async => false);
+      when(
+        connectionDomain.hasPersistentSession(server),
+      ).thenAnswer((_) async => false);
 
       await tester.pumpWidget(
         MaterialApp(
-          home: LoginPage(
-            server: server,
-            connectionDomain: connectionDomain,
-          ),
+          home: LoginPage(server: server, connectionDomain: connectionDomain),
         ),
       );
 
@@ -391,7 +410,12 @@ void main() {
       await tester.pump();
 
       // Focus should be on password field
-      expect(FocusScope.of(tester.element(find.byKey(const ValueKey('passwordField')))).hasFocus, isTrue);
+      expect(
+        FocusScope.of(
+          tester.element(find.byKey(const ValueKey('passwordField'))),
+        ).hasFocus,
+        isTrue,
+      );
     });
   });
 }

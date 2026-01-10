@@ -12,10 +12,7 @@ import 'package:silo_tavern/services/servers/storage.dart';
 
 import 'server_domain_additional_test.mocks.dart';
 
-@GenerateNiceMocks([
-  MockSpec<ServerStorage>(),
-  MockSpec<ConnectionDomain>(),
-])
+@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
 void main() {
   group('ServerDomain Additional Tests', () {
     late MockServerStorage storage;
@@ -32,8 +29,11 @@ void main() {
 
     group('ServerOptions Tests', () {
       test('ServerOptions constructor assigns properties correctly', () {
-        final options = ServerOptions(storage, connectionDomain: connectionDomain);
-        
+        final options = ServerOptions(
+          storage,
+          connectionDomain: connectionDomain,
+        );
+
         expect(options.storage, storage);
         expect(options.connectionDomain, connectionDomain);
       });
@@ -53,92 +53,110 @@ void main() {
       test('updateServerStatus updates existing server status', () async {
         // Mock storage for server creation
         when(storage.createServer(any)).thenAnswer((_) async {});
-        
+
         // Add a server first
         final server = Server(
           id: 'test-server',
           name: 'Test Server',
           address: 'https://test.example.com',
         );
-        
+
         await service.addServer(server);
-        
+
         // Update status
         service.updateServerStatus('test-server', ServerStatus.online);
-        
+
         final updatedServer = service.findServerById('test-server');
         expect(updatedServer?.status, ServerStatus.online);
       });
 
       test('updateServerStatus does nothing for non-existent server', () {
         // This should not throw an exception
-        expect(() => service.updateServerStatus('non-existent', ServerStatus.online), returnsNormally);
+        expect(
+          () => service.updateServerStatus('non-existent', ServerStatus.online),
+          returnsNormally,
+        );
       });
     });
 
     group('ServerDomain Check All Servers Tests', () {
       test('checkAllServerStatuses calls callback for each server', () async {
         // Mock storage to return some servers
-        when(storage.listServers()).thenAnswer((_) async => [
-          Server(id: '1', name: 'Server 1', address: 'https://server1.com'),
-          Server(id: '2', name: 'Server 2', address: 'https://server2.com'),
-        ]);
-        
+        when(storage.listServers()).thenAnswer(
+          (_) async => [
+            Server(id: '1', name: 'Server 1', address: 'https://server1.com'),
+            Server(id: '2', name: 'Server 2', address: 'https://server2.com'),
+          ],
+        );
+
         // Mock connection domain to return true (servers available)
-        when(connectionDomain.checkServerAvailability(any)).thenAnswer((_) async => true);
-        
+        when(
+          connectionDomain.checkServerAvailability(any),
+        ).thenAnswer((_) async => true);
+
         // Mock storage protect method
         when(storage.createServer(any)).thenAnswer((_) async {});
         when(storage.updateServer(any)).thenAnswer((_) async {});
         when(storage.deleteServer(any)).thenAnswer((_) async {});
-        
+
         // Initialize service
         await service.initialize();
-        
+
         final callbackServers = <Server>[];
-        
+
         // Check all server statuses
         await service.checkAllServerStatuses((server) {
           callbackServers.add(server);
         });
-        
+
         // Verify callback was called for each server
         expect(callbackServers, hasLength(2));
         expect(callbackServers.map((s) => s.id), containsAll(['1', '2']));
       });
 
-      test('checkAllServerStatuses handles exception in server check', () async {
-        // Mock storage to return a server
-        when(storage.listServers()).thenAnswer((_) async => [
-          Server(id: 'exception-server', name: 'Exception Server', address: 'https://exception.com'),
-        ]);
-        
-        // Mock connection domain to throw an exception
-        when(connectionDomain.checkServerAvailability(any)).thenThrow(Exception('Network error'));
-        
-        // Mock storage protect method
-        when(storage.createServer(any)).thenAnswer((_) async {});
-        when(storage.updateServer(any)).thenAnswer((_) async {});
-        when(storage.deleteServer(any)).thenAnswer((_) async {});
-        
-        // Initialize service
-        await service.initialize();
-        
-        final callbackServers = <Server>[];
-        
-        // Check all server statuses - should not throw exception
-        await service.checkAllServerStatuses((server) {
-          callbackServers.add(server);
-        });
-        
-        // Verify callback was still called despite exception
-        expect(callbackServers, hasLength(1));
-        expect(callbackServers[0].id, 'exception-server');
-        
-        // Verify server status was set to offline due to exception
-        final updatedServer = service.findServerById('exception-server');
-        expect(updatedServer?.status, ServerStatus.offline);
-      });
+      test(
+        'checkAllServerStatuses handles exception in server check',
+        () async {
+          // Mock storage to return a server
+          when(storage.listServers()).thenAnswer(
+            (_) async => [
+              Server(
+                id: 'exception-server',
+                name: 'Exception Server',
+                address: 'https://exception.com',
+              ),
+            ],
+          );
+
+          // Mock connection domain to throw an exception
+          when(
+            connectionDomain.checkServerAvailability(any),
+          ).thenThrow(Exception('Network error'));
+
+          // Mock storage protect method
+          when(storage.createServer(any)).thenAnswer((_) async {});
+          when(storage.updateServer(any)).thenAnswer((_) async {});
+          when(storage.deleteServer(any)).thenAnswer((_) async {});
+
+          // Initialize service
+          await service.initialize();
+
+          final callbackServers = <Server>[];
+
+          // Check all server statuses - should not throw exception
+          await service.checkAllServerStatuses((server) {
+            callbackServers.add(server);
+          });
+
+          // Verify callback was still called despite exception
+          expect(callbackServers, hasLength(1));
+          expect(callbackServers[0].id, 'exception-server');
+
+          // Verify server status was set to offline due to exception
+          final updatedServer = service.findServerById('exception-server');
+          expect(updatedServer?.status, ServerStatus.offline);
+        },
+      );
     });
 
     group('validateServerConfiguration Tests', () {
@@ -148,7 +166,7 @@ void main() {
           name: 'Secure Server',
           address: 'https://external.com',
         );
-        
+
         expect(() => validateServerConfiguration(server), returnsNormally);
       });
 
@@ -158,7 +176,7 @@ void main() {
           name: 'Local Server',
           address: 'http://localhost:8080',
         );
-        
+
         expect(() => validateServerConfiguration(server), returnsNormally);
       });
 
@@ -168,12 +186,14 @@ void main() {
           name: 'Insecure Server',
           address: 'http://external.com',
         );
-        
+
         expect(
           () => validateServerConfiguration(server),
           throwsA(
             predicate(
-              (e) => e is ArgumentError && e.message.contains('HTTPS must be used'),
+              (e) =>
+                  e is ArgumentError &&
+                  e.message.contains('HTTPS must be used'),
             ),
           ),
         );

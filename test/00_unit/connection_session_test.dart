@@ -11,7 +11,11 @@ import 'package:silo_tavern/services/connection/network.dart';
 
 import 'connection_session_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<Dio>(), MockSpec<Response>(), MockSpec<BaseOptions>()])
+@GenerateNiceMocks([
+  MockSpec<Dio>(),
+  MockSpec<Response>(),
+  MockSpec<BaseOptions>(),
+])
 void main() {
   group('ConnectionSession Tests', () {
     late MockDio mockDio;
@@ -226,30 +230,27 @@ void main() {
         },
       );
 
-      test(
-        'Handles unexpected exception during authentication',
-        () async {
-          // Arrange
-          final credentials = ConnectionCredentials(
-            handle: 'testuser',
-            password: 'testpass',
-          );
+      test('Handles unexpected exception during authentication', () async {
+        // Arrange
+        final credentials = ConnectionCredentials(
+          handle: 'testuser',
+          password: 'testpass',
+        );
 
-          when(
-            mockDio.post('/api/users/login', data: anyNamed('data')),
-          ).thenThrow(Exception('Unexpected error'));
+        when(
+          mockDio.post('/api/users/login', data: anyNamed('data')),
+        ).thenThrow(Exception('Unexpected error'));
 
-          // Act & Assert
-          expect(
-            () => session.authenticate(credentials),
-            throwsA(predicate((e) => e is Exception)),
-          );
+        // Act & Assert
+        expect(
+          () => session.authenticate(credentials),
+          throwsA(predicate((e) => e is Exception)),
+        );
 
-          verify(
-            mockDio.post('/api/users/login', data: anyNamed('data')),
-          ).called(1);
-        },
-      );
+        verify(
+          mockDio.post('/api/users/login', data: anyNamed('data')),
+        ).called(1);
+      });
     });
 
     group('setCsrfToken', () {
@@ -299,12 +300,9 @@ void main() {
         // Arrange
         final mockResponse = MockResponse();
         when(mockResponse.statusCode).thenReturn(200);
-        
+
         when(
-          mockDio.get(
-            '/',
-            options: anyNamed('options'),
-          ),
+          mockDio.get('/', options: anyNamed('options')),
         ).thenAnswer((_) async => mockResponse);
 
         // Act
@@ -312,24 +310,16 @@ void main() {
 
         // Assert
         expect(result, isTrue);
-        verify(
-          mockDio.get(
-            '/',
-            options: anyNamed('options'),
-          ),
-        ).called(1);
+        verify(mockDio.get('/', options: anyNamed('options'))).called(1);
       });
 
       test('Returns true when server responds with error status', () async {
         // Arrange
         final mockResponse = MockResponse();
         when(mockResponse.statusCode).thenReturn(404);
-        
+
         when(
-          mockDio.get(
-            '/',
-            options: anyNamed('options'),
-          ),
+          mockDio.get('/', options: anyNamed('options')),
         ).thenAnswer((_) async => mockResponse);
 
         // Act
@@ -337,22 +327,12 @@ void main() {
 
         // Assert
         expect(result, isTrue);
-        verify(
-          mockDio.get(
-            '/',
-            options: anyNamed('options'),
-          ),
-        ).called(1);
+        verify(mockDio.get('/', options: anyNamed('options'))).called(1);
       });
 
       test('Returns false when server is unreachable', () async {
         // Arrange
-        when(
-          mockDio.get(
-            '/',
-            options: anyNamed('options'),
-          ),
-        ).thenThrow(
+        when(mockDio.get('/', options: anyNamed('options'))).thenThrow(
           DioException(
             type: DioExceptionType.connectionTimeout,
             requestOptions: RequestOptions(path: '/'),
@@ -364,22 +344,12 @@ void main() {
 
         // Assert
         expect(result, isFalse);
-        verify(
-          mockDio.get(
-            '/',
-            options: anyNamed('options'),
-          ),
-        ).called(1);
+        verify(mockDio.get('/', options: anyNamed('options'))).called(1);
       });
 
       test('Returns true when server responds with bad response', () async {
         // Arrange
-        when(
-          mockDio.get(
-            '/',
-            options: anyNamed('options'),
-          ),
-        ).thenThrow(
+        when(mockDio.get('/', options: anyNamed('options'))).thenThrow(
           DioException(
             type: DioExceptionType.badResponse,
             requestOptions: RequestOptions(path: '/'),
@@ -391,21 +361,13 @@ void main() {
 
         // Assert
         expect(result, isTrue);
-        verify(
-          mockDio.get(
-            '/',
-            options: anyNamed('options'),
-          ),
-        ).called(1);
+        verify(mockDio.get('/', options: anyNamed('options'))).called(1);
       });
 
       test('Returns false when unexpected exception occurs', () async {
         // Arrange
         when(
-          mockDio.get(
-            '/',
-            options: anyNamed('options'),
-          ),
+          mockDio.get('/', options: anyNamed('options')),
         ).thenThrow(Exception('Unexpected error'));
 
         // Act
@@ -413,12 +375,7 @@ void main() {
 
         // Assert
         expect(result, isFalse);
-        verify(
-          mockDio.get(
-            '/',
-            options: anyNamed('options'),
-          ),
-        ).called(1);
+        verify(mockDio.get('/', options: anyNamed('options'))).called(1);
       });
     });
   });

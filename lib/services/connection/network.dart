@@ -135,10 +135,15 @@ class ConnectionSession implements ConnectionSessionInterface {
   @override
   Future<List<Cookie>> getSessionCookies() async {
     // Get cookies from the cookie jar
-    final cookieManager = _client.interceptors
-        .firstWhere((interceptor) => interceptor is CookieManager) as CookieManager;
+    final cookieManager =
+        _client.interceptors.firstWhere(
+              (interceptor) => interceptor is CookieManager,
+            )
+            as CookieManager;
     final cookieJar = cookieManager.cookieJar;
-    final cookies = await cookieJar.loadForRequest(Uri.parse(_client.options.baseUrl));
+    final cookies = await cookieJar.loadForRequest(
+      Uri.parse(_client.options.baseUrl),
+    );
     return cookies;
   }
 }

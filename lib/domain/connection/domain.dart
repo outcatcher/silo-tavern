@@ -114,7 +114,9 @@ class ConnectionDomain {
       final cookies = await secureStorage.loadSessionCookies(server.id);
       return cookies != null && cookies.isNotEmpty;
     } catch (e) {
-      debugPrint('ConnectionDomain: Failed to check for persistent session for server ${server.id}: $e');
+      debugPrint(
+        'ConnectionDomain: Failed to check for persistent session for server ${server.id}: $e',
+      );
       return false;
     }
   }
