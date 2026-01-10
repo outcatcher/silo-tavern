@@ -565,10 +565,14 @@ void main() {
       when(serverDomain.servers).thenReturn(servers);
 
       when(serverDomain.checkAllServerStatuses(any)).thenAnswer((inv) async {
+        // Verify the argument is actually a Function(Server)
+        expect(inv.positionalArguments[0], isA<Function>());
+        
+        final callback = inv.positionalArguments[0] as Function(Server);
         final updatedServer = servers[0];
         updatedServer.status = ServerStatus.online;
-
-        inv.positionalArguments[0](updatedServer);
+        
+        callback(updatedServer);
       });
 
       await tester.pumpWidget(
