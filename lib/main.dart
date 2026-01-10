@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
@@ -21,26 +22,33 @@ void main() async {
   );
   await serverDomain.initialize();
 
-  runApp(SiloTavernApp(serverDomain: serverDomain));
+  final router = appRouter(
+    Domains(servers: serverDomain, connections: connectionDomain),
+  );
+
+  runApp(SiloTavernApp(serverDomain: serverDomain, router: router));
 }
 
 class SiloTavernApp extends StatefulWidget {
   final ServerDomain serverDomain;
+  final GoRouter router;
 
-  const SiloTavernApp({super.key, required this.serverDomain});
+  const SiloTavernApp({
+    super.key,
+    required this.serverDomain,
+    required this.router,
+  });
 
   @override
   State<SiloTavernApp> createState() => _SiloTavernAppState();
 }
 
 class _SiloTavernAppState extends State<SiloTavernApp> {
-  late final AppRouter _appRouter;
   bool _isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
-    _appRouter = AppRouter(serverDomain: widget.serverDomain);
   }
 
   @override
@@ -70,7 +78,7 @@ class _SiloTavernAppState extends State<SiloTavernApp> {
         useMaterial3: true,
       ),
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      routerConfig: _appRouter.router,
+      routerConfig: widget.router,
       builder: (context, child) {
         return Stack(
           children: [

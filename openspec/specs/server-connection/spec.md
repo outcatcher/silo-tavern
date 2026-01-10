@@ -11,18 +11,19 @@ The system SHALL provide the ability to connect to a configured server with prop
 #### Scenario: Successful server connection
 - **WHEN** a user taps on a server in the server list
 - **THEN** the system SHALL send a CSRF request to the server
-- **AND** show a "Connecting to server..." toast notification
+- **AND** show a "Connecting to server..." snackbar notification
 - **AND** store the token cookie for future requests
-- **AND** navigate to an under construction page with server name as title
+- **AND** navigate to a login page for authentication
+- **AND** navigate to an under construction page with server name as title after successful authentication
 
 #### Scenario: CSRF request failure
 - **WHEN** the CSRF request fails during server connection
-- **THEN** the system SHALL show an "Error connecting to server" toast notification
+- **THEN** the system SHALL show an "Error connecting to server" snackbar notification
 - **AND** remain on the server list page
 
 #### Scenario: Authentication failure
 - **WHEN** the authentication request fails after successful CSRF
-- **THEN** the system SHALL show an "Authentication failed" toast notification
+- **THEN** the system SHALL show an "Authentication failed" snackbar notification
 - **AND** remain on the server list page
 
 #### Scenario: Under construction page display
@@ -45,9 +46,19 @@ The feature integrates with the SillyTavern API as defined in `silly-tavern-open
 - All network requests SHALL follow the authentication patterns established in the OpenAPI specification
 
 ### User Interface
-- Toast notifications SHALL provide immediate feedback during connection process
+- Snackbar notifications SHALL provide immediate feedback during connection process
 - The under construction page SHALL include standard navigation elements (back arrow)
 - Server name SHALL be displayed as the page title
+- Login page SHALL include username and password fields
+- Login page SHALL include a "Remember me" checkbox
+
+### Remember Me Functionality
+- The system SHALL provide a "Remember me" option on the login page
+- WHEN a user successfully authenticates with "Remember me" selected
+- THEN the system SHALL persist the session cookies for future use
+- AND automatically log the user in on subsequent visits to the same server
+- WHEN a user accesses a server with persisted session cookies
+- THEN the system SHALL skip the login page and proceed directly to the under construction page
 
 ## Future Considerations
 - Token refresh mechanisms for handling expiration

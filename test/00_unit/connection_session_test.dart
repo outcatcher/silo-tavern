@@ -11,7 +11,11 @@ import 'package:silo_tavern/services/connection/network.dart';
 
 import 'connection_session_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<Dio>(), MockSpec<Response>()])
+@GenerateNiceMocks([
+  MockSpec<Dio>(),
+  MockSpec<Response>(),
+  MockSpec<BaseOptions>(),
+])
 void main() {
   group('ConnectionSession Tests', () {
     late MockDio mockDio;
@@ -225,6 +229,154 @@ void main() {
           ).called(1);
         },
       );
+
+      test('Handles unexpected exception during authentication', () async {
+        // Arrange
+        final credentials = ConnectionCredentials(
+          handle: 'testuser',
+          password: 'testpass',
+        );
+
+        when(
+          mockDio.post('/api/users/login', data: anyNamed('data')),
+        ).thenThrow(Exception('Unexpected error'));
+
+        // Act & Assert
+        expect(
+          () => session.authenticate(credentials),
+          throwsA(predicate((e) => e is Exception)),
+        );
+
+        verify(
+          mockDio.post('/api/users/login', data: anyNamed('data')),
+        ).called(1);
+      });
+    });
+
+    group('setCsrfToken', () {
+      test('Sets CSRF token in client headers', () async {
+        // Arrange
+        final baseOptions = BaseOptions();
+        when(mockDio.options).thenReturn(baseOptions);
+        const token = 'test-csrf-token';
+
+        // Act
+        session.setCsrfToken(token);
+
+        // Assert
+        expect(baseOptions.headers['X-CSRF-Token'], equals(token));
+      });
+    });
+
+    group('getCsrfToken', () {
+      test('Returns CSRF token from client headers', () async {
+        // Arrange
+        final baseOptions = BaseOptions();
+        baseOptions.headers['X-CSRF-Token'] = 'test-csrf-token';
+        when(mockDio.options).thenReturn(baseOptions);
+
+        // Act
+        final token = session.getCsrfToken();
+
+        // Assert
+        expect(token, equals('test-csrf-token'));
+      });
+
+      test('Returns null when no CSRF token is set', () async {
+        // Arrange
+        final baseOptions = BaseOptions();
+        when(mockDio.options).thenReturn(baseOptions);
+
+        // Act
+        final token = session.getCsrfToken();
+
+        // Assert
+        expect(token, isNull);
+      });
+    });
+
+    group('checkServerAvailability', () {
+      test('Returns true when server responds successfully', () async {
+        // Arrange
+        final mockResponse = MockResponse();
+        when(mockResponse.statusCode).thenReturn(200);
+
+        when(
+          mockDio.get('/', options: anyNamed('options')),
+        ).thenAnswer((_) async => mockResponse);
+
+        // Act
+        final result = await session.checkServerAvailability();
+
+        // Assert
+        expect(result, isTrue);
+        verify(mockDio.get('/', options: anyNamed('options'))).called(1);
+      });
+
+      test('Returns true when server responds with error status', () async {
+        // Arrange
+        final mockResponse = MockResponse();
+        when(mockResponse.statusCode).thenReturn(404);
+
+        when(
+          mockDio.get('/', options: anyNamed('options')),
+        ).thenAnswer((_) async => mockResponse);
+
+        // Act
+        final result = await session.checkServerAvailability();
+
+        // Assert
+        expect(result, isTrue);
+        verify(mockDio.get('/', options: anyNamed('options'))).called(1);
+      });
+
+      test('Returns false when server is unreachable', () async {
+        // Arrange
+        when(mockDio.get('/', options: anyNamed('options'))).thenThrow(
+          DioException(
+            type: DioExceptionType.connectionTimeout,
+            requestOptions: RequestOptions(path: '/'),
+          ),
+        );
+
+        // Act
+        final result = await session.checkServerAvailability();
+
+        // Assert
+        expect(result, isFalse);
+        verify(mockDio.get('/', options: anyNamed('options'))).called(1);
+      });
+
+      test('Returns true when server responds with bad response', () async {
+        // Arrange
+        when(mockDio.get('/', options: anyNamed('options'))).thenThrow(
+          DioException(
+            type: DioExceptionType.badResponse,
+            requestOptions: RequestOptions(path: '/'),
+          ),
+        );
+
+        // Act
+        final result = await session.checkServerAvailability();
+
+        // Assert
+        expect(result, isTrue);
+        verify(mockDio.get('/', options: anyNamed('options'))).called(1);
+      });
+
+      test('Returns false when unexpected exception occurs', () async {
+        // Arrange
+        when(
+          mockDio.get('/', options: anyNamed('options')),
+        ).thenThrow(Exception('Unexpected error'));
+
+        // Act
+        final result = await session.checkServerAvailability();
+
+        // Assert
+        expect(result, isFalse);
+        verify(mockDio.get('/', options: anyNamed('options'))).called(1);
+      });
     });
   });
 

@@ -14,9 +14,9 @@ class _ServiceServer {
     return {'id': id, 'name': name, 'address': address};
   }
 
-  /// Convert to map for JSON serialization
-  Server toDomain(AuthenticationInfo auth) {
-    return Server(address: address, id: id, name: name, authentication: auth);
+  /// Convert to domain model
+  Server toDomain() {
+    return Server(address: address, id: id, name: name);
   }
 
   factory _ServiceServer.fromDomain(Server server) {

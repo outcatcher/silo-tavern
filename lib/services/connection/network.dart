@@ -14,11 +14,17 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:silo_tavern/domain/connection/models.dart';
+import 'package:silo_tavern/services/connection/debug_logger.dart';
 import 'package:silo_tavern/services/connection/models/models.dart';
 
 abstract class ConnectionSessionInterface {
   Future<void> obtainCsrfToken();
   Future<void> authenticate(ConnectionCredentials credentials);
+  Future<bool> checkServerAvailability();
+  Future<List<Cookie>> getSessionCookies();
+
+  void setCsrfToken(String token);
+  String? getCsrfToken();
 }
 
 class DefaultConnectionFactory implements ConnectionSessionFactory {
@@ -31,9 +37,12 @@ class DefaultConnectionFactory implements ConnectionSessionFactory {
     cookieJar.saveFromResponse(Uri.parse(serverURL), cookies ?? const []);
 
     final cookieManager = CookieManager(cookieJar);
-    final dio = Dio(BaseOptions(baseUrl: serverURL));
+    final dio = Dio(
+      BaseOptions(baseUrl: serverURL, contentType: 'application/json'),
+    );
 
     dio.interceptors.add(cookieManager);
+    dio.interceptors.add(DebugLogger());
 
     return ConnectionSession._(dio);
   }
@@ -64,6 +73,18 @@ class ConnectionSession implements ConnectionSessionInterface {
     }
   }
 
+  /// Set CSRF token in the client headers
+  @override
+  void setCsrfToken(String token) {
+    _client.options.headers['X-CSRF-Token'] = token;
+  }
+
+  /// Get CSRF token from the client headers
+  @override
+  String? getCsrfToken() {
+    return _client.options.headers['X-CSRF-Token'] as String?;
+  }
+
   /// Authenticate with the server and obtain session cookies
   @override
   Future<void> authenticate(ConnectionCredentials credentials) async {
@@ -76,5 +97,53 @@ class ConnectionSession implements ConnectionSessionInterface {
       debugPrint('Uncaught exception during authentication: $e');
       rethrow;
     }
+  }
+
+  /// Check if the server is available by making a GET request to the root path
+  @override
+  Future<bool> checkServerAvailability() async {
+    try {
+      // Make a GET request to the root path without following redirects
+      await _client.get(
+        '/',
+        options: Options(
+          followRedirects: false,
+          // coverage:ignore-start
+          validateStatus: (status) => status != null && status < 400,
+          // coverage:ignore-end
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      );
+
+      // Any response (even 4xx or 5xx) indicates the server is reachable
+      return true;
+    } on DioException catch (e) {
+      debugPrint('Server availability check failed: $e');
+      // If we get a response (even an error response), the server is reachable
+      if (e.type == DioExceptionType.badResponse) {
+        return true;
+      }
+      // If there's no response, the server is likely unreachable
+      return false;
+    } catch (e) {
+      debugPrint('Uncaught exception during server availability check: $e');
+      return false;
+    }
+  }
+
+  /// Get session cookies from the client
+  @override
+  Future<List<Cookie>> getSessionCookies() async {
+    // Get cookies from the cookie jar
+    final cookieManager =
+        _client.interceptors.firstWhere(
+              (interceptor) => interceptor is CookieManager,
+            )
+            as CookieManager;
+    final cookieJar = cookieManager.cookieJar;
+    final cookies = await cookieJar.loadForRequest(
+      Uri.parse(_client.options.baseUrl),
+    );
+    return cookies;
   }
 }

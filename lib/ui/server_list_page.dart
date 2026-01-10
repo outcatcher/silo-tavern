@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 
@@ -9,8 +10,15 @@ import 'utils.dart' as utils;
 
 class ServerListPage extends StatefulWidget {
   final ServerDomain serverDomain;
+  final ConnectionDomain connectionDomain;
+  final GoRouter? router;
 
-  const ServerListPage({super.key, required this.serverDomain});
+  const ServerListPage({
+    super.key,
+    required this.serverDomain,
+    required this.connectionDomain,
+    this.router,
+  });
 
   @override
   State<ServerListPage> createState() => _ServerListPageState();
@@ -20,24 +28,38 @@ class _ServerListPageState extends State<ServerListPage> {
   late List<Server> _servers;
   final Set<String> _deletingServers = {};
 
+  GoRouter get router => widget.router ?? GoRouter.of(context);
+
   @override
   void initState() {
     super.initState();
     _servers = List.from(widget.serverDomain.servers);
+
+    // Check server statuses when the page loads
+    _checkServerStatuses();
+  }
+
+  void _checkServerStatuses() async {
+    await widget.serverDomain.checkAllServerStatuses((s) {
+      final index = _servers.lastIndexWhere((srv) => srv.id == s.id);
+      setState(() {
+        _servers[index].status = s.status;
+      });
+    });
   }
 
   void _addServer() {
-    context.go('/servers/create');
+    router.go('/servers/create');
   }
 
   void _editServer(Server server) async {
-    context.go('/servers/edit/${server.id}');
+    router.go('/servers/edit/${server.id}');
   }
 
   void _deleteServer(Server server) {
     // Optimistic update - remove from local list immediately
     setState(() {
-      _servers.remove(server);
+      _servers.removeWhere((s) => s.id == server.id);
       _deletingServers.add(server.id);
     });
 
@@ -71,9 +93,11 @@ class _ServerListPageState extends State<ServerListPage> {
               _deletingServers.remove(server.id);
               if (insertIndex == -1) {
                 // Insert at the end if no suitable position found
+                server.updateStatus(ServerStatus.offline);
                 _servers.add(server);
               } else {
                 // Insert at the correct position to maintain order
+                server.updateStatus(ServerStatus.offline);
                 _servers.insert(insertIndex, server);
               }
             });
@@ -190,10 +214,14 @@ class _ServerListPageState extends State<ServerListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SiloTavern - Servers'),
+        title: const Text(
+          'SiloTavern - Servers',
+          key: ValueKey('serverListTitle'),
+        ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
+            key: ValueKey('addServerIcon'),
             icon: const Icon(Icons.add),
             onPressed: _addServer,
             tooltip: 'Add Server',
@@ -305,6 +333,7 @@ class _ServerListPageState extends State<ServerListPage> {
     return Padding(
       padding: const EdgeInsets.all(48.0),
       child: Column(
+        key: ValueKey('noServers'),
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
@@ -325,6 +354,7 @@ class _ServerListPageState extends State<ServerListPage> {
           const SizedBox(height: 40),
           ElevatedButton.icon(
             onPressed: _addServer,
+            key: ValueKey('addServerButton'),
             icon: const Icon(Icons.add),
             label: const Text('Add Server'),
             style: ElevatedButton.styleFrom(
@@ -340,15 +370,52 @@ class _ServerListPageState extends State<ServerListPage> {
     final isDeleting = _deletingServers.contains(server.id);
     final isHttps = server.address.startsWith('https');
 
+    // Determine status icon and color
+    IconData statusIcon;
+    Color statusColor;
+
+    switch (server.status) {
+      case ServerStatus.loading:
+        statusIcon = Icons.hourglass_bottom;
+        statusColor = Colors.orange;
+        break;
+      case ServerStatus.online:
+        statusIcon = Icons.circle;
+        statusColor = Colors.green;
+        break;
+      case ServerStatus.offline:
+        statusIcon = Icons.circle;
+        statusColor = Colors.red;
+        break;
+    }
+
     return Card(
       margin: EdgeInsets.zero,
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: isHttps ? Colors.grey[700] : Colors.grey[500],
-          child: Icon(
-            isHttps ? Icons.lock : Icons.lock_open,
-            color: Colors.white,
-          ),
+        leading: Stack(
+          alignment: Alignment.center,
+          children: [
+            CircleAvatar(
+              backgroundColor: isHttps ? Colors.grey[700] : Colors.grey[500],
+              child: Icon(
+                isHttps ? Icons.lock : Icons.lock_open,
+                color: Colors.white,
+              ),
+            ),
+            // Status indicator overlay
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(statusIcon, color: statusColor, size: 16),
+              ),
+            ),
+          ],
         ),
         title: Text(
           server.name,
@@ -370,52 +437,125 @@ class _ServerListPageState extends State<ServerListPage> {
           vertical: 12,
         ),
         onTap: () async {
-          // Check if the widget is still mounted before using context
-          if (!context.mounted) return;
-
-          // Show connecting message
-          final snackBar = SnackBar(
-            content: const Text('Connecting to server...'),
-            backgroundColor: Colors.blue,
-            duration: const Duration(seconds: 2),
+          // Show a loading dialog immediately while obtaining CSRF token in background
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) {
+              return const Dialog(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(width: 20),
+                      Text('Preparing secure connection...'),
+                    ],
+                  ),
+                ),
+              );
+            },
           );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-          // Connect to the server
-          final result = await widget.serverDomain.connectToServer(server);
+          try {
+            final result = await widget.connectionDomain
+                .obtainCsrfTokenForServer(server);
 
-          // Check if the widget is still mounted before using context
-          if (!context.mounted) return;
+            // Close the dialog
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
 
-          // Hide the connecting message
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            // Check if the operation was successful
+            if (result.isSuccess) {
+              // Check if there's a persistent session before navigating to login
+              if (await widget.connectionDomain.hasPersistentSession(server)) {
+                // Skip login and go directly to connect page
+                if (context.mounted) {
+                  router.go(
+                    Uri(
+                      path: '/servers/connect/${server.id}',
+                      queryParameters: {'backUrl': '/servers'},
+                    ).toString(),
+                  );
+                }
+              } else {
+                // Navigate to login page with back URL as query parameter
+                if (context.mounted) {
+                  router.go(
+                    Uri(
+                      path: '/servers/login/${server.id}',
+                      queryParameters: {'backUrl': '/servers'},
+                    ).toString(),
+                  );
+                }
+              }
+            } else {
+              // Show error if CSRF token retrieval failed
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      _getUserFriendlyErrorMessage(result.errorMessage),
+                    ),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            }
+          } catch (e) {
+            // Close the dialog
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
 
-          if (!context.mounted) return;
-
-          if (result.isSuccess) {
-            // Navigate to under construction page with back URL as query parameter
-            context.go(
-              Uri(
-                path: '/servers/connect/${server.id}',
-                queryParameters: {'backUrl': '/servers'},
-              ).toString(),
-            );
-          } else {
-            // Check if the widget is still mounted before showing error
-            if (!context.mounted) return;
-
-            // Show error message
-            final errorSnackBar = SnackBar(
-              content: Text(
-                'Error connecting to server: ${result.errorMessage}',
-              ),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 3),
-            );
-            ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+            // Show error if an exception occurred
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(_getUserFriendlyErrorMessage(e.toString())),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           }
         },
       ),
     );
+  }
+
+  /// Converts technical error messages to user-friendly messages
+  String _getUserFriendlyErrorMessage(String? technicalMessage) {
+    if (technicalMessage == null || technicalMessage.isEmpty) {
+      return 'Failed to prepare secure connection. Please try again.';
+    }
+
+    // Handle common network errors
+    if (technicalMessage.contains('SocketException') ||
+        technicalMessage.contains('Connection refused') ||
+        technicalMessage.contains('Failed host lookup')) {
+      return 'Unable to connect to the server. Please check your network connection and try again.';
+    }
+
+    // Handle timeout errors
+    if (technicalMessage.contains('timeout') ||
+        technicalMessage.contains('timed out')) {
+      return 'Connection timed out. The server may be busy or unreachable. Please try again.';
+    }
+
+    // Handle certificate errors
+    if (technicalMessage.contains('CERTIFICATE_VERIFY_FAILED') ||
+        technicalMessage.contains('HandshakeException')) {
+      return 'Security certificate verification failed. Please check that the server\'s SSL/TLS certificate is valid.';
+    }
+
+    // Handle general HTTP errors
+    if (technicalMessage.contains('HTTP status error')) {
+      return 'Server responded with an error. Please check that the server is running and accessible.';
+    }
+
+    // Default fallback message
+    return 'Failed to prepare secure connection. Please try again.';
   }
 }

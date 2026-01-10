@@ -239,6 +239,243 @@ void main() {
       });
     });
 
+    group('saveCsrfToken', () {
+      test('Successfully saves CSRF token', () async {
+        // Arrange
+        const serverId = 'server123';
+        const token = 'abc123xyz';
+        const key = 'server123_csrf_token';
+
+        when(
+          mockSecureStorage.set(key, token),
+        ).thenAnswer((_) async => Future.value());
+
+        // Act
+        await storage.saveCsrfToken(serverId, token);
+
+        // Assert
+        verify(mockSecureStorage.set(key, token)).called(1);
+      });
+
+      test('Rethrows exception when saving CSRF token fails', () async {
+        // Arrange
+        const serverId = 'server123';
+        const token = 'abc123xyz';
+        const key = 'server123_csrf_token';
+        final exception = Exception('Storage error');
+
+        when(mockSecureStorage.set(key, token)).thenThrow(exception);
+
+        // Act & Assert
+        expect(
+          () => storage.saveCsrfToken(serverId, token),
+          throwsA(exception),
+        );
+      });
+
+      test('Handles exception when debugPrint fails', () async {
+        // Arrange
+        const serverId = 'server123';
+        final cookies = [
+          Cookie('session', 'abc123')
+            ..domain = 'example.com'
+            ..path = '/',
+        ];
+        final exception = Exception('Storage error');
+
+        final expectedData = [
+          {
+            'name': 'session',
+            'value': 'abc123',
+            'domain': 'example.com',
+            'path': '/',
+          },
+        ];
+
+        when(
+          mockSecureStorage.set(serverId, expectedData),
+        ).thenThrow(exception);
+
+        // Act & Assert
+        expect(
+          () => storage.saveSessionCookies(serverId, cookies),
+          throwsA(exception),
+        );
+      });
+    });
+
+    group('loadCsrfToken', () {
+      test('Successfully loads existing CSRF token', () async {
+        // Arrange
+        const serverId = 'server123';
+        const token = 'abc123xyz';
+        const key = 'server123_csrf_token';
+
+        when(mockSecureStorage.get(key)).thenAnswer((_) async => token);
+
+        // Act
+        final result = await storage.loadCsrfToken(serverId);
+
+        // Assert
+        expect(result, equals(token));
+      });
+
+      test('Returns null when no CSRF token exists for server', () async {
+        // Arrange
+        const serverId = 'nonexistent';
+        const key = 'nonexistent_csrf_token';
+
+        when(mockSecureStorage.get(key)).thenAnswer((_) async => null);
+
+        // Act
+        final result = await storage.loadCsrfToken(serverId);
+
+        // Assert
+        expect(result, isNull);
+      });
+
+      test('Returns null when stored data is not a string', () async {
+        // Arrange
+        const serverId = 'notstring';
+        const key = 'notstring_csrf_token';
+        const storedData = 123;
+
+        when(mockSecureStorage.get(key)).thenAnswer((_) async => storedData);
+
+        // Act
+        final result = await storage.loadCsrfToken(serverId);
+
+        // Assert
+        expect(result, isNull);
+      });
+
+      test(
+        'Returns null and handles exception when loading CSRF token fails',
+        () async {
+          // Arrange
+          const serverId = 'server123';
+          const key = 'server123_csrf_token';
+          final exception = Exception('Storage error');
+
+          when(mockSecureStorage.get(key)).thenThrow(exception);
+
+          // Act
+          final result = await storage.loadCsrfToken(serverId);
+
+          // Assert
+          expect(result, isNull);
+        },
+      );
+
+      test('Handles exception when loading session cookies fails', () async {
+        // Arrange
+        const serverId = 'server123';
+        final exception = Exception('Storage error');
+
+        when(mockSecureStorage.get(serverId)).thenThrow(exception);
+
+        // Act
+        final result = await storage.loadSessionCookies(serverId);
+
+        // Assert
+        expect(result, isNull);
+      });
+    });
+
+    group('deleteCsrfToken', () {
+      test('Successfully deletes CSRF token', () async {
+        // Arrange
+        const serverId = 'server123';
+        const key = 'server123_csrf_token';
+
+        when(
+          mockSecureStorage.delete(key),
+        ).thenAnswer((_) async => Future.value());
+
+        // Act
+        await storage.deleteCsrfToken(serverId);
+
+        // Assert
+        verify(mockSecureStorage.delete(key)).called(1);
+      });
+
+      test('Rethrows exception when deleting CSRF token fails', () async {
+        // Arrange
+        const serverId = 'server123';
+        const key = 'server123_csrf_token';
+        final exception = Exception('Storage error');
+
+        when(mockSecureStorage.delete(key)).thenThrow(exception);
+
+        // Act & Assert
+        expect(() => storage.deleteCsrfToken(serverId), throwsA(exception));
+      });
+
+      test('Handles exception when debugPrint fails during delete', () async {
+        // Arrange
+        const serverId = 'server123';
+        const key = 'server123_csrf_token';
+        final exception = Exception('Storage error');
+
+        when(mockSecureStorage.delete(key)).thenThrow(exception);
+
+        // Act & Assert
+        expect(() => storage.deleteCsrfToken(serverId), throwsA(exception));
+      });
+    });
+
+    group('Error Handling', () {
+      test(
+        'saveSessionCookies rethrows exception when storage fails',
+        () async {
+          // Arrange
+          const serverId = 'server123';
+          final cookies = [
+            Cookie('session', 'abc123')
+              ..domain = 'example.com'
+              ..path = '/',
+          ];
+          final exception = Exception('Storage error');
+
+          final expectedData = [
+            {
+              'name': 'session',
+              'value': 'abc123',
+              'domain': 'example.com',
+              'path': '/',
+            },
+          ];
+
+          when(
+            mockSecureStorage.set(serverId, expectedData),
+          ).thenThrow(exception);
+
+          // Act & Assert
+          expect(
+            () => storage.saveSessionCookies(serverId, cookies),
+            throwsA(exception),
+          );
+        },
+      );
+
+      test(
+        'loadSessionCookies returns null when storage throws exception',
+        () async {
+          // Arrange
+          const serverId = 'server123';
+          final exception = Exception('Storage error');
+
+          when(mockSecureStorage.get(serverId)).thenThrow(exception);
+
+          // Act
+          final result = await storage.loadSessionCookies(serverId);
+
+          // Assert
+          expect(result, isNull);
+        },
+      );
+    });
+
     group('Default Instance Factory', () {
       test('Creates ConnectionStorage with proper configuration', () async {
         // Arrange

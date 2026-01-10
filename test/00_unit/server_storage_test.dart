@@ -99,7 +99,7 @@ void main() {
       expect(servers[1].id, 'test-server-2');
     });
 
-    test('List servers with credentials returns servers with auth info', () async {
+    test('List servers returns decoded servers', () async {
       final serverData = {
         'servers/test-server-1':
             '{"id":"test-server-1","name":"Test Server 1","address":"https://test1.example.com"}',
@@ -113,24 +113,11 @@ void main() {
       when(
         mockPrefs.getAll(allowList: anyNamed('allowList')),
       ).thenAnswer((_) async => serverData);
-      when(
-        mockSecureStorage.read(key: 'servers/test-server-1'),
-      ).thenAnswer((_) async => null);
-      when(mockSecureStorage.read(key: 'servers/test-server-2')).thenAnswer((
-        _,
-      ) async {
-        final authData = {'username': 'user2', 'password': 'pass2'};
-        return jsonEncode(authData);
-      });
 
       final servers = await storage.listServers();
       expect(servers, hasLength(2));
       expect(servers[0].id, 'test-server-1');
-      expect(servers[0].authentication.useCredentials, false);
       expect(servers[1].id, 'test-server-2');
-      expect(servers[1].authentication.useCredentials, true);
-      expect(servers[1].authentication.username, 'user2');
-      expect(servers[1].authentication.password, 'pass2');
     });
 
     test('List servers handles malformed data gracefully', () async {
@@ -184,25 +171,16 @@ void main() {
       expect(server.name, 'Test Server 2');
     });
 
-    test('Get server with credentials returns server with auth info', () async {
+    test('Get server returns correct server when found', () async {
       when(mockPrefs.getString('servers/test-server')).thenAnswer(
         (_) async =>
             '{"id":"test-server","name":"Test Server","address":"https://test.example.com"}',
       );
-      when(mockSecureStorage.read(key: 'servers/test-server')).thenAnswer((
-        _,
-      ) async {
-        final authData = {'username': 'testuser', 'password': 'testpass'};
-        return jsonEncode(authData);
-      });
 
       final server = await storage.getServer('test-server');
       expect(server, isNotNull);
       expect(server!.id, 'test-server');
       expect(server.name, 'Test Server');
-      expect(server.authentication.useCredentials, true);
-      expect(server.authentication.username, 'testuser');
-      expect(server.authentication.password, 'testpass');
     });
 
     test('Create server adds new server to list', () async {
@@ -213,35 +191,24 @@ void main() {
         id: 'new-server',
         name: 'New Server',
         address: 'https://new.example.com',
-        authentication: const AuthenticationInfo.none(),
       );
 
       await expectLater(storage.createServer(newServer), completes);
       verify(mockPrefs.setString(any, any)).called(1);
     });
 
-    test('Create server with credentials saves to secure storage', () async {
+    test('Create server saves to storage', () async {
       when(mockPrefs.getString('servers')).thenAnswer((_) async => null);
       when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
-      when(
-        mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')),
-      ).thenAnswer((_) async {});
 
       final newServer = Server(
         id: 'new-server',
         name: 'New Server',
         address: 'https://new.example.com',
-        authentication: AuthenticationInfo.credentials(
-          username: 'testuser',
-          password: 'testpass',
-        ),
       );
 
       await expectLater(storage.createServer(newServer), completes);
       verify(mockPrefs.setString(any, any)).called(1);
-      verify(
-        mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')),
-      ).called(1);
     });
 
     test('Create server throws exception when ID already exists', () async {
@@ -259,7 +226,6 @@ void main() {
         id: 'existing-server',
         name: 'New Server',
         address: 'https://new.example.com',
-        authentication: const AuthenticationInfo.none(),
       );
 
       expect(
@@ -296,41 +262,27 @@ void main() {
         id: 'update-server',
         name: 'New Name',
         address: 'https://new.example.com',
-        authentication: const AuthenticationInfo.none(),
       );
 
       await expectLater(storage.updateServer(updatedServer), completes);
       verify(mockPrefs.setString(any, any)).called(1);
     });
 
-    test('Update server to add credentials saves to secure storage', () async {
+    test('Update server modifies existing server', () async {
       when(mockPrefs.getString('servers/update-server')).thenAnswer(
         (_) async =>
             '{"id":"update-server","name":"Old Name","address":"https://old.example.com"}',
       );
-      when(
-        mockSecureStorage.read(key: 'servers/update-server'),
-      ).thenAnswer((_) async => null);
       when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
-      when(
-        mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')),
-      ).thenAnswer((_) async {});
 
       final updatedServer = Server(
         id: 'update-server',
         name: 'New Name',
         address: 'https://new.example.com',
-        authentication: AuthenticationInfo.credentials(
-          username: 'testuser',
-          password: 'testpass',
-        ),
       );
 
       await expectLater(storage.updateServer(updatedServer), completes);
       verify(mockPrefs.setString(any, any)).called(1);
-      verify(
-        mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')),
-      ).called(1);
     });
 
     test('Update server throws exception when server not found', () async {
@@ -343,7 +295,6 @@ void main() {
         id: 'non-existent',
         name: 'New Name',
         address: 'https://new.example.com',
-        authentication: const AuthenticationInfo.none(),
       );
 
       expect(
@@ -356,36 +307,22 @@ void main() {
       );
     });
 
-    test(
-      'Update server to remove credentials deletes from secure storage',
-      () async {
-        when(mockPrefs.getString('servers/update-server')).thenAnswer(
-          (_) async =>
-              '{"id":"update-server","name":"Old Name","address":"https://old.example.com"}',
-        );
-        when(mockSecureStorage.read(key: 'servers/update-server')).thenAnswer((
-          _,
-        ) async {
-          final authData = {'username': 'user', 'password': 'pass'};
-          return jsonEncode(authData);
-        });
-        when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
-        when(
-          mockSecureStorage.delete(key: anyNamed('key')),
-        ).thenAnswer((_) async {});
+    test('Update server modifies existing server', () async {
+      when(mockPrefs.getString('servers/update-server')).thenAnswer(
+        (_) async =>
+            '{"id":"update-server","name":"Old Name","address":"https://old.example.com"}',
+      );
+      when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
 
-        final updatedServer = Server(
-          id: 'update-server',
-          name: 'New Name',
-          address: 'https://new.example.com',
-          authentication: const AuthenticationInfo.none(),
-        );
+      final updatedServer = Server(
+        id: 'update-server',
+        name: 'New Name',
+        address: 'https://new.example.com',
+      );
 
-        await expectLater(storage.updateServer(updatedServer), completes);
-        verify(mockPrefs.setString(any, any)).called(1);
-        verify(mockSecureStorage.delete(key: anyNamed('key'))).called(1);
-      },
-    );
+      await expectLater(storage.updateServer(updatedServer), completes);
+      verify(mockPrefs.setString(any, any)).called(1);
+    });
 
     test('Delete server removes server from list', () async {
       final existingServerData = {
@@ -461,7 +398,6 @@ void main() {
         id: 'new-server',
         name: 'New Server',
         address: 'https://new.example.com',
-        authentication: const AuthenticationInfo.none(),
       );
 
       // Test that the method completes (exception is caught internally)
@@ -474,7 +410,6 @@ void main() {
           id: 'test-server',
           name: 'Test Server',
           address: 'https://test.example.com',
-          authentication: const AuthenticationInfo.none(),
         ),
       ];
 
