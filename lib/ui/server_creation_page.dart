@@ -7,6 +7,7 @@ import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:uuid/v7.dart';
 
 import 'utils.dart' as utils;
+import 'utils/form_validators.dart';
 
 enum PageMode { create, edit }
 
@@ -192,10 +193,10 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                         });
                       },
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a server name';
-                        }
-                        return null;
+                        return FormValidators.notEmpty(
+                          value,
+                          fieldName: 'server name',
+                        );
                       },
                       onSaved: (value) {
                         _name = value!;
@@ -224,14 +225,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                         });
                       },
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a server URL';
-                        }
-                        // Basic URL validation
-                        if (!RegExp(r'^https?:\/\/').hasMatch(value)) {
-                          return 'Please enter a valid URL (http:// or https://)';
-                        }
-                        return null;
+                        return FormValidators.validUrl(value);
                       },
                       onSaved: (value) {
                         _url = value!;
