@@ -11,7 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
-import 'package:silo_tavern/domain/connection/models.dart';
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/services/servers/storage.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
@@ -19,6 +19,12 @@ import 'package:silo_tavern/ui/login_page.dart';
 import 'package:silo_tavern/ui/under_construction_page.dart';
 
 import 'auth_flow_test.mocks.dart';
+
+// Provide dummy value for Result<void> to satisfy Mockito
+void _provideDummyValues() {
+  provideDummy<Result<void>>(Result.success(null));
+  provideDummy<Result<bool>>(Result.success(true));
+}
 
 @GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
 void main() {
@@ -33,6 +39,9 @@ void main() {
     setUp(() async {
       storage = MockServerStorage();
       connectionDomain = MockConnectionDomain();
+
+      // Provide dummy values for Mockito
+      _provideDummyValues();
 
       // Mock the storage methods to return some initial servers
       when(storage.listServers()).thenAnswer(
@@ -59,12 +68,22 @@ void main() {
       // Mock the authenticateWithServer method to return success
       when(
         connectionDomain.authenticateWithServer(any, any),
-      ).thenAnswer((_) async => ConnectionResult.success());
+      ).thenAnswer((_) async => Result.success(null));
 
       // Mock the obtainCsrfTokenForServer method to return success
       when(
         connectionDomain.obtainCsrfTokenForServer(any),
-      ).thenAnswer((_) async => ConnectionResult.success());
+      ).thenAnswer((_) async => Result.success(null));
+
+      // Mock the checkServerAvailability method to return success
+      when(
+        connectionDomain.checkServerAvailability(any),
+      ).thenAnswer((_) async => Result.success(true));
+
+      // Mock the hasPersistentSession method to return false
+      when(
+        connectionDomain.hasPersistentSession(any),
+      ).thenAnswer((_) async => false);
 
       // Set up router
       router = GoRouter(

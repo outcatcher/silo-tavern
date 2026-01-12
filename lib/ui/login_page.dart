@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/services/connection/models/models.dart';
 import 'package:silo_tavern/ui/utils.dart' as utils;
@@ -183,11 +184,12 @@ class _LoginPageState extends State<LoginPage> {
         );
 
         // Authenticate with the server
-        final result = await widget.connectionDomain.authenticateWithServer(
-          widget.server,
-          credentials,
-          rememberMe: _rememberMe,
-        );
+        final Result<void> result = await widget.connectionDomain
+            .authenticateWithServer(
+              widget.server,
+              credentials,
+              rememberMe: _rememberMe,
+            );
 
         if (result.isSuccess) {
           // Authentication successful - navigate to connect page
@@ -206,7 +208,9 @@ class _LoginPageState extends State<LoginPage> {
           if (mounted) {
             utils.showErrorDialog(
               context,
-              _getUserFriendlyAuthErrorMessage(result.errorMessage),
+              _getUserFriendlyAuthErrorMessage(
+                result.error ?? 'Authentication failed',
+              ),
               title: 'Login Failed',
             );
           }

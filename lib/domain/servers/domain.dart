@@ -127,15 +127,20 @@ class ServerDomain {
       updateServerStatus(server.id, ServerStatus.loading);
 
       // Check if the server is available
-      final isAvailable = await _connectionDomain.checkServerAvailability(
-        server,
-      );
+      final result = await _connectionDomain.checkServerAvailability(server);
 
       // Update status based on availability
-      updateServerStatus(
-        server.id,
-        isAvailable ? ServerStatus.online : ServerStatus.offline,
-      );
+      if (result.isSuccess) {
+        updateServerStatus(
+          server.id,
+          result.value! ? ServerStatus.online : ServerStatus.offline,
+        );
+      } else {
+        debugPrint(
+          'ServerDomain: Failed to check status for server ${server.id}: ${result.error}',
+        );
+        updateServerStatus(server.id, ServerStatus.offline);
+      }
     } catch (e) {
       debugPrint(
         'ServerDomain: Exception during status check for server ${server.id}: $e',

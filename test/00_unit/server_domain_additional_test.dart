@@ -9,11 +9,15 @@ import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/services/servers/storage.dart';
+import 'package:silo_tavern/domain/result.dart';
 
 import 'server_domain_additional_test.mocks.dart';
 
 @GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  // Provide dummy value for Result<bool> to avoid Mockito errors
+  provideDummy<Result<bool>>(Result.success(true));
   group('ServerDomain Additional Tests', () {
     late MockServerStorage storage;
     late MockConnectionDomain connectionDomain;
@@ -92,7 +96,7 @@ void main() {
         // Mock connection domain to return true (servers available)
         when(
           connectionDomain.checkServerAvailability(any),
-        ).thenAnswer((_) async => true);
+        ).thenAnswer((_) async => Result.success(true));
 
         // Mock storage protect method
         when(storage.createServer(any)).thenAnswer((_) async {});
@@ -134,9 +138,15 @@ void main() {
           ).thenThrow(Exception('Network error'));
 
           // Mock storage protect method
-          when(storage.createServer(any)).thenAnswer((_) async {});
-          when(storage.updateServer(any)).thenAnswer((_) async {});
-          when(storage.deleteServer(any)).thenAnswer((_) async {});
+          when(
+            storage.createServer(argThat(anything)),
+          ).thenAnswer((_) async {});
+          when(
+            storage.updateServer(argThat(anything)),
+          ).thenAnswer((_) async {});
+          when(
+            storage.deleteServer(argThat(anything)),
+          ).thenAnswer((_) async {});
 
           // Initialize service
           await service.initialize();

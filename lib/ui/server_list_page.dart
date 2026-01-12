@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 
@@ -312,7 +313,8 @@ class _ServerListPageState extends State<ServerListPage> {
                               );
 
                               try {
-                                final result = await widget.connectionDomain
+                                final Result<void> result = await widget
+                                    .connectionDomain
                                     .obtainCsrfTokenForServer(server);
 
                                 // Close the dialog
@@ -356,7 +358,7 @@ class _ServerListPageState extends State<ServerListPage> {
                                       SnackBar(
                                         content: Text(
                                           _getUserFriendlyErrorMessage(
-                                            result.errorMessage,
+                                            result.error ?? 'Operation failed',
                                           ),
                                         ),
                                         backgroundColor: Colors.red,

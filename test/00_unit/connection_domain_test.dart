@@ -100,7 +100,7 @@ void main() {
 
       // Assert
       expect(result.isSuccess, isTrue);
-      expect(result.errorMessage, isNull);
+      expect(result.error, isNull);
       verify(session.authenticate(credentials)).called(1);
     });
 
@@ -131,7 +131,7 @@ void main() {
 
         // Assert
         expect(result.isSuccess, isFalse);
-        expect(result.errorMessage, isNotNull);
+        expect(result.error, isNotNull);
         verify(session.authenticate(credentials)).called(1);
       },
     );
@@ -155,7 +155,7 @@ void main() {
 
       // Assert
       expect(result.isSuccess, isTrue);
-      expect(result.errorMessage, isNull);
+      expect(result.error, isNull);
       verify(session.obtainCsrfToken()).called(1);
       verify(session.getCsrfToken()).called(1);
       verify(secureStorage.saveCsrfToken('1', 'test-csrf-token')).called(1);
@@ -181,7 +181,7 @@ void main() {
 
         // Assert
         expect(result.isSuccess, isFalse);
-        expect(result.errorMessage, isNotNull);
+        expect(result.error, isNotNull);
         verify(session.obtainCsrfToken()).called(1);
         verifyNever(secureStorage.saveCsrfToken(any, any));
       },
@@ -203,10 +203,11 @@ void main() {
         when(session.checkServerAvailability()).thenAnswer((_) async => true);
 
         // Act
-        final isAvailable = await domain.checkServerAvailability(server);
+        final result = await domain.checkServerAvailability(server);
 
         // Assert
-        expect(isAvailable, isTrue);
+        expect(result.isSuccess, isTrue);
+        expect(result.value, isTrue);
         verify(session.checkServerAvailability()).called(1);
       },
     );
@@ -229,10 +230,11 @@ void main() {
         ).thenThrow(Exception('Unavailable'));
 
         // Act
-        final isAvailable = await domain.checkServerAvailability(server);
+        final result = await domain.checkServerAvailability(server);
 
         // Assert
-        expect(isAvailable, isFalse);
+        expect(result.isSuccess, isFalse);
+        expect(result.error, isNotNull);
       },
     );
 
@@ -469,7 +471,7 @@ void main() {
 
         // Assert
         expect(result.isSuccess, isFalse);
-        expect(result.errorMessage, contains('Failed to get cookies'));
+        expect(result.error, contains('Failed to get cookies'));
         verify(session.authenticate(credentials)).called(1);
         verify(session.getSessionCookies()).called(1);
         verifyNever(secureStorage.saveSessionCookies(any, any));

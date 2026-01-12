@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
-import 'package:silo_tavern/domain/connection/models.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 
 import 'mocks.mocks.dart';
@@ -13,6 +13,9 @@ void main() {
   late MockGoRouter router;
 
   setUp(() {
+    // Provide dummy value for Result<void> to avoid Mockito errors
+    provideDummy<Result<void>>(Result.success(null));
+
     serverDomain = MockServerDomain();
     connectionDomain = MockConnectionDomain();
     router = MockGoRouter();
@@ -132,7 +135,7 @@ void main() {
       when(serverDomain.servers).thenReturn(servers);
       when(
         connectionDomain.obtainCsrfTokenForServer(any),
-      ).thenAnswer((_) async => ConnectionResult.success());
+      ).thenAnswer((_) async => Result.success(null));
       // Set up the mock expectation before tapping
       when(
         router.go('/servers/login/1?backUrl=%2Fservers'),
@@ -483,9 +486,9 @@ void main() {
 
         when(serverDomain.servers).thenReturn(servers);
         // Mock obtainCsrfTokenForServer to return failure
-        when(connectionDomain.obtainCsrfTokenForServer(any)).thenAnswer(
-          (_) async => ConnectionResult.failure('Authentication failed'),
-        );
+        when(
+          connectionDomain.obtainCsrfTokenForServer(any),
+        ).thenAnswer((_) async => Result.failure('Authentication failed'));
 
         await tester.pumpWidget(
           MaterialApp(
@@ -526,7 +529,7 @@ void main() {
       when(serverDomain.servers).thenReturn(servers);
       when(
         connectionDomain.obtainCsrfTokenForServer(any),
-      ).thenAnswer((_) async => ConnectionResult.success());
+      ).thenAnswer((_) async => Result.success(null));
 
       await tester.pumpWidget(
         MaterialApp(

@@ -11,6 +11,7 @@ import 'package:silo_tavern/services/connection/network.dart';
 import 'package:silo_tavern/services/connection/storage.dart';
 
 import 'models.dart';
+import '../result.dart';
 
 class ConnectionDomain {
   final ConnectionSessionFactory sessionFactory;
@@ -33,7 +34,7 @@ class ConnectionDomain {
   }
 
   /// Authenticate with a server using the provided credentials
-  Future<ConnectionResult> authenticateWithServer(
+  Future<Result<void>> authenticateWithServer(
     server_models.Server server,
     ConnectionCredentials credentials, {
     bool rememberMe = false,
@@ -54,17 +55,17 @@ class ConnectionDomain {
       }
 
       // Authentication successful
-      return ConnectionResult.success();
+      return Result.success(null);
     } catch (e) {
       debugPrint(
         'ConnectionDomain: Failed to authenticate with server ${server.id}: $e',
       );
-      return ConnectionResult.failure(e.toString());
+      return Result.failure(e.toString());
     }
   }
 
   /// Obtain a CSRF token for a server
-  Future<ConnectionResult> obtainCsrfTokenForServer(
+  Future<Result<void>> obtainCsrfTokenForServer(
     server_models.Server server,
   ) async {
     try {
@@ -82,24 +83,27 @@ class ConnectionDomain {
         await secureStorage.saveCsrfToken(server.id, token);
       }
 
-      return ConnectionResult.success();
+      return Result.success(null);
     } catch (e) {
       debugPrint(
         'ConnectionDomain: Failed to obtain CSRF token for server ${server.id}: $e',
       );
-      return ConnectionResult.failure(e.toString());
+      return Result.failure(e.toString());
     }
   }
 
   /// Check if a server is available by making a GET request to the root path
-  Future<bool> checkServerAvailability(server_models.Server server) async {
+  Future<Result<bool>> checkServerAvailability(
+    server_models.Server server,
+  ) async {
     try {
       // Create a temporary session to check availability
       final session = sessionFactory.create(server.address);
-      return await session.checkServerAvailability();
+      final isAvailable = await session.checkServerAvailability();
+      return Result.success(isAvailable);
     } catch (e) {
       debugPrint('Failed to check server availability for ${server.id}: $e');
-      return false;
+      return Result.failure(e.toString());
     }
   }
 
