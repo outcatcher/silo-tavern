@@ -5,7 +5,7 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
-import 'package:silo_tavern/utils/network_utils.dart';
+import 'package:silo_tavern/common/network_utils.dart';
 
 void main() {
   group('NetworkUtils Tests', () {

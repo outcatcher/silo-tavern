@@ -11,7 +11,7 @@ import 'package:silo_tavern/services/connection/network.dart';
 import 'package:silo_tavern/services/connection/storage.dart';
 
 import 'models.dart';
-import '../result.dart';
+import '../../common/result.dart';
 
 class ConnectionDomain {
   final ConnectionSessionFactory sessionFactory;

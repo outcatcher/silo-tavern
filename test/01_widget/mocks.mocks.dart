@@ -17,7 +17,7 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i12;
 import 'package:silo_tavern/domain/connection/domain.dart' as _i8;
 import 'package:silo_tavern/domain/connection/models.dart' as _i9;
-import 'package:silo_tavern/domain/result.dart' as _i18;
+import 'package:silo_tavern/common/result.dart' as _i18;
 import 'package:silo_tavern/domain/servers/domain.dart' as _i15;
 import 'package:silo_tavern/domain/servers/models.dart' as _i16;
 import 'package:silo_tavern/services/connection/models/models.dart' as _i19;

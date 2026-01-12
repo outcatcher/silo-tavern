@@ -3,7 +3,7 @@ library;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/servers/models.dart';
-import '../../utils/app_storage.dart';
+import '../../common/app_storage.dart';
 
 part 'models.dart';
 

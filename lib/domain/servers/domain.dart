@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../services/servers/storage.dart';
-import '../../utils/network_utils.dart';
+import '../../common/network_utils.dart';
 import 'models.dart';
 import '../connection/domain.dart';
 
