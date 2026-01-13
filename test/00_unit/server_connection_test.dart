@@ -8,24 +8,25 @@ import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
-import 'package:silo_tavern/services/servers/storage.dart';
+import 'package:silo_tavern/domain/servers/repository.dart';
+import 'package:silo_tavern/common/result.dart';
 
 import 'server_connection_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
+@GenerateNiceMocks([MockSpec<ServerRepository>(), MockSpec<ConnectionDomain>()])
 void main() {
   group('ServerConnection Tests', () {
-    late MockServerStorage storage;
+    late MockServerRepository repository;
     late MockConnectionDomain connectionDomain;
     late ServerDomain domain;
 
     setUp(() async {
-      storage = MockServerStorage();
+      repository = MockServerRepository();
       connectionDomain = MockConnectionDomain();
 
-      // Mock the storage methods to return some initial servers
-      when(storage.listServers()).thenAnswer(
-        (_) async => [
+      // Mock the repository methods to return some initial servers
+      when(repository.getAll()).thenAnswer(
+        (_) async => Result.success([
           Server(
             id: '1',
             name: 'Test Server 1',
@@ -36,21 +37,21 @@ void main() {
             name: 'Local Server',
             address: 'http://localhost:8080',
           ),
-        ],
+        ]),
       );
-      when(storage.getServer(any)).thenAnswer(
-        (_) async => Server(
+      when(repository.getById(any)).thenAnswer(
+        (_) async => Result.success(Server(
           id: '1',
           name: 'Test Server 1',
           address: 'https://test1.example.com',
-        ),
+        )),
       );
-      when(storage.createServer(any)).thenAnswer((_) async {});
-      when(storage.updateServer(any)).thenAnswer((_) async {});
-      when(storage.deleteServer(any)).thenAnswer((_) async {});
+      when(repository.create(any)).thenAnswer((_) async => Result.success(null));
+      when(repository.update(any)).thenAnswer((_) async => Result.success(null));
+      when(repository.delete(any)).thenAnswer((_) async => Result.success(null));
 
       domain = ServerDomain(
-        ServerOptions(storage, connectionDomain: connectionDomain),
+        ServerOptions(repository, connectionDomain: connectionDomain),
       );
 
       // Initialize the domain

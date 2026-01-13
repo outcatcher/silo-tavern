@@ -7,25 +7,33 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
+import 'package:silo_tavern/domain/servers/repository.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
-import 'package:silo_tavern/services/servers/storage.dart';
+import 'package:silo_tavern/common/result.dart';
 
 import 'server_service_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
+@GenerateNiceMocks([MockSpec<ServerRepository>(), MockSpec<ConnectionDomain>()])
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  
+  // Provide dummy values for Result types to avoid MissingDummyValueError
+  provideDummy<Result<List<Server>>>(Result.success(List<Server>.empty()));
+  provideDummy<Result<Server>>(Result.success(Server(id: '', name: '', address: '')));
+  provideDummy<Result<Server?>>(Result.success(null));
+  provideDummy<Result<void>>(Result.success(null));
   group('ServerService Tests', () {
-    late MockServerStorage storage;
+    late MockServerRepository repository;
     late MockConnectionDomain connectionDomain;
     late ServerDomain service;
 
     setUp(() async {
-      storage = MockServerStorage();
+      repository = MockServerRepository();
       connectionDomain = MockConnectionDomain();
 
-      // Mock the storage methods to return some initial servers
-      when(storage.listServers()).thenAnswer(
-        (_) async => [
+      // Mock the repository methods to return some initial servers
+      when(repository.getAll()).thenAnswer(
+        (_) async => Result.success([
           Server(
             id: '1',
             name: 'Test Server 1',
@@ -36,21 +44,21 @@ void main() {
             name: 'Local Server',
             address: 'http://localhost:8080',
           ),
-        ],
+        ]),
       );
-      when(storage.getServer(any)).thenAnswer(
-        (_) async => Server(
+      when(repository.getById(any)).thenAnswer(
+        (_) async => Result.success(Server(
           id: '1',
           name: 'Test Server 1',
           address: 'https://test1.example.com',
-        ),
+        )),
       );
-      when(storage.createServer(any)).thenAnswer((_) async {});
-      when(storage.updateServer(any)).thenAnswer((_) async {});
-      when(storage.deleteServer(any)).thenAnswer((_) async {});
+      when(repository.create(any)).thenAnswer((_) async => Result.success(null));
+      when(repository.update(any)).thenAnswer((_) async => Result.success(null));
+      when(repository.delete(any)).thenAnswer((_) async => Result.success(null));
 
       service = ServerDomain(
-        ServerOptions(storage, connectionDomain: connectionDomain),
+        ServerOptions(repository, connectionDomain: connectionDomain),
       );
 
       // Initialize the service
@@ -138,14 +146,9 @@ void main() {
         address: 'https://fake.example.com',
       );
 
-      expect(
-        () => service.updateServer(fakeServer),
-        throwsA(
-          predicate(
-            (e) => e is ArgumentError && e.message.contains('does\'t exist'),
-          ),
-        ),
-      );
+      final result = await service.updateServer(fakeServer);
+      expect(result.isFailure, isTrue);
+      expect(result.error, contains('does\'t exist'));
 
       expect(service.serverCount, initialCount); // No change
     });
@@ -168,10 +171,9 @@ void main() {
           address: 'http://external.com',
         );
 
-        expect(
-          () => service.updateServer(invalidServer),
-          throwsA(isA<ArgumentError>()),
-        );
+        final result = await service.updateServer(invalidServer);
+        expect(result.isFailure, isTrue);
+        expect(result.error, isNotNull);
 
         // Original server should still exist
         expect(service.findServerById('valid-server'), isNotNull);
@@ -199,7 +201,9 @@ void main() {
         expect(service.findServerById('duplicate-id'), isNotNull);
 
         // Second server with same ID should fail
-        expect(() => service.addServer(server2), throwsA(isA<ArgumentError>()));
+        final result = await service.addServer(server2);
+        expect(result.isFailure, isTrue);
+        expect(result.error, isNotNull);
 
         // Original server should still exist
         expect(service.findServerById('duplicate-id'), isNotNull);
@@ -236,18 +240,9 @@ void main() {
             address: 'http://external.com',
           );
 
-          expect(
-            () => service.updateServer(invalidServer),
-            throwsA(
-              predicate(
-                (e) =>
-                    e is ArgumentError &&
-                    e.message.contains(
-                      'HTTPS must be used for external servers',
-                    ),
-              ),
-            ),
-          );
+          final result = await service.updateServer(invalidServer);
+          expect(result.isFailure, isTrue);
+          expect(result.error, contains('HTTPS must be used for external servers'));
         },
       );
     });

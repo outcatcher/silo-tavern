@@ -8,17 +8,23 @@ import 'package:silo_tavern/ui/server_list_page.dart';
 import 'mocks.mocks.dart';
 
 void main() {
+  // Provide dummy values for Result types to avoid MissingDummyValueError
+  provideDummy<Result<void>>(Result.success(null));
+  
   late MockServerDomain serverDomain;
   late MockConnectionDomain connectionDomain;
   late MockGoRouter router;
 
   setUp(() {
-    // Provide dummy value for Result<void> to avoid Mockito errors
-    provideDummy<Result<void>>(Result.success(null));
-
     serverDomain = MockServerDomain();
     connectionDomain = MockConnectionDomain();
     router = MockGoRouter();
+    
+    // Provide dummy value for Result<void> to avoid Mockito errors
+    provideDummy<Result<void>>(Result.success(null));
+    
+    // Provide default stubs to avoid MissingDummyValueError during verification
+    when(serverDomain.removeServer(any)).thenAnswer((_) async => Result.success(null));
   });
 
   tearDown(() {
@@ -242,7 +248,7 @@ void main() {
       ];
 
       when(serverDomain.servers).thenReturn(servers);
-      when(serverDomain.removeServer('1')).thenAnswer((_) async {});
+      when(serverDomain.removeServer('1')).thenAnswer((_) async => Result.success(null));
 
       await tester.pumpWidget(
         MaterialApp(
@@ -316,7 +322,7 @@ void main() {
       ];
 
       when(serverDomain.servers).thenReturn(servers);
-      when(serverDomain.removeServer('1')).thenAnswer((_) async {});
+      when(serverDomain.removeServer('1')).thenAnswer((_) async => Result.success(null));
 
       await tester.pumpWidget(
         MaterialApp(

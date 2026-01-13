@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/common/result.dart';
+import 'package:silo_tavern/domain/connection/models.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/ui/login_page.dart';
 
 import 'mocks.mocks.dart';
 
 void main() {
+  // Provide dummy values for Result types to avoid MissingDummyValueError
+  provideDummy<Result<void>>(Result.success(null));
+  provideDummy<Result<bool>>(Result.success(true));
+  
   group('Login Page Tests:', () {
     late MockConnectionDomain connectionDomain;
     late MockGoRouter router;

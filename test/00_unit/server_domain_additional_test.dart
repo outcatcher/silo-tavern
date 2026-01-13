@@ -7,38 +7,42 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
+import 'package:silo_tavern/domain/servers/repository.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
-import 'package:silo_tavern/services/servers/storage.dart';
 import 'package:silo_tavern/common/result.dart';
 
 import 'server_domain_additional_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
+@GenerateNiceMocks([MockSpec<ServerRepository>(), MockSpec<ConnectionDomain>()])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  // Provide dummy value for Result<bool> to avoid Mockito errors
+  // Provide dummy values for Result types to avoid Mockito errors
   provideDummy<Result<bool>>(Result.success(true));
+  provideDummy<Result<void>>(Result.success(null));
+  provideDummy<Result<List<Server>>>(Result.success(<Server>[]));
+  provideDummy<Result<Server?>>(Result.success(null));
+  
   group('ServerDomain Additional Tests', () {
-    late MockServerStorage storage;
+    late MockServerRepository repository;
     late MockConnectionDomain connectionDomain;
     late ServerDomain service;
 
     setUp(() {
-      storage = MockServerStorage();
+      repository = MockServerRepository();
       connectionDomain = MockConnectionDomain();
       service = ServerDomain(
-        ServerOptions(storage, connectionDomain: connectionDomain),
+        ServerOptions(repository, connectionDomain: connectionDomain),
       );
     });
 
     group('ServerOptions Tests', () {
       test('ServerOptions constructor assigns properties correctly', () {
         final options = ServerOptions(
-          storage,
+          repository,
           connectionDomain: connectionDomain,
         );
 
-        expect(options.storage, storage);
+        expect(options.repository, repository);
         expect(options.connectionDomain, connectionDomain);
       });
     });
@@ -55,8 +59,8 @@ void main() {
 
     group('ServerDomain Status Update Tests', () {
       test('updateServerStatus updates existing server status', () async {
-        // Mock storage for server creation
-        when(storage.createServer(any)).thenAnswer((_) async {});
+        // Mock repository for server creation
+        when(repository.create(any)).thenAnswer((_) async => Result.success(null));
 
         // Add a server first
         final server = Server(
@@ -85,12 +89,12 @@ void main() {
 
     group('ServerDomain Check All Servers Tests', () {
       test('checkAllServerStatuses calls callback for each server', () async {
-        // Mock storage to return some servers
-        when(storage.listServers()).thenAnswer(
-          (_) async => [
+        // Mock repository to return some servers
+        when(repository.getAll()).thenAnswer(
+          (_) async => Result.success([
             Server(id: '1', name: 'Server 1', address: 'https://server1.com'),
             Server(id: '2', name: 'Server 2', address: 'https://server2.com'),
-          ],
+          ]),
         );
 
         // Mock connection domain to return true (servers available)
@@ -98,10 +102,10 @@ void main() {
           connectionDomain.checkServerAvailability(any),
         ).thenAnswer((_) async => Result.success(true));
 
-        // Mock storage protect method
-        when(storage.createServer(any)).thenAnswer((_) async {});
-        when(storage.updateServer(any)).thenAnswer((_) async {});
-        when(storage.deleteServer(any)).thenAnswer((_) async {});
+        // Mock repository methods
+        when(repository.create(any)).thenAnswer((_) async => Result.success(null));
+        when(repository.update(any)).thenAnswer((_) async => Result.success(null));
+        when(repository.delete(any)).thenAnswer((_) async => Result.success(null));
 
         // Initialize service
         await service.initialize();
@@ -121,15 +125,15 @@ void main() {
       test(
         'checkAllServerStatuses handles exception in server check',
         () async {
-          // Mock storage to return a server
-          when(storage.listServers()).thenAnswer(
-            (_) async => [
+          // Mock repository to return a server
+          when(repository.getAll()).thenAnswer(
+            (_) async => Result.success([
               Server(
                 id: 'exception-server',
                 name: 'Exception Server',
                 address: 'https://exception.com',
               ),
-            ],
+            ]),
           );
 
           // Mock connection domain to throw an exception
@@ -137,16 +141,16 @@ void main() {
             connectionDomain.checkServerAvailability(any),
           ).thenThrow(Exception('Network error'));
 
-          // Mock storage protect method
+          // Mock repository methods
           when(
-            storage.createServer(argThat(anything)),
-          ).thenAnswer((_) async {});
+            repository.create(argThat(anything)),
+          ).thenAnswer((_) async => Result.success(null));
           when(
-            storage.updateServer(argThat(anything)),
-          ).thenAnswer((_) async {});
+            repository.update(argThat(anything)),
+          ).thenAnswer((_) async => Result.success(null));
           when(
-            storage.deleteServer(argThat(anything)),
-          ).thenAnswer((_) async {});
+            repository.delete(argThat(anything)),
+          ).thenAnswer((_) async => Result.success(null));
 
           // Initialize service
           await service.initialize();

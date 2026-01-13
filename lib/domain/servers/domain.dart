@@ -3,24 +3,28 @@ import 'package:mutex/mutex.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../../services/servers/storage.dart';
 import '../../common/network_utils.dart';
+import '../../common/result.dart';
+import '../repositories.dart';
 import 'models.dart';
+import 'repository.dart';
 import '../connection/domain.dart';
+import '../../services/servers/storage.dart';
 
 class ServerOptions {
-  final ServerStorage storage;
+  final ServerRepository repository;
   final ConnectionDomain connectionDomain;
 
-  ServerOptions(this.storage, {required this.connectionDomain});
+  ServerOptions(this.repository, {required this.connectionDomain});
 
   factory ServerOptions.fromRawStorage(
     SharedPreferencesAsync prefs,
     FlutterSecureStorage sec, {
     required ConnectionDomain connectionDomain,
   }) {
+    final storage = ServerStorage.fromRawStorage(prefs, sec);
     return ServerOptions(
-      ServerStorage.fromRawStorage(prefs, sec),
+      ServerRepositoryImpl(storage),
       connectionDomain: connectionDomain,
     );
   }
@@ -28,35 +32,52 @@ class ServerOptions {
 
 class ServerDomain {
   final Map<String, Server> _serversMap = {};
-  final ServerStorage _storage;
+  final ServerRepository _repository;
   final ConnectionDomain _connectionDomain;
 
   final _serverListLocker = Mutex();
 
   ServerDomain(ServerOptions options)
-    : _storage = options.storage,
+    : _repository = options.repository,
       _connectionDomain = options.connectionDomain;
 
   /// Access to the underlying connection domain
   ConnectionDomain get connectionDomain => _connectionDomain;
 
   // Initialize the service by loading servers
-  Future<void> initialize() async {
-    await _reLoadServers();
+  Future<Result<void>> initialize() async {
+    try {
+      await _reLoadServers();
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(e.toString());
+    }
   }
 
   // Load servers from persistent storage
-  Future<void> _reLoadServers() async {
-    _serversMap.clear();
+  Future<Result<void>> _reLoadServers() async {
+    try {
+      _serversMap.clear();
 
-    await _serverListLocker.protect(() async {
-      final servers = await _storage.listServers();
-      // Initialize all loaded servers with 'offline' status
-      for (var server in servers) {
-        server.updateStatus(ServerStatus.offline);
-        _serversMap[server.id] = server;
-      }
-    });
+      await _serverListLocker.protect(() async {
+        final result = await _repository.getAll();
+        if (result.isSuccess) {
+          final servers = result.value!;
+          // Initialize all loaded servers with 'offline' status
+          for (var server in servers) {
+            server.updateStatus(ServerStatus.offline);
+            _serversMap[server.id] = server;
+          }
+        } else {
+          // Handle error appropriately
+          debugPrint('ServerDomain: Failed to load servers: ${result.error}');
+        }
+      });
+      
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(e.toString());
+    }
   }
 
   // Getter for servers list
@@ -71,41 +92,56 @@ class ServerDomain {
   int get serverCount => _serversMap.length;
 
   // Add a new server
-  Future<void> addServer(Server server) async {
-    // Check for duplicate ID
-    if (_serversMap.containsKey(server.id)) {
-      throw ArgumentError('Server with ID "${server.id}" already exists');
+  Future<Result<void>> addServer(Server server) async {
+    try {
+      // Check for duplicate ID
+      if (_serversMap.containsKey(server.id)) {
+        return Result.failure('Server with ID "${server.id}" already exists');
+      }
+
+      // Only add server if configuration is allowed
+      validateServerConfiguration(server);
+
+      // Add server with 'offline' status
+      server.updateStatus(ServerStatus.offline);
+      _serversMap[server.id] = server;
+      await _serverListLocker.protect(() => _repository.create(server));
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(e.toString());
     }
-
-    // Only add server if configuration is allowed
-    validateServerConfiguration(server);
-
-    // Add server with 'offline' status
-    server.updateStatus(ServerStatus.offline);
-    _serversMap[server.id] = server;
-    await _serverListLocker.protect(() => _storage.createServer(server));
   }
 
   // Update an existing server
-  Future<void> updateServer(Server updatedServer) async {
-    final existingServer = _serversMap[updatedServer.id];
-    if (existingServer == null) {
-      throw ArgumentError('Server with ID "${updatedServer.id}" does\'t exist');
-    }
+  Future<Result<void>> updateServer(Server updatedServer) async {
+    try {
+      final existingServer = _serversMap[updatedServer.id];
+      if (existingServer == null) {
+        return Result.failure('Server with ID "${updatedServer.id}" does\'t exist');
+      }
 
-    // Only add server if configuration is allowed
-    validateServerConfiguration(updatedServer);
-    // Update server but preserve current status
-    final currentStatus = existingServer.status;
-    updatedServer.updateStatus(currentStatus);
-    _serversMap[updatedServer.id] = updatedServer;
-    await _serverListLocker.protect(() => _storage.updateServer(updatedServer));
+      // Only add server if configuration is allowed
+      validateServerConfiguration(updatedServer);
+      // Update server but preserve current status
+      final currentStatus = existingServer.status;
+      updatedServer.updateStatus(currentStatus);
+      _serversMap[updatedServer.id] = updatedServer;
+      await _serverListLocker.protect(() => _repository.update(updatedServer));
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(e.toString());
+    }
   }
 
   // Remove a server by ID
-  Future<void> removeServer(String id) async {
-    _serversMap.remove(id);
-    await _serverListLocker.protect(() => _storage.deleteServer(id));
+  Future<Result<void>> removeServer(String id) async {
+    try {
+      _serversMap.remove(id);
+      await _serverListLocker.protect(() => _repository.delete(id));
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(e.toString());
+    }
   }
 
   // Find a server by ID

@@ -11,20 +11,24 @@ import 'package:silo_tavern/services/connection/network.dart';
 import 'package:silo_tavern/services/connection/storage.dart';
 
 import 'models.dart';
+import 'repository.dart';
+import '../repositories.dart';
 import '../../common/result.dart';
 
 class ConnectionDomain {
   final ConnectionSessionFactory sessionFactory;
-  final ConnectionStorage secureStorage;
+  final ConnectionRepository _repository;
 
   final Map<String, ConnectionSessionInterface> _sessions = {};
 
-  ConnectionDomain({required this.sessionFactory, required this.secureStorage});
+  ConnectionDomain({required this.sessionFactory, required ConnectionRepository repository})
+    : _repository = repository;
 
   factory ConnectionDomain.defaultInstance(FlutterSecureStorage sec) {
+    final storage = ConnectionStorage.defaultInstance(sec);
     return ConnectionDomain(
       sessionFactory: DefaultConnectionFactory(),
-      secureStorage: ConnectionStorage.defaultInstance(sec),
+      repository: ConnectionRepositoryImpl(storage),
     );
   }
 
@@ -51,7 +55,10 @@ class ConnectionDomain {
       // If rememberMe is true, save session cookies to secure storage
       if (rememberMe) {
         final cookies = await session.getSessionCookies();
-        await secureStorage.saveSessionCookies(server.id, cookies);
+        final result = await _repository.saveSessionCookies(server.id, cookies);
+        if (result.isFailure) {
+          debugPrint('ConnectionDomain: Failed to save session cookies: ${result.error}');
+        }
       }
 
       // Authentication successful
@@ -80,7 +87,10 @@ class ConnectionDomain {
       // Save the obtained CSRF token
       final token = session.getCsrfToken();
       if (token != null) {
-        await secureStorage.saveCsrfToken(server.id, token);
+        final result = await _repository.saveCsrfToken(server.id, token);
+        if (result.isFailure) {
+          debugPrint('ConnectionDomain: Failed to save CSRF token: ${result.error}');
+        }
       }
 
       return Result.success(null);
@@ -115,7 +125,15 @@ class ConnectionDomain {
   /// Check if a server has a persistent session
   Future<bool> hasPersistentSession(server_models.Server server) async {
     try {
-      final cookies = await secureStorage.loadSessionCookies(server.id);
+      final result = await _repository.loadSessionCookies(server.id);
+      if (result.isFailure) {
+        debugPrint(
+          'ConnectionDomain: Failed to load session cookies for server ${server.id}: ${result.error}',
+        );
+        return false;
+      }
+      
+      final cookies = result.value;
       return cookies != null && cookies.isNotEmpty;
     } catch (e) {
       debugPrint(

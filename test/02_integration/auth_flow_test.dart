@@ -10,9 +10,9 @@ import 'package:mockito/mockito.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
+import 'package:silo_tavern/domain/servers/repository.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/common/result.dart';
-import 'package:silo_tavern/services/servers/storage.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
 import 'package:silo_tavern/ui/login_page.dart';
@@ -24,42 +24,45 @@ import 'auth_flow_test.mocks.dart';
 void _provideDummyValues() {
   provideDummy<Result<void>>(Result.success(null));
   provideDummy<Result<bool>>(Result.success(true));
+  provideDummy<Result<List<Server>>>(Result.success(<Server>[]));
+  provideDummy<Result<Server?>>(Result.success(null));
 }
 
-@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
+@GenerateNiceMocks([MockSpec<ServerRepository>(), MockSpec<ConnectionDomain>()])
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Authentication Flow Integration Tests', () {
-    late MockServerStorage storage;
+    late MockServerRepository repository;
     late MockConnectionDomain connectionDomain;
     late ServerDomain domain;
     late GoRouter router;
 
     setUp(() async {
-      storage = MockServerStorage();
+      repository = MockServerRepository();
       connectionDomain = MockConnectionDomain();
 
       // Provide dummy values for Mockito
       _provideDummyValues();
 
-      // Mock the storage methods to return some initial servers
-      when(storage.listServers()).thenAnswer(
-        (_) async => [
-          Server(
-            id: '1',
-            name: 'Test Server',
-            address: 'https://test.example.com',
-          ),
-        ],
-      );
+      // Define initial servers
+      final servers = [
+        Server(
+          id: '1',
+          name: 'Test Server',
+          address: 'https://test.example.com',
+        ),
+      ];
 
-      when(storage.createServer(any)).thenAnswer((_) async {});
-      when(storage.updateServer(any)).thenAnswer((_) async {});
-      when(storage.deleteServer(any)).thenAnswer((_) async {});
+      // Mock repository methods
+      when(repository.getAll()).thenAnswer((_) async => Result.success(servers));
+      when(repository.getById(any)).thenAnswer((_) async => Result.success(null));
+      when(repository.create(any)).thenAnswer((_) async => Result.success(null));
+      when(repository.update(any)).thenAnswer((_) async => Result.success(null));
+      when(repository.delete(any)).thenAnswer((_) async => Result.success(null));
 
       domain = ServerDomain(
-        ServerOptions(storage, connectionDomain: connectionDomain),
+        ServerOptions(repository, connectionDomain: connectionDomain),
       );
 
       // Initialize the domain
