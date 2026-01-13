@@ -12,7 +12,7 @@ void main() {
   // Provide dummy values for Result types to avoid MissingDummyValueError
   provideDummy<Result<void>>(Result.success(null));
   provideDummy<Result<bool>>(Result.success(true));
-  
+
   group('Login Page Tests:', () {
     late MockConnectionDomain connectionDomain;
     late MockGoRouter router;

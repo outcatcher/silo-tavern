@@ -16,10 +16,12 @@ import 'server_service_test.mocks.dart';
 @GenerateNiceMocks([MockSpec<ServerRepository>(), MockSpec<ConnectionDomain>()])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  
+
   // Provide dummy values for Result types to avoid MissingDummyValueError
   provideDummy<Result<List<Server>>>(Result.success(List<Server>.empty()));
-  provideDummy<Result<Server>>(Result.success(Server(id: '', name: '', address: '')));
+  provideDummy<Result<Server>>(
+    Result.success(Server(id: '', name: '', address: '')),
+  );
   provideDummy<Result<Server?>>(Result.success(null));
   provideDummy<Result<void>>(Result.success(null));
   group('ServerService Tests', () {
@@ -47,15 +49,23 @@ void main() {
         ]),
       );
       when(repository.getById(any)).thenAnswer(
-        (_) async => Result.success(Server(
-          id: '1',
-          name: 'Test Server 1',
-          address: 'https://test1.example.com',
-        )),
+        (_) async => Result.success(
+          Server(
+            id: '1',
+            name: 'Test Server 1',
+            address: 'https://test1.example.com',
+          ),
+        ),
       );
-      when(repository.create(any)).thenAnswer((_) async => Result.success(null));
-      when(repository.update(any)).thenAnswer((_) async => Result.success(null));
-      when(repository.delete(any)).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.create(any),
+      ).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.update(any),
+      ).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.delete(any),
+      ).thenAnswer((_) async => Result.success(null));
 
       service = ServerDomain(
         ServerOptions(repository, connectionDomain: connectionDomain),
@@ -242,7 +252,10 @@ void main() {
 
           final result = await service.updateServer(invalidServer);
           expect(result.isFailure, isTrue);
-          expect(result.error, contains('HTTPS must be used for external servers'));
+          expect(
+            result.error,
+            contains('HTTPS must be used for external servers'),
+          );
         },
       );
     });

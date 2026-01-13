@@ -21,14 +21,16 @@ class ConnectionDomain {
 
   final Map<String, ConnectionSessionInterface> _sessions = {};
 
-  ConnectionDomain({required this.sessionFactory, required ConnectionRepository repository})
-    : _repository = repository;
+  ConnectionDomain({
+    required this.sessionFactory,
+    required ConnectionRepository repository,
+  }) : _repository = repository;
 
   factory ConnectionDomain.defaultInstance(FlutterSecureStorage sec) {
     final storage = ConnectionStorage.defaultInstance(sec);
     return ConnectionDomain(
       sessionFactory: DefaultConnectionFactory(),
-      repository: ConnectionRepositoryImpl(storage),
+      repository: storage,
     );
   }
 
@@ -57,7 +59,9 @@ class ConnectionDomain {
         final cookies = await session.getSessionCookies();
         final result = await _repository.saveSessionCookies(server.id, cookies);
         if (result.isFailure) {
-          debugPrint('ConnectionDomain: Failed to save session cookies: ${result.error}');
+          debugPrint(
+            'ConnectionDomain: Failed to save session cookies: ${result.error}',
+          );
         }
       }
 
@@ -89,7 +93,9 @@ class ConnectionDomain {
       if (token != null) {
         final result = await _repository.saveCsrfToken(server.id, token);
         if (result.isFailure) {
-          debugPrint('ConnectionDomain: Failed to save CSRF token: ${result.error}');
+          debugPrint(
+            'ConnectionDomain: Failed to save CSRF token: ${result.error}',
+          );
         }
       }
 
@@ -132,7 +138,7 @@ class ConnectionDomain {
         );
         return false;
       }
-      
+
       final cookies = result.value;
       return cookies != null && cookies.isNotEmpty;
     } catch (e) {

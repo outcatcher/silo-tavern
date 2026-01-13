@@ -23,10 +23,7 @@ class ServerOptions {
     required ConnectionDomain connectionDomain,
   }) {
     final storage = ServerStorage.fromRawStorage(prefs, sec);
-    return ServerOptions(
-      ServerRepositoryImpl(storage),
-      connectionDomain: connectionDomain,
-    );
+    return ServerOptions(storage, connectionDomain: connectionDomain);
   }
 }
 
@@ -73,7 +70,7 @@ class ServerDomain {
           debugPrint('ServerDomain: Failed to load servers: ${result.error}');
         }
       });
-      
+
       return Result.success(null);
     } catch (e) {
       return Result.failure(e.toString());
@@ -117,7 +114,9 @@ class ServerDomain {
     try {
       final existingServer = _serversMap[updatedServer.id];
       if (existingServer == null) {
-        return Result.failure('Server with ID "${updatedServer.id}" does\'t exist');
+        return Result.failure(
+          'Server with ID "${updatedServer.id}" does\'t exist',
+        );
       }
 
       // Only add server if configuration is allowed

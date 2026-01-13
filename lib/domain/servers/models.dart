@@ -27,5 +27,3 @@ enum ServerStatus {
   /// Server is offline or unreachable
   offline,
 }
-
-

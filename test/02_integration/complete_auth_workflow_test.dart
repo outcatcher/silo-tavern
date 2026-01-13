@@ -55,20 +55,40 @@ void main() {
       ];
 
       // Mock repository methods
-      when(repository.getAll()).thenAnswer((_) async => Result.success(servers));
-      when(repository.getById(any)).thenAnswer((_) async => Result.success(null));
-      when(repository.create(any)).thenAnswer((_) async => Result.success(null));
-      when(repository.update(any)).thenAnswer((_) async => Result.success(null));
-      when(repository.delete(any)).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.getAll(),
+      ).thenAnswer((_) async => Result.success(servers));
+      when(
+        repository.getById(any),
+      ).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.create(any),
+      ).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.update(any),
+      ).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.delete(any),
+      ).thenAnswer((_) async => Result.success(null));
 
       domain = ServerDomain(
         ServerOptions(repository, connectionDomain: connectionDomain),
       );
-      when(repository.getAll()).thenAnswer((_) async => Result.success(servers));
-      when(repository.getById(any)).thenAnswer((_) async => Result.success(null));
-      when(repository.create(any)).thenAnswer((_) async => Result.success(null));
-      when(repository.update(any)).thenAnswer((_) async => Result.success(null));
-      when(repository.delete(any)).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.getAll(),
+      ).thenAnswer((_) async => Result.success(servers));
+      when(
+        repository.getById(any),
+      ).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.create(any),
+      ).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.update(any),
+      ).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.delete(any),
+      ).thenAnswer((_) async => Result.success(null));
 
       domain = ServerDomain(
         ServerOptions(repository, connectionDomain: connectionDomain),

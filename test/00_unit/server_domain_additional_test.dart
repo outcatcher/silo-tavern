@@ -21,7 +21,7 @@ void main() {
   provideDummy<Result<void>>(Result.success(null));
   provideDummy<Result<List<Server>>>(Result.success(<Server>[]));
   provideDummy<Result<Server?>>(Result.success(null));
-  
+
   group('ServerDomain Additional Tests', () {
     late MockServerRepository repository;
     late MockConnectionDomain connectionDomain;
@@ -60,7 +60,9 @@ void main() {
     group('ServerDomain Status Update Tests', () {
       test('updateServerStatus updates existing server status', () async {
         // Mock repository for server creation
-        when(repository.create(any)).thenAnswer((_) async => Result.success(null));
+        when(
+          repository.create(any),
+        ).thenAnswer((_) async => Result.success(null));
 
         // Add a server first
         final server = Server(
@@ -103,9 +105,15 @@ void main() {
         ).thenAnswer((_) async => Result.success(true));
 
         // Mock repository methods
-        when(repository.create(any)).thenAnswer((_) async => Result.success(null));
-        when(repository.update(any)).thenAnswer((_) async => Result.success(null));
-        when(repository.delete(any)).thenAnswer((_) async => Result.success(null));
+        when(
+          repository.create(any),
+        ).thenAnswer((_) async => Result.success(null));
+        when(
+          repository.update(any),
+        ).thenAnswer((_) async => Result.success(null));
+        when(
+          repository.delete(any),
+        ).thenAnswer((_) async => Result.success(null));
 
         // Initialize service
         await service.initialize();

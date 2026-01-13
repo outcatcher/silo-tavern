@@ -81,6 +81,4 @@ void main() {
       expect(ServerStatus.offline.toString(), 'ServerStatus.offline');
     });
   });
-
-
 }

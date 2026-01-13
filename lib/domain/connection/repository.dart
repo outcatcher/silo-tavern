@@ -5,7 +5,10 @@ import 'package:cookie_jar/cookie_jar.dart';
 /// This abstracts the data access layer from the domain layer
 abstract class ConnectionRepository {
   /// Save session cookies for a server
-  Future<Result<void>> saveSessionCookies(String serverId, List<Cookie> cookies);
+  Future<Result<void>> saveSessionCookies(
+    String serverId,
+    List<Cookie> cookies,
+  );
 
   /// Load session cookies for a server
   Future<Result<List<Cookie>?>> loadSessionCookies(String serverId);

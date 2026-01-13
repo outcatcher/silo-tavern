@@ -40,15 +40,23 @@ void main() {
         ]),
       );
       when(repository.getById(any)).thenAnswer(
-        (_) async => Result.success(Server(
-          id: '1',
-          name: 'Test Server 1',
-          address: 'https://test1.example.com',
-        )),
+        (_) async => Result.success(
+          Server(
+            id: '1',
+            name: 'Test Server 1',
+            address: 'https://test1.example.com',
+          ),
+        ),
       );
-      when(repository.create(any)).thenAnswer((_) async => Result.success(null));
-      when(repository.update(any)).thenAnswer((_) async => Result.success(null));
-      when(repository.delete(any)).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.create(any),
+      ).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.update(any),
+      ).thenAnswer((_) async => Result.success(null));
+      when(
+        repository.delete(any),
+      ).thenAnswer((_) async => Result.success(null));
 
       domain = ServerDomain(
         ServerOptions(repository, connectionDomain: connectionDomain),

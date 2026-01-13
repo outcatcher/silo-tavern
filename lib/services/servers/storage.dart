@@ -3,11 +3,13 @@ library;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/servers/models.dart';
+import '../../domain/servers/repository.dart';
 import '../../common/app_storage.dart';
+import '../../common/result.dart';
 
 part 'models.dart';
 
-class ServerStorage {
+class ServerStorage implements ServerRepository {
   static const String _serversKeyPrefix = 'servers';
 
   final JsonStorage _storage;
@@ -28,55 +30,83 @@ class ServerStorage {
   }
 
   /// Load all servers from persistent storage
-  Future<List<Server>> listServers() async {
-    final serversData = await _storage.list();
+  @override
+  Future<Result<List<Server>>> getAll() async {
+    try {
+      final serversData = await _storage.list();
 
-    final List<Server> servers = [];
+      final List<Server> servers = [];
 
-    for (final serverData in serversData) {
-      final server = _ServiceServer.fromJson(serverData);
-      servers.add(server.toDomain());
+      for (final serverData in serversData) {
+        final server = _ServiceServer.fromJson(serverData);
+        servers.add(server.toDomain());
+      }
+
+      return Result.success(servers);
+    } catch (e) {
+      return Result.failure(e.toString());
     }
-
-    return servers;
   }
 
   /// Get a specific server by ID
-  Future<Server?> getServer(String id) async {
-    final serverData = await _storage.get(id);
-    if (serverData == null) {
-      return null;
-    }
+  @override
+  Future<Result<Server?>> getById(String id) async {
+    try {
+      final serverData = await _storage.get(id);
+      if (serverData == null) {
+        return Result.success(null);
+      }
 
-    final server = _ServiceServer.fromJson(serverData);
-    return server.toDomain();
+      final server = _ServiceServer.fromJson(serverData);
+      return Result.success(server.toDomain());
+    } catch (e) {
+      return Result.failure(e.toString());
+    }
   }
 
   /// Create a new server
-  Future<void> createServer(Server server) async {
-    final existing = await _storage.get(server.id);
-    if (existing != null) {
-      throw Exception('Server with ID ${server.id} already exists');
-    }
+  @override
+  Future<Result<void>> create(Server server) async {
+    try {
+      final existing = await _storage.get(server.id);
+      if (existing != null) {
+        return Result.failure('Server with ID ${server.id} already exists');
+      }
 
-    final serviceServer = _ServiceServer.fromDomain(server);
-    await _storage.set(server.id, serviceServer.toJson());
+      final serviceServer = _ServiceServer.fromDomain(server);
+      await _storage.set(server.id, serviceServer.toJson());
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(e.toString());
+    }
   }
 
   /// Update an existing server
-  Future<void> updateServer(Server server) async {
-    final existing = await _storage.get(server.id);
-    if (existing == null) {
-      throw Exception('Server with ID ${server.id} not found');
-    }
+  @override
+  Future<Result<void>> update(Server server) async {
+    try {
+      final existing = await _storage.get(server.id);
+      if (existing == null) {
+        return Result.failure('Server with ID ${server.id} not found');
+      }
 
-    final serviceServer = _ServiceServer.fromDomain(server);
-    await _storage.set(server.id, serviceServer.toJson());
+      final serviceServer = _ServiceServer.fromDomain(server);
+      await _storage.set(server.id, serviceServer.toJson());
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(e.toString());
+    }
   }
 
   /// Delete a server and its credentials from storage
-  Future<void> deleteServer(String serverId) async {
-    await _storage.delete(serverId);
-    await _secureStorage.delete(serverId);
+  @override
+  Future<Result<void>> delete(String serverId) async {
+    try {
+      await _storage.delete(serverId);
+      await _secureStorage.delete(serverId);
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(e.toString());
+    }
   }
 }

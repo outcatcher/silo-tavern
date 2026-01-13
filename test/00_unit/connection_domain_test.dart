@@ -40,7 +40,7 @@ void main() {
   provideDummy<Result<void>>(Result.success(null));
   provideDummy<Result<String?>>(Result.success(null));
   provideDummy<Result<List<Cookie>?>>(Result.success(null));
-  
+
   group('ConnectionDomain Tests', () {
     late MockConnectionRepository repository;
     late FakeSessionFactory sessionFactory;
@@ -340,7 +340,9 @@ void main() {
           address: 'https://test.example.com',
         );
 
-        when(repository.loadSessionCookies('1')).thenAnswer((_) async => Result.success([]));
+        when(
+          repository.loadSessionCookies('1'),
+        ).thenAnswer((_) async => Result.success([]));
 
         // Act
         final hasPersistentSession = await domain.hasPersistentSession(server);

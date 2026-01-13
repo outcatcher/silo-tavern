@@ -2,8 +2,10 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:silo_tavern/common/app_storage.dart';
+import 'package:silo_tavern/domain/connection/repository.dart';
+import 'package:silo_tavern/common/result.dart';
 
-class ConnectionStorage {
+class ConnectionStorage implements ConnectionRepository {
   final JsonSecureStorage _secureStorage;
 
   static const String _sessionKeyPrefix = 'sessions';
@@ -15,7 +17,11 @@ class ConnectionStorage {
     return ConnectionStorage(JsonSecureStorage(sec, _sessionKeyPrefix));
   }
 
-  Future<void> saveSessionCookies(String serverId, List<Cookie> cookies) async {
+  @override
+  Future<Result<void>> saveSessionCookies(
+    String serverId,
+    List<Cookie> cookies,
+  ) async {
     try {
       final cookieData = cookies.map((cookie) {
         return {
@@ -28,24 +34,26 @@ class ConnectionStorage {
         };
       }).toList();
 
-      _secureStorage.set(serverId, cookieData);
+      await _secureStorage.set(serverId, cookieData);
+      return Result.success(null);
     } catch (e) {
       debugPrint(
         'ConnectionStorage: Failed to save session cookies for server $serverId: $e',
       );
-      rethrow;
+      return Result.failure(e.toString());
     }
   }
 
-  Future<List<Cookie>?> loadSessionCookies(String serverId) async {
+  @override
+  Future<Result<List<Cookie>?>> loadSessionCookies(String serverId) async {
     try {
       final cookieData = await _secureStorage.get(serverId);
       if (cookieData == null) {
-        return null;
+        return Result.success(null);
       }
 
       if (cookieData is! List) {
-        return null;
+        return Result.success(null);
       }
 
       final cookiesFromStorage = cookieData
@@ -59,49 +67,54 @@ class ConnectionStorage {
           )
           .toList();
 
-      return cookiesFromStorage;
+      return Result.success(cookiesFromStorage);
     } catch (e) {
       debugPrint(
         'ConnectionStorage: Failed to load session cookies for server $serverId: $e',
       );
-      return null;
+      return Result.failure(e.toString());
     }
   }
 
-  Future<void> saveCsrfToken(String serverId, String token) async {
+  @override
+  Future<Result<void>> saveCsrfToken(String serverId, String token) async {
     try {
       final key = '$serverId$_csrfTokenKeySuffix';
       await _secureStorage.set(key, token);
+      return Result.success(null);
     } catch (e) {
       debugPrint(
         'ConnectionStorage: Failed to save CSRF token for server $serverId: $e',
       );
-      rethrow;
+      return Result.failure(e.toString());
     }
   }
 
-  Future<String?> loadCsrfToken(String serverId) async {
+  @override
+  Future<Result<String?>> loadCsrfToken(String serverId) async {
     try {
       final key = '$serverId$_csrfTokenKeySuffix';
       final token = await _secureStorage.get(key);
-      return token is String ? token : null;
+      return Result.success(token is String ? token : null);
     } catch (e) {
       debugPrint(
         'ConnectionStorage: Failed to load CSRF token for server $serverId: $e',
       );
-      return null;
+      return Result.failure(e.toString());
     }
   }
 
-  Future<void> deleteCsrfToken(String serverId) async {
+  @override
+  Future<Result<void>> deleteCsrfToken(String serverId) async {
     try {
       final key = '$serverId$_csrfTokenKeySuffix';
       await _secureStorage.delete(key);
+      return Result.success(null);
     } catch (e) {
       debugPrint(
         'ConnectionStorage: Failed to delete CSRF token for server $serverId: $e',
       );
-      rethrow;
+      return Result.failure(e.toString());
     }
   }
 }
