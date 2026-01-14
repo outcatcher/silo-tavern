@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
-import 'package:silo_tavern/common/result.dart';
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/services/connection/models/models.dart';
 import 'package:silo_tavern/ui/utils.dart' as utils;
@@ -175,60 +175,40 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isAuthenticating = true;
       });
+      // Create credentials from form data
+      final credentials = ConnectionCredentials(
+        handle: _username,
+        password: _password,
+      );
 
-      try {
-        // Create credentials from form data
-        final credentials = ConnectionCredentials(
-          handle: _username,
-          password: _password,
-        );
+      // Authenticate with the server
+      final Result<void> result = await widget.connectionDomain
+          .authenticateWithServer(
+            widget.server,
+            credentials,
+            rememberMe: _rememberMe,
+          );
 
-        // Authenticate with the server
-        final Result<void> result = await widget.connectionDomain
-            .authenticateWithServer(
-              widget.server,
-              credentials,
-              rememberMe: _rememberMe,
-            );
-
-        if (result.isSuccess) {
-          // Authentication successful - navigate to connect page
-          if (context.mounted) {
-            router.go(
-              Uri(
-                path: '/servers/connect/${widget.server.id}',
-                queryParameters: {
-                  'backUrl': widget.backUrl ?? utils.defaultPage,
-                },
-              ).toString(),
-            );
-          }
-        } else {
-          // Authentication failed - show error
-          if (mounted) {
-            utils.showErrorDialog(
-              context,
-              _getUserFriendlyAuthErrorMessage(
-                result.error ?? 'Authentication failed',
-              ),
-              title: 'Login Failed',
-            );
-          }
+      if (result.isSuccess) {
+        // Authentication successful - navigate to connect page
+        if (context.mounted) {
+          router.go(
+            Uri(
+              path: '/servers/connect/${widget.server.id}',
+              queryParameters: {'backUrl': widget.backUrl ?? utils.defaultPage},
+            ).toString(),
+          );
         }
-      } catch (e) {
-        // Unexpected error
+      } else {
+        // Authentication failed - show error
         if (mounted) {
           utils.showErrorDialog(
             context,
-            _getUserFriendlyAuthErrorMessage(e.toString()),
-            title: 'Login Error',
+            _getUserFriendlyAuthErrorMessage(
+              result.error ?? 'Authentication failed',
+            ),
+            title: 'Login Failed',
           );
-        }
-      } finally {
-        if (context.mounted) {
-          setState(() {
-            _isAuthenticating = false;
-          });
         }
       }
     }

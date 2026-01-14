@@ -7,9 +7,9 @@ import 'dart:async' as _i6;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i8;
-import 'package:silo_tavern/common/result.dart' as _i7;
 import 'package:silo_tavern/domain/connection/domain.dart' as _i2;
 import 'package:silo_tavern/domain/connection/models.dart' as _i3;
+import 'package:silo_tavern/domain/result.dart' as _i7;
 import 'package:silo_tavern/domain/servers/domain.dart' as _i4;
 import 'package:silo_tavern/domain/servers/models.dart' as _i5;
 import 'package:silo_tavern/services/connection/models/models.dart' as _i10;

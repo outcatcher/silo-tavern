@@ -5,13 +5,11 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i3;
 
-import 'package:cookie_jar/cookie_jar.dart' as _i5;
+import 'package:cookie_jar/cookie_jar.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i6;
-import 'package:silo_tavern/common/result.dart' as _i4;
 import 'package:silo_tavern/domain/connection/repository.dart' as _i2;
-import 'package:silo_tavern/services/connection/models/models.dart' as _i8;
-import 'package:silo_tavern/services/connection/network.dart' as _i7;
+import 'package:silo_tavern/services/connection/models/models.dart' as _i6;
+import 'package:silo_tavern/services/connection/network.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -34,112 +32,59 @@ import 'package:silo_tavern/services/connection/network.dart' as _i7;
 class MockConnectionRepository extends _i1.Mock
     implements _i2.ConnectionRepository {
   @override
-  _i3.Future<_i4.Result<void>> saveSessionCookies(
+  _i3.Future<void> saveSessionCookies(
     String? serverId,
-    List<_i5.Cookie>? cookies,
+    List<_i4.Cookie>? cookies,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#saveSessionCookies, [serverId, cookies]),
-            returnValue: _i3.Future<_i4.Result<void>>.value(
-              _i6.dummyValue<_i4.Result<void>>(
-                this,
-                Invocation.method(#saveSessionCookies, [serverId, cookies]),
-              ),
-            ),
-            returnValueForMissingStub: _i3.Future<_i4.Result<void>>.value(
-              _i6.dummyValue<_i4.Result<void>>(
-                this,
-                Invocation.method(#saveSessionCookies, [serverId, cookies]),
-              ),
-            ),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i3.Future<_i4.Result<void>>);
+          as _i3.Future<void>);
 
   @override
-  _i3.Future<_i4.Result<List<_i5.Cookie>?>> loadSessionCookies(
-    String? serverId,
-  ) =>
+  _i3.Future<List<_i4.Cookie>?> loadSessionCookies(String? serverId) =>
       (super.noSuchMethod(
             Invocation.method(#loadSessionCookies, [serverId]),
-            returnValue: _i3.Future<_i4.Result<List<_i5.Cookie>?>>.value(
-              _i6.dummyValue<_i4.Result<List<_i5.Cookie>?>>(
-                this,
-                Invocation.method(#loadSessionCookies, [serverId]),
-              ),
-            ),
-            returnValueForMissingStub:
-                _i3.Future<_i4.Result<List<_i5.Cookie>?>>.value(
-                  _i6.dummyValue<_i4.Result<List<_i5.Cookie>?>>(
-                    this,
-                    Invocation.method(#loadSessionCookies, [serverId]),
-                  ),
-                ),
+            returnValue: _i3.Future<List<_i4.Cookie>?>.value(),
+            returnValueForMissingStub: _i3.Future<List<_i4.Cookie>?>.value(),
           )
-          as _i3.Future<_i4.Result<List<_i5.Cookie>?>>);
+          as _i3.Future<List<_i4.Cookie>?>);
 
   @override
-  _i3.Future<_i4.Result<void>> saveCsrfToken(String? serverId, String? token) =>
+  _i3.Future<void> saveCsrfToken(String? serverId, String? token) =>
       (super.noSuchMethod(
             Invocation.method(#saveCsrfToken, [serverId, token]),
-            returnValue: _i3.Future<_i4.Result<void>>.value(
-              _i6.dummyValue<_i4.Result<void>>(
-                this,
-                Invocation.method(#saveCsrfToken, [serverId, token]),
-              ),
-            ),
-            returnValueForMissingStub: _i3.Future<_i4.Result<void>>.value(
-              _i6.dummyValue<_i4.Result<void>>(
-                this,
-                Invocation.method(#saveCsrfToken, [serverId, token]),
-              ),
-            ),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i3.Future<_i4.Result<void>>);
+          as _i3.Future<void>);
 
   @override
-  _i3.Future<_i4.Result<String?>> loadCsrfToken(String? serverId) =>
+  _i3.Future<String?> loadCsrfToken(String? serverId) =>
       (super.noSuchMethod(
             Invocation.method(#loadCsrfToken, [serverId]),
-            returnValue: _i3.Future<_i4.Result<String?>>.value(
-              _i6.dummyValue<_i4.Result<String?>>(
-                this,
-                Invocation.method(#loadCsrfToken, [serverId]),
-              ),
-            ),
-            returnValueForMissingStub: _i3.Future<_i4.Result<String?>>.value(
-              _i6.dummyValue<_i4.Result<String?>>(
-                this,
-                Invocation.method(#loadCsrfToken, [serverId]),
-              ),
-            ),
+            returnValue: _i3.Future<String?>.value(),
+            returnValueForMissingStub: _i3.Future<String?>.value(),
           )
-          as _i3.Future<_i4.Result<String?>>);
+          as _i3.Future<String?>);
 
   @override
-  _i3.Future<_i4.Result<void>> deleteCsrfToken(String? serverId) =>
+  _i3.Future<void> deleteCsrfToken(String? serverId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteCsrfToken, [serverId]),
-            returnValue: _i3.Future<_i4.Result<void>>.value(
-              _i6.dummyValue<_i4.Result<void>>(
-                this,
-                Invocation.method(#deleteCsrfToken, [serverId]),
-              ),
-            ),
-            returnValueForMissingStub: _i3.Future<_i4.Result<void>>.value(
-              _i6.dummyValue<_i4.Result<void>>(
-                this,
-                Invocation.method(#deleteCsrfToken, [serverId]),
-              ),
-            ),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i3.Future<_i4.Result<void>>);
+          as _i3.Future<void>);
 }
 
 /// A class which mocks [ConnectionSessionInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockConnectionSessionInterface extends _i1.Mock
-    implements _i7.ConnectionSessionInterface {
+    implements _i5.ConnectionSessionInterface {
   @override
   _i3.Future<void> obtainCsrfToken() =>
       (super.noSuchMethod(
@@ -150,7 +95,7 @@ class MockConnectionSessionInterface extends _i1.Mock
           as _i3.Future<void>);
 
   @override
-  _i3.Future<void> authenticate(_i8.ConnectionCredentials? credentials) =>
+  _i3.Future<void> authenticate(_i6.ConnectionCredentials? credentials) =>
       (super.noSuchMethod(
             Invocation.method(#authenticate, [credentials]),
             returnValue: _i3.Future<void>.value(),
@@ -168,15 +113,15 @@ class MockConnectionSessionInterface extends _i1.Mock
           as _i3.Future<bool>);
 
   @override
-  _i3.Future<List<_i5.Cookie>> getSessionCookies() =>
+  _i3.Future<List<_i4.Cookie>> getSessionCookies() =>
       (super.noSuchMethod(
             Invocation.method(#getSessionCookies, []),
-            returnValue: _i3.Future<List<_i5.Cookie>>.value(<_i5.Cookie>[]),
-            returnValueForMissingStub: _i3.Future<List<_i5.Cookie>>.value(
-              <_i5.Cookie>[],
+            returnValue: _i3.Future<List<_i4.Cookie>>.value(<_i4.Cookie>[]),
+            returnValueForMissingStub: _i3.Future<List<_i4.Cookie>>.value(
+              <_i4.Cookie>[],
             ),
           )
-          as _i3.Future<List<_i5.Cookie>>);
+          as _i3.Future<List<_i4.Cookie>>);
 
   @override
   void setCsrfToken(String? token) => super.noSuchMethod(

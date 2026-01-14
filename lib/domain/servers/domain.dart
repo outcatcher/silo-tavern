@@ -1,15 +1,15 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mutex/mutex.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:silo_tavern/common/network_utils.dart';
+import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/domain/repositories.dart';
+import 'package:silo_tavern/domain/result.dart';
+import 'package:silo_tavern/services/servers/storage.dart';
 
-import '../../common/network_utils.dart';
-import '../../common/result.dart';
-import '../repositories.dart';
 import 'models.dart';
 import 'repository.dart';
-import '../connection/domain.dart';
-import '../../services/servers/storage.dart';
 
 class ServerOptions {
   final ServerRepository repository;
@@ -57,17 +57,12 @@ class ServerDomain {
       _serversMap.clear();
 
       await _serverListLocker.protect(() async {
-        final result = await _repository.getAll();
-        if (result.isSuccess) {
-          final servers = result.value!;
-          // Initialize all loaded servers with 'offline' status
-          for (var server in servers) {
-            server.updateStatus(ServerStatus.offline);
-            _serversMap[server.id] = server;
-          }
-        } else {
-          // Handle error appropriately
-          debugPrint('ServerDomain: Failed to load servers: ${result.error}');
+        final servers = await _repository.getAll();
+
+        // Initialize all loaded servers with 'offline' status
+        for (var server in servers) {
+          server.updateStatus(ServerStatus.offline);
+          _serversMap[server.id] = server;
         }
       });
 
@@ -200,19 +195,21 @@ class ServerDomain {
 }
 
 /// Validates if a server configuration is allowed based on security rules
-/// Local servers are always allowed
+/// Local servers are always allowedve
 /// Remote servers must be HTTPS
-void validateServerConfiguration(Server server) {
+Result<void> validateServerConfiguration(Server server) {
   final isHttps = server.address.startsWith('https://');
   final isLocal = NetworkUtils.isLocalAddress(server.address);
 
   // Local addresses are always allowed
   if (isLocal) {
-    return;
+    return Result.success(null);
   }
 
   // For remote addresses: must be HTTPS
   if (!isHttps) {
-    throw ArgumentError('HTTPS must be used for external servers');
+    return Result.failure('HTTPS must be used for external servers');
   }
+
+  return Result.success(null);
 }

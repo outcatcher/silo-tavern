@@ -5,6 +5,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:silo_tavern/domain/repositories.dart';
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/domain/servers/models.dart' as server_models;
 import 'package:silo_tavern/services/connection/models/models.dart';
 import 'package:silo_tavern/services/connection/network.dart';
@@ -12,8 +14,6 @@ import 'package:silo_tavern/services/connection/storage.dart';
 
 import 'models.dart';
 import 'repository.dart';
-import '../repositories.dart';
-import '../../common/result.dart';
 
 class ConnectionDomain {
   final ConnectionSessionFactory sessionFactory;
@@ -57,12 +57,7 @@ class ConnectionDomain {
       // If rememberMe is true, save session cookies to secure storage
       if (rememberMe) {
         final cookies = await session.getSessionCookies();
-        final result = await _repository.saveSessionCookies(server.id, cookies);
-        if (result.isFailure) {
-          debugPrint(
-            'ConnectionDomain: Failed to save session cookies: ${result.error}',
-          );
-        }
+        await _repository.saveSessionCookies(server.id, cookies);
       }
 
       // Authentication successful
@@ -91,12 +86,7 @@ class ConnectionDomain {
       // Save the obtained CSRF token
       final token = session.getCsrfToken();
       if (token != null) {
-        final result = await _repository.saveCsrfToken(server.id, token);
-        if (result.isFailure) {
-          debugPrint(
-            'ConnectionDomain: Failed to save CSRF token: ${result.error}',
-          );
-        }
+        await _repository.saveCsrfToken(server.id, token);
       }
 
       return Result.success(null);
@@ -131,15 +121,7 @@ class ConnectionDomain {
   /// Check if a server has a persistent session
   Future<bool> hasPersistentSession(server_models.Server server) async {
     try {
-      final result = await _repository.loadSessionCookies(server.id);
-      if (result.isFailure) {
-        debugPrint(
-          'ConnectionDomain: Failed to load session cookies for server ${server.id}: ${result.error}',
-        );
-        return false;
-      }
-
-      final cookies = result.value;
+      final cookies = await _repository.loadSessionCookies(server.id);
       return cookies != null && cookies.isNotEmpty;
     } catch (e) {
       debugPrint(

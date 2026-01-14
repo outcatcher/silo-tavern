@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
@@ -106,9 +104,8 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 );
 
                 // Validate server configuration
-                try {
-                  validateServerConfiguration(tempServer);
-                } catch (e) {
+                final result = validateServerConfiguration(tempServer);
+                if (result.isFailure) {
                   // Show error dialog
                   utils.showErrorDialog(
                     context,
@@ -119,36 +116,36 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 }
 
                 // Save the server data directly
-                try {
-                  if (widget.initialServer != null) {
-                    // Update existing server
-                    await widget.serverDomain.updateServer(tempServer);
-                    // Navigate back to the server list after successful update
-                    if (context.mounted) {
-                      router.go('/servers');
-                    }
-                  } else {
-                    // Add new server
-                    await widget.serverDomain.addServer(tempServer);
-                    if (context.mounted) {
-                      utils.showSuccessDialog(
-                        context,
-                        'Server added successfully!',
-                        title: 'Success',
-                      );
-                      router.go('/servers');
-                    }
-                  }
-                } catch (error) {
-                  log('failed to save server', error: error);
-
-                  if (context.mounted) {
+                if (widget.initialServer != null) {
+                  // Update existing server
+                  final result = await widget.serverDomain.updateServer(
+                    tempServer,
+                  );
+                  if (result.isFailure) {
                     utils.showErrorDialog(
                       context,
                       'Failed to save server. Please try again.',
                       title: 'Save Failed',
                     );
                   }
+
+                  // Navigate back to the server list after successful update
+                  if (context.mounted) {
+                    router.go('/servers');
+                  }
+
+                  return;
+                }
+
+                // Add new server
+                await widget.serverDomain.addServer(tempServer);
+                if (context.mounted) {
+                  utils.showSuccessDialog(
+                    context,
+                    'Server added successfully!',
+                    title: 'Success',
+                  );
+                  router.go('/servers');
                 }
               }
             },

@@ -55,9 +55,9 @@ class Failure<T> extends Result<T> {
   int get hashCode => error.hashCode;
 }
 
-/// Extension methods for Result<T> to enable functional programming patterns
+/// Extension methods for Result\<T> to enable functional programming patterns
 extension ResultExtensions<T> on Result<T> {
-  /// Maps a Result<T> to Result<U> by applying a function to the value
+  /// Maps a Result\<T> to Result<U> by applying a function to the value
   Result<U> map<U>(U Function(T) transform) {
     if (this is Success<T>) {
       return Result.success(transform((this as Success<T>).value));

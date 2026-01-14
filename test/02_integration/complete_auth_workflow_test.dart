@@ -12,7 +12,7 @@ import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/servers/repository.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
-import 'package:silo_tavern/common/result.dart';
+
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
 import 'package:silo_tavern/ui/login_page.dart';

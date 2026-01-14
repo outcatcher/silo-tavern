@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:silo_tavern/common/result.dart';
+
 import 'package:silo_tavern/domain/connection/models.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/ui/login_page.dart';

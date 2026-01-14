@@ -9,7 +9,6 @@ import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/repository.dart';
-import 'package:silo_tavern/common/result.dart';
 
 import 'server_connection_test.mocks.dart';
 
