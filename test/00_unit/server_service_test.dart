@@ -7,34 +7,25 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
-import 'package:silo_tavern/domain/servers/repository.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/services/servers/storage.dart';
 
 import 'server_service_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerRepository>(), MockSpec<ConnectionDomain>()])
+@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
-  // Provide dummy values for Result types to avoid MissingDummyValueError
-  provideDummy<Result<List<Server>>>(Result.success(List<Server>.empty()));
-  provideDummy<Result<Server>>(
-    Result.success(Server(id: '', name: '', address: '')),
-  );
-  provideDummy<Result<Server?>>(Result.success(null));
-  provideDummy<Result<void>>(Result.success(null));
   group('ServerService Tests', () {
-    late MockServerRepository repository;
+    late MockServerStorage storage;
     late MockConnectionDomain connectionDomain;
     late ServerDomain service;
 
     setUp(() async {
-      repository = MockServerRepository();
+      storage = MockServerStorage();
       connectionDomain = MockConnectionDomain();
 
-      // Mock the repository methods to return some initial servers
-      when(repository.getAll()).thenAnswer(
-        (_) async => Result.success([
+      // Mock the storage methods to return some initial servers
+      when(storage.getAll()).thenAnswer(
+        (_) async => [
           Server(
             id: '1',
             name: 'Test Server 1',
@@ -45,29 +36,21 @@ void main() {
             name: 'Local Server',
             address: 'http://localhost:8080',
           ),
-        ]),
+        ],
       );
-      when(repository.getById(any)).thenAnswer(
-        (_) async => Result.success(
-          Server(
-            id: '1',
-            name: 'Test Server 1',
-            address: 'https://test1.example.com',
-          ),
+      when(storage.getById(any)).thenAnswer(
+        (_) async => Server(
+          id: '1',
+          name: 'Test Server 1',
+          address: 'https://test1.example.com',
         ),
       );
-      when(
-        repository.create(any),
-      ).thenAnswer((_) async => Result.success(null));
-      when(
-        repository.update(any),
-      ).thenAnswer((_) async => Result.success(null));
-      when(
-        repository.delete(any),
-      ).thenAnswer((_) async => Result.success(null));
+      when(storage.create(any)).thenAnswer((_) async {});
+      when(storage.update(any)).thenAnswer((_) async {});
+      when(storage.delete(any)).thenAnswer((_) async {});
 
       service = ServerDomain(
-        ServerOptions(repository, connectionDomain: connectionDomain),
+        ServerOptions(storage, connectionDomain: connectionDomain),
       );
 
       // Initialize the service
@@ -147,7 +130,7 @@ void main() {
       expect(foundServer, isNull);
     });
 
-    test('Update non-existent server throws exception', () async {
+    test('Update non-existent server returns failure result', () async {
       final initialCount = service.serverCount;
       final fakeServer = Server(
         id: 'fake-id',
@@ -156,7 +139,7 @@ void main() {
       );
 
       final result = await service.updateServer(fakeServer);
-      expect(result.isFailure, isTrue);
+      expect(result.isSuccess, isFalse);
       expect(result.error, contains('does\'t exist'));
 
       expect(service.serverCount, initialCount); // No change
@@ -181,8 +164,8 @@ void main() {
         );
 
         final result = await service.updateServer(invalidServer);
-        expect(result.isFailure, isTrue);
-        expect(result.error, isNotNull);
+        expect(result.isSuccess, isFalse);
+        expect(result.error, 'HTTPS must be used for external servers');
 
         // Original server should still exist
         expect(service.findServerById('valid-server'), isNotNull);
@@ -206,13 +189,14 @@ void main() {
         );
 
         // First server should be added successfully
-        expect(() => service.addServer(server1), returnsNormally);
+        final result1 = await service.addServer(server1);
+        expect(result1.isSuccess, isTrue);
         expect(service.findServerById('duplicate-id'), isNotNull);
 
         // Second server with same ID should fail
-        final result = await service.addServer(server2);
-        expect(result.isFailure, isTrue);
-        expect(result.error, isNotNull);
+        final result2 = await service.addServer(server2);
+        expect(result2.isSuccess, isFalse);
+        expect(result2.error, contains('already exists'));
 
         // Original server should still exist
         expect(service.findServerById('duplicate-id'), isNotNull);
@@ -250,11 +234,8 @@ void main() {
           );
 
           final result = await service.updateServer(invalidServer);
-          expect(result.isFailure, isTrue);
-          expect(
-            result.error,
-            contains('HTTPS must be used for external servers'),
-          );
+          expect(result.isSuccess, isFalse);
+          expect(result.error, 'HTTPS must be used for external servers');
         },
       );
     });

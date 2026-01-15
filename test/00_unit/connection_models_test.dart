@@ -3,7 +3,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/services/connection/models/models.dart';
 
 void main() {

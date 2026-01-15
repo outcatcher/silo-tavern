@@ -9,6 +9,7 @@ import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/repository.dart';
+import 'package:silo_tavern/domain/result.dart';
 
 import 'server_connection_test.mocks.dart';
 
@@ -25,7 +26,7 @@ void main() {
 
       // Mock the repository methods to return some initial servers
       when(repository.getAll()).thenAnswer(
-        (_) async => Result.success([
+        (_) async => [
           Server(
             id: '1',
             name: 'Test Server 1',
@@ -36,26 +37,24 @@ void main() {
             name: 'Local Server',
             address: 'http://localhost:8080',
           ),
-        ]),
+        ],
       );
       when(repository.getById(any)).thenAnswer(
-        (_) async => Result.success(
-          Server(
-            id: '1',
-            name: 'Test Server 1',
-            address: 'https://test1.example.com',
-          ),
+        (_) async => Server(
+          id: '1',
+          name: 'Test Server 1',
+          address: 'https://test1.example.com',
         ),
       );
       when(
         repository.create(any),
-      ).thenAnswer((_) async => Result.success(null));
+      ).thenAnswer((_) async {});
       when(
         repository.update(any),
-      ).thenAnswer((_) async => Result.success(null));
+      ).thenAnswer((_) async {});
       when(
         repository.delete(any),
-      ).thenAnswer((_) async => Result.success(null));
+      ).thenAnswer((_) async {});
 
       domain = ServerDomain(
         ServerOptions(repository, connectionDomain: connectionDomain),

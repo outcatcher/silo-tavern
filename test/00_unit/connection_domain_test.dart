@@ -9,7 +9,6 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/connection/models.dart';
-import 'package:silo_tavern/domain/connection/repository.dart';
 import 'package:silo_tavern/domain/servers/models.dart' as server_models;
 
 import 'package:silo_tavern/services/connection/network.dart';
@@ -31,26 +30,21 @@ class FakeSessionFactory implements ConnectionSessionFactory {
 }
 
 @GenerateNiceMocks([
-  MockSpec<ConnectionRepository>(),
+  MockSpec<ConnectionStorage>(),
   MockSpec<ConnectionSessionInterface>(),
 ])
 void main() {
-  // Provide dummy values for Result types to avoid MissingDummyValueError
-  provideDummy<Result<void>>(Result.success(null));
-  provideDummy<Result<String?>>(Result.success(null));
-  provideDummy<Result<List<Cookie>?>>(Result.success(null));
-
   group('ConnectionDomain Tests', () {
-    late MockConnectionRepository repository;
+    late MockConnectionStorage secureStorage;
     late FakeSessionFactory sessionFactory;
     late ConnectionDomain domain;
 
     setUp(() {
-      repository = MockConnectionRepository();
+      secureStorage = MockConnectionStorage();
       sessionFactory = FakeSessionFactory();
       domain = ConnectionDomain(
         sessionFactory: sessionFactory,
-        repository: repository,
+        repository: secureStorage,
       );
     });
 
@@ -164,7 +158,7 @@ void main() {
       expect(result.error, isNull);
       verify(session.obtainCsrfToken()).called(1);
       verify(session.getCsrfToken()).called(1);
-      verify(repository.saveCsrfToken('1', 'test-csrf-token')).called(1);
+      verify(secureStorage.saveCsrfToken('1', 'test-csrf-token')).called(1);
     });
 
     test(
@@ -189,7 +183,7 @@ void main() {
         expect(result.isSuccess, isFalse);
         expect(result.error, isNotNull);
         verify(session.obtainCsrfToken()).called(1);
-        verifyNever(repository.saveCsrfToken(any, any));
+        verifyNever(secureStorage.saveCsrfToken(any, any));
       },
     );
 
@@ -295,15 +289,15 @@ void main() {
 
       final cookies = [Cookie('session', 'abc123')];
       when(
-        repository.loadSessionCookies('1'),
-      ).thenAnswer((_) async => Result.success(cookies));
+        secureStorage.loadSessionCookies('1'),
+      ).thenAnswer((_) async => cookies);
 
       // Act
       final hasPersistentSession = await domain.hasPersistentSession(server);
 
       // Assert
       expect(hasPersistentSession, isTrue);
-      verify(repository.loadSessionCookies('1')).called(1);
+      verify(secureStorage.loadSessionCookies('1')).called(1);
     });
 
     test(
@@ -317,15 +311,15 @@ void main() {
         );
 
         when(
-          repository.loadSessionCookies('1'),
-        ).thenAnswer((_) async => Result.success(null));
+          secureStorage.loadSessionCookies('1'),
+        ).thenAnswer((_) async => null);
 
         // Act
         final hasPersistentSession = await domain.hasPersistentSession(server);
 
         // Assert
         expect(hasPersistentSession, isFalse);
-        verify(repository.loadSessionCookies('1')).called(1);
+        verify(secureStorage.loadSessionCookies('1')).called(1);
       },
     );
 
@@ -339,16 +333,14 @@ void main() {
           address: 'https://test.example.com',
         );
 
-        when(
-          repository.loadSessionCookies('1'),
-        ).thenAnswer((_) async => Result.success([]));
+        when(secureStorage.loadSessionCookies('1')).thenAnswer((_) async => []);
 
         // Act
         final hasPersistentSession = await domain.hasPersistentSession(server);
 
         // Assert
         expect(hasPersistentSession, isFalse);
-        verify(repository.loadSessionCookies('1')).called(1);
+        verify(secureStorage.loadSessionCookies('1')).called(1);
       },
     );
 
@@ -363,15 +355,15 @@ void main() {
         );
 
         when(
-          repository.loadSessionCookies('1'),
-        ).thenAnswer((_) async => Result.failure('Storage error'));
+          secureStorage.loadSessionCookies('1'),
+        ).thenThrow(Exception('Storage error'));
 
         // Act
         final hasPersistentSession = await domain.hasPersistentSession(server);
 
         // Assert
         expect(hasPersistentSession, isFalse);
-        verify(repository.loadSessionCookies('1')).called(1);
+        verify(secureStorage.loadSessionCookies('1')).called(1);
       },
     );
 
@@ -408,7 +400,7 @@ void main() {
         expect(result.isSuccess, isTrue);
         verify(session.authenticate(credentials)).called(1);
         verify(session.getSessionCookies()).called(1);
-        verify(repository.saveSessionCookies('1', cookies)).called(1);
+        verify(secureStorage.saveSessionCookies('1', cookies)).called(1);
       },
     );
 
@@ -443,7 +435,7 @@ void main() {
         expect(result.isSuccess, isTrue);
         verify(session.authenticate(credentials)).called(1);
         verifyNever(session.getSessionCookies());
-        verifyNever(repository.saveSessionCookies(any, any));
+        verifyNever(secureStorage.saveSessionCookies(any, any));
       },
     );
 
@@ -482,7 +474,7 @@ void main() {
         expect(result.error, contains('Failed to get cookies'));
         verify(session.authenticate(credentials)).called(1);
         verify(session.getSessionCookies()).called(1);
-        verifyNever(repository.saveSessionCookies(any, any));
+        verifyNever(secureStorage.saveSessionCookies(any, any));
       },
     );
   });

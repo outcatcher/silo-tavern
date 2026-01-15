@@ -92,7 +92,10 @@ class ServerDomain {
       }
 
       // Only add server if configuration is allowed
-      validateServerConfiguration(server);
+      final validationResult = validateServerConfiguration(server);
+      if (validationResult.isFailure) {
+        return validationResult;
+      }
 
       // Add server with 'offline' status
       server.updateStatus(ServerStatus.offline);
@@ -115,7 +118,11 @@ class ServerDomain {
       }
 
       // Only add server if configuration is allowed
-      validateServerConfiguration(updatedServer);
+      final validationResult = validateServerConfiguration(updatedServer);
+      if (validationResult.isFailure) {
+        return validationResult;
+      }
+      
       // Update server but preserve current status
       final currentStatus = existingServer.status;
       updatedServer.updateStatus(currentStatus);

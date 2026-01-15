@@ -7,9 +7,9 @@ import 'dart:async' as _i3;
 
 import 'package:cookie_jar/cookie_jar.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:silo_tavern/domain/connection/repository.dart' as _i2;
 import 'package:silo_tavern/services/connection/models/models.dart' as _i6;
 import 'package:silo_tavern/services/connection/network.dart' as _i5;
+import 'package:silo_tavern/services/connection/storage.dart' as _i2;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -26,11 +26,10 @@ import 'package:silo_tavern/services/connection/network.dart' as _i5;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-/// A class which mocks [ConnectionRepository].
+/// A class which mocks [ConnectionStorage].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockConnectionRepository extends _i1.Mock
-    implements _i2.ConnectionRepository {
+class MockConnectionStorage extends _i1.Mock implements _i2.ConnectionStorage {
   @override
   _i3.Future<void> saveSessionCookies(
     String? serverId,
