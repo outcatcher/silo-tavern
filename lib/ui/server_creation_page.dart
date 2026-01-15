@@ -122,11 +122,13 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                     tempServer,
                   );
                   if (result.isFailure) {
-                    utils.showErrorDialog(
-                      context,
-                      'Failed to save server. Please try again.',
-                      title: 'Save Failed',
-                    );
+                    if (context.mounted) {
+                      utils.showErrorDialog(
+                        context,
+                        'Failed to save server. Please try again.',
+                        title: 'Save Failed',
+                      );
+                    }
                   }
 
                   // Navigate back to the server list after successful update
@@ -138,8 +140,18 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 }
 
                 // Add new server
-                await widget.serverDomain.addServer(tempServer);
-                if (context.mounted) {
+                final saveResult = await widget.serverDomain.addServer(
+                  tempServer,
+                );
+                if (saveResult.isFailure) {
+                  if (context.mounted) {
+                    utils.showErrorDialog(
+                      context,
+                      'Failed to save server. Please try again.',
+                      title: 'Save Failed',
+                    );
+                  }
+                } else if (context.mounted) {
                   utils.showSuccessDialog(
                     context,
                     'Server added successfully!',

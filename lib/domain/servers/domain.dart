@@ -122,7 +122,7 @@ class ServerDomain {
       if (validationResult.isFailure) {
         return validationResult;
       }
-      
+
       // Update server but preserve current status
       final currentStatus = existingServer.status;
       updatedServer.updateStatus(currentStatus);

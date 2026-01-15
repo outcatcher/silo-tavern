@@ -157,9 +157,7 @@ void main() {
         (_) async =>
             '{"id":"test-server","name":"Test Server","address":"https://test.example.com"}',
       );
-      when(
-        mockSecureStorage.read(key: 'servers/test-server'),
-      ).thenAnswer(
+      when(mockSecureStorage.read(key: 'servers/test-server')).thenAnswer(
         (_) async => jsonEncode({'username': 'user', 'password': 'pass'}),
       );
 
@@ -172,8 +170,9 @@ void main() {
     test('Create server saves to storage', () async {
       when(mockPrefs.getKeys()).thenAnswer((_) async => <String>{});
       when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
-      when(mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')))
-          .thenAnswer((_) async {});
+      when(
+        mockSecureStorage.write(key: anyNamed('key'), value: anyNamed('value')),
+      ).thenAnswer((_) async {});
 
       final newServer = Server(
         id: 'new-server',
@@ -186,7 +185,9 @@ void main() {
     });
 
     test('Create server throws exception when ID already exists', () async {
-      when(mockPrefs.getKeys()).thenAnswer((_) async => {'servers/existing-server'});
+      when(
+        mockPrefs.getKeys(),
+      ).thenAnswer((_) async => {'servers/existing-server'});
       when(mockPrefs.getString('servers/existing-server')).thenAnswer(
         (_) async =>
             '{"id":"existing-server","name":"Existing Server","address":"https://existing.example.com"}',
@@ -241,14 +242,18 @@ void main() {
     });
 
     test('Delete server removes server', () async {
-      when(mockPrefs.remove('servers/delete-server')).thenAnswer((_) async => true);
+      when(
+        mockPrefs.remove('servers/delete-server'),
+      ).thenAnswer((_) async => true);
 
       await expectLater(storage.delete('delete-server'), completes);
       verify(mockPrefs.remove('servers/delete-server')).called(1);
     });
 
     test('Delete server with credentials deletes auth data', () async {
-      when(mockPrefs.remove('servers/delete-server')).thenAnswer((_) async => true);
+      when(
+        mockPrefs.remove('servers/delete-server'),
+      ).thenAnswer((_) async => true);
       when(
         mockSecureStorage.delete(key: 'servers/delete-server'),
       ).thenAnswer((_) async {});

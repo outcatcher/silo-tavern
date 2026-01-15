@@ -138,15 +138,9 @@ void main() {
           ).thenThrow(Exception('Network error'));
 
           // Mock storage protect method
-          when(
-            storage.create(argThat(anything)),
-          ).thenAnswer((_) async {});
-          when(
-            storage.update(argThat(anything)),
-          ).thenAnswer((_) async {});
-          when(
-            storage.delete(argThat(anything)),
-          ).thenAnswer((_) async {});
+          when(storage.create(argThat(anything))).thenAnswer((_) async {});
+          when(storage.update(argThat(anything))).thenAnswer((_) async {});
+          when(storage.delete(argThat(anything))).thenAnswer((_) async {});
 
           // Initialize service
           await service.initialize();

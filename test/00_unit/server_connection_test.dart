@@ -9,7 +9,6 @@ import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/repository.dart';
-import 'package:silo_tavern/domain/result.dart';
 
 import 'server_connection_test.mocks.dart';
 
@@ -46,15 +45,9 @@ void main() {
           address: 'https://test1.example.com',
         ),
       );
-      when(
-        repository.create(any),
-      ).thenAnswer((_) async {});
-      when(
-        repository.update(any),
-      ).thenAnswer((_) async {});
-      when(
-        repository.delete(any),
-      ).thenAnswer((_) async {});
+      when(repository.create(any)).thenAnswer((_) async {});
+      when(repository.update(any)).thenAnswer((_) async {});
+      when(repository.delete(any)).thenAnswer((_) async {});
 
       domain = ServerDomain(
         ServerOptions(repository, connectionDomain: connectionDomain),

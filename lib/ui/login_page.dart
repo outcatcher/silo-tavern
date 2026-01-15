@@ -124,10 +124,10 @@ class _LoginPageState extends State<LoginPage> {
                 _password = value;
               });
             },
-            onFieldSubmitted: (_) {
+            onFieldSubmitted: (_) async {
               // Trigger login when Enter is pressed in password field
               if (!_isAuthenticating) {
-                _handleLogin();
+                await _handleLogin();
               }
             },
             validator: (value) {
@@ -170,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _handleLogin() async {
+  Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isAuthenticating = true;
@@ -191,14 +191,12 @@ class _LoginPageState extends State<LoginPage> {
 
       if (result.isSuccess) {
         // Authentication successful - navigate to connect page
-        if (context.mounted) {
-          router.go(
-            Uri(
-              path: '/servers/connect/${widget.server.id}',
-              queryParameters: {'backUrl': widget.backUrl ?? utils.defaultPage},
-            ).toString(),
-          );
-        }
+        router.go(
+          Uri(
+            path: '/servers/connect/${widget.server.id}',
+            queryParameters: {'backUrl': widget.backUrl ?? utils.defaultPage},
+          ).toString(),
+        );
       } else {
         // Authentication failed - show error
         if (mounted) {
@@ -210,6 +208,12 @@ class _LoginPageState extends State<LoginPage> {
             title: 'Login Failed',
           );
         }
+      }
+      // Reset authenticating state so user can try again
+      if (mounted) {
+        setState(() {
+          _isAuthenticating = false;
+        });
       }
     }
   }
