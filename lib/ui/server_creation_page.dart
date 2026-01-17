@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
@@ -7,6 +5,7 @@ import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:uuid/v7.dart';
 
 import 'utils.dart' as utils;
+import 'utils/form_validators.dart';
 
 enum PageMode { create, edit }
 
@@ -105,9 +104,8 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 );
 
                 // Validate server configuration
-                try {
-                  validateServerConfiguration(tempServer);
-                } catch (e) {
+                final result = validateServerConfiguration(tempServer);
+                if (result.isFailure) {
                   // Show error dialog
                   utils.showErrorDialog(
                     context,
@@ -118,29 +116,34 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                 }
 
                 // Save the server data directly
-                try {
-                  if (widget.initialServer != null) {
-                    // Update existing server
-                    await widget.serverDomain.updateServer(tempServer);
-                    // Navigate back to the server list after successful update
+                if (widget.initialServer != null) {
+                  // Update existing server
+                  final result = await widget.serverDomain.updateServer(
+                    tempServer,
+                  );
+                  if (result.isFailure) {
                     if (context.mounted) {
-                      router.go('/servers');
-                    }
-                  } else {
-                    // Add new server
-                    await widget.serverDomain.addServer(tempServer);
-                    if (context.mounted) {
-                      utils.showSuccessDialog(
+                      utils.showErrorDialog(
                         context,
-                        'Server added successfully!',
-                        title: 'Success',
+                        'Failed to save server. Please try again.',
+                        title: 'Save Failed',
                       );
-                      router.go('/servers');
                     }
                   }
-                } catch (error) {
-                  log('failed to save server', error: error);
 
+                  // Navigate back to the server list after successful update
+                  if (context.mounted) {
+                    router.go('/servers');
+                  }
+
+                  return;
+                }
+
+                // Add new server
+                final saveResult = await widget.serverDomain.addServer(
+                  tempServer,
+                );
+                if (saveResult.isFailure) {
                   if (context.mounted) {
                     utils.showErrorDialog(
                       context,
@@ -148,6 +151,13 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                       title: 'Save Failed',
                     );
                   }
+                } else if (context.mounted) {
+                  utils.showSuccessDialog(
+                    context,
+                    'Server added successfully!',
+                    title: 'Success',
+                  );
+                  router.go('/servers');
                 }
               }
             },
@@ -192,10 +202,10 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                         });
                       },
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a server name';
-                        }
-                        return null;
+                        return FormValidators.notEmpty(
+                          value,
+                          fieldName: 'server name',
+                        );
                       },
                       onSaved: (value) {
                         _name = value!;
@@ -224,14 +234,7 @@ class _ServerCreationPageState extends State<ServerCreationPage> {
                         });
                       },
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a server URL';
-                        }
-                        // Basic URL validation
-                        if (!RegExp(r'^https?:\/\/').hasMatch(value)) {
-                          return 'Please enter a valid URL (http:// or https://)';
-                        }
-                        return null;
+                        return FormValidators.validUrl(value);
                       },
                       onSaved: (value) {
                         _url = value!;

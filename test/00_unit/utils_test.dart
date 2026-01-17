@@ -5,7 +5,7 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
-import 'package:silo_tavern/utils/network_utils.dart';
+import 'package:silo_tavern/common/network_utils.dart';
 
 void main() {
   group('NetworkUtils Tests', () {
@@ -212,10 +212,9 @@ void main() {
           address: 'http://external.com',
         );
 
-        expect(
-          () => validateServerConfiguration(httpRemoteWithAuth),
-          throwsA(isA<ArgumentError>()),
-        );
+        final result = validateServerConfiguration(httpRemoteWithAuth);
+        expect(result.isSuccess, isFalse);
+        expect(result.error, 'HTTPS must be used for external servers');
       });
 
       test('Remote HTTP servers without authentication are forbidden', () {
@@ -225,10 +224,9 @@ void main() {
           address: 'http://external.com',
         );
 
-        expect(
-          () => validateServerConfiguration(httpRemoteNoAuth),
-          throwsA(isA<ArgumentError>()),
-        );
+        final result = validateServerConfiguration(httpRemoteNoAuth);
+        expect(result.isSuccess, isFalse);
+        expect(result.error, 'HTTPS must be used for external servers');
       });
 
       test('Edge cases for server validation', () {
@@ -282,10 +280,9 @@ void main() {
           name: 'External IPv6 HTTP with Auth',
           address: 'http://[2001:db8::1]:8000',
         );
-        expect(
-          () => validateServerConfiguration(httpExternalIPv6WithAuth),
-          throwsA(isA<ArgumentError>()),
-        );
+        final result = validateServerConfiguration(httpExternalIPv6WithAuth);
+        expect(result.isSuccess, isFalse);
+        expect(result.error, 'HTTPS must be used for external servers');
       });
     });
   });

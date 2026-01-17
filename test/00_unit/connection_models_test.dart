@@ -3,7 +3,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:silo_tavern/domain/connection/models.dart';
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/services/connection/models/models.dart';
 
 void main() {
@@ -73,27 +73,31 @@ void main() {
     });
   });
 
-  group('ConnectionResult Tests', () {
-    test('ConnectionResult success creation', () {
-      final result = ConnectionResult.success();
+  group('Result Tests', () {
+    test('Result success creation', () {
+      final result = Result.success('test value');
 
       expect(result.isSuccess, isTrue);
-      expect(result.errorMessage, isNull);
+      expect(result.isFailure, isFalse);
+      expect(result.value, 'test value');
+      expect(result.error, isNull);
     });
 
-    test('ConnectionResult failure creation', () {
-      final result = ConnectionResult.failure('Connection failed');
+    test('Result failure creation', () {
+      final result = Result.failure('Connection failed');
 
       expect(result.isSuccess, isFalse);
-      expect(result.errorMessage, 'Connection failed');
+      expect(result.isFailure, isTrue);
+      expect(result.error, 'Connection failed');
+      expect(result.value, isNull);
     });
 
-    test('ConnectionResult equality', () {
-      final success1 = ConnectionResult.success();
-      final success2 = ConnectionResult.success();
-      final failure1 = ConnectionResult.failure('Error 1');
-      final failure2 = ConnectionResult.failure('Error 1');
-      final failure3 = ConnectionResult.failure('Error 2');
+    test('Result equality', () {
+      final success1 = Result.success('test');
+      final success2 = Result.success('test');
+      final failure1 = Result.failure('Error 1');
+      final failure2 = Result.failure('Error 1');
+      final failure3 = Result.failure('Error 2');
 
       expect(success1, equals(success2));
       expect(failure1, equals(failure2));
@@ -101,12 +105,13 @@ void main() {
       expect(success1, isNot(equals(failure1)));
     });
 
-    test('ConnectionResult hash code', () {
-      final success1 = ConnectionResult.success();
-      final success2 = ConnectionResult.success();
-      final failure1 = ConnectionResult.failure('Error');
-      final failure2 = ConnectionResult.failure('Error');
+    test('Result hash code', () {
+      final success1 = Result.success('test');
+      final success2 = Result.success('test');
+      final failure1 = Result.failure('Error');
+      final failure2 = Result.failure('Error');
 
+      // Just verify that identical values have the same hash code
       expect(success1.hashCode, equals(success2.hashCode));
       expect(failure1.hashCode, equals(failure2.hashCode));
     });

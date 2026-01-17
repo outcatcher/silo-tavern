@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:silo_tavern/domain/connection/models.dart';
+import 'package:silo_tavern/domain/result.dart';
+
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/ui/login_page.dart';
 
 import 'mocks.mocks.dart';
 
 void main() {
+  // Provide dummy values for Result types to avoid MissingDummyValueError
+  provideDummy<Result<void>>(Result.success(null));
+  provideDummy<Result<bool>>(Result.success(true));
+
   group('Login Page Tests:', () {
     late MockConnectionDomain connectionDomain;
     late MockGoRouter router;
+
+    setUp(() {
+      // Provide dummy value for Result<void> to avoid Mockito errors
+      provideDummy<Result<void>>(Result.success(null));
+    });
 
     setUp(() {
       connectionDomain = MockConnectionDomain();
@@ -78,9 +88,13 @@ void main() {
       final connectionDomain = MockConnectionDomain();
 
       // Mock the authenticateWithServer method to return success
+      when(router.go(any)).thenAnswer((_) async {});
+      when(
+        connectionDomain.hasPersistentSession(server),
+      ).thenAnswer((_) async => false);
       when(
         connectionDomain.authenticateWithServer(any, any),
-      ).thenAnswer((_) async => ConnectionResult.success());
+      ).thenAnswer((_) async => Result.success(null));
 
       await tester.pumpWidget(
         MaterialApp(
@@ -91,6 +105,7 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
 
       // Fill in the form
       await tester.enterText(
@@ -110,6 +125,7 @@ void main() {
 
       // Verify navigation
       verify(router.go(any)).called(1);
+      verify(connectionDomain.authenticateWithServer(any, any)).called(1);
     });
 
     testWidgets('Password visibility toggle works correctly', (tester) async {
@@ -224,7 +240,7 @@ void main() {
       when(connectionDomain.hasExistingSession(server)).thenReturn(false);
       when(
         connectionDomain.authenticateWithServer(any, any),
-      ).thenAnswer((_) async => ConnectionResult.success());
+      ).thenAnswer((_) async => Result.success(null));
       when(router.go(any)).thenAnswer((_) async {});
 
       await tester.pumpWidget(
@@ -275,9 +291,9 @@ void main() {
       when(
         connectionDomain.hasPersistentSession(server),
       ).thenAnswer((_) async => false);
-      when(connectionDomain.authenticateWithServer(any, any)).thenAnswer(
-        (_) async => ConnectionResult.failure('Invalid credentials'),
-      );
+      when(
+        connectionDomain.authenticateWithServer(any, any),
+      ).thenAnswer((_) async => Result.failure('Invalid credentials'));
 
       await tester.pumpWidget(
         MaterialApp(
@@ -341,7 +357,7 @@ void main() {
       ).thenAnswer((_) async => false);
       when(
         connectionDomain.authenticateWithServer(any, any),
-      ).thenAnswer((_) async => ConnectionResult.success());
+      ).thenAnswer((_) async => Result.success(null));
       when(router.go(any)).thenAnswer((_) async {});
 
       await tester.pumpWidget(

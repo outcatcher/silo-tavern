@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/services/connection/storage.dart';
-import 'package:silo_tavern/utils/app_storage.dart';
+import 'package:silo_tavern/common/app_storage.dart';
 
 import 'connection_storage_test.mocks.dart';
 

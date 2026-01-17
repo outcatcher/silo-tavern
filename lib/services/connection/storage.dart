@@ -1,9 +1,10 @@
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:silo_tavern/utils/app_storage.dart';
+import 'package:silo_tavern/common/app_storage.dart';
+import 'package:silo_tavern/domain/connection/repository.dart';
 
-class ConnectionStorage {
+class ConnectionStorage implements ConnectionRepository {
   final JsonSecureStorage _secureStorage;
 
   static const String _sessionKeyPrefix = 'sessions';
@@ -15,6 +16,7 @@ class ConnectionStorage {
     return ConnectionStorage(JsonSecureStorage(sec, _sessionKeyPrefix));
   }
 
+  @override
   Future<void> saveSessionCookies(String serverId, List<Cookie> cookies) async {
     try {
       final cookieData = cookies.map((cookie) {
@@ -28,15 +30,15 @@ class ConnectionStorage {
         };
       }).toList();
 
-      _secureStorage.set(serverId, cookieData);
+      await _secureStorage.set(serverId, cookieData);
     } catch (e) {
-      debugPrint(
-        'ConnectionStorage: Failed to save session cookies for server $serverId: $e',
-      );
+      // Rethrow storage exceptions as expected by tests
+      debugPrint('Failed to save session cookies for server $serverId: $e');
       rethrow;
     }
   }
 
+  @override
   Future<List<Cookie>?> loadSessionCookies(String serverId) async {
     try {
       final cookieData = await _secureStorage.get(serverId);
@@ -61,46 +63,45 @@ class ConnectionStorage {
 
       return cookiesFromStorage;
     } catch (e) {
-      debugPrint(
-        'ConnectionStorage: Failed to load session cookies for server $serverId: $e',
-      );
+      // Log the error but don't rethrow - return null as expected by tests
+      debugPrint('Failed to load session cookies for server $serverId: $e');
       return null;
     }
   }
 
+  @override
   Future<void> saveCsrfToken(String serverId, String token) async {
     try {
       final key = '$serverId$_csrfTokenKeySuffix';
       await _secureStorage.set(key, token);
     } catch (e) {
-      debugPrint(
-        'ConnectionStorage: Failed to save CSRF token for server $serverId: $e',
-      );
+      // Rethrow storage exceptions as expected by tests
+      debugPrint('Failed to save CSRF token for server $serverId: $e');
       rethrow;
     }
   }
 
+  @override
   Future<String?> loadCsrfToken(String serverId) async {
     try {
       final key = '$serverId$_csrfTokenKeySuffix';
       final token = await _secureStorage.get(key);
       return token is String ? token : null;
     } catch (e) {
-      debugPrint(
-        'ConnectionStorage: Failed to load CSRF token for server $serverId: $e',
-      );
+      // Log the error but don't rethrow - return null as expected by tests
+      debugPrint('Failed to load CSRF token for server $serverId: $e');
       return null;
     }
   }
 
+  @override
   Future<void> deleteCsrfToken(String serverId) async {
     try {
       final key = '$serverId$_csrfTokenKeySuffix';
       await _secureStorage.delete(key);
     } catch (e) {
-      debugPrint(
-        'ConnectionStorage: Failed to delete CSRF token for server $serverId: $e',
-      );
+      // Rethrow storage exceptions as expected by tests
+      debugPrint('Failed to delete CSRF token for server $serverId: $e');
       rethrow;
     }
   }

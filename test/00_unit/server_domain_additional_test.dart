@@ -9,11 +9,15 @@ import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/services/servers/storage.dart';
+import 'package:silo_tavern/domain/result.dart';
 
 import 'server_domain_additional_test.mocks.dart';
 
 @GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  // Provide dummy value for Result<bool> to avoid Mockito errors
+  provideDummy<Result<bool>>(Result.success(true));
   group('ServerDomain Additional Tests', () {
     late MockServerStorage storage;
     late MockConnectionDomain connectionDomain;
@@ -34,7 +38,7 @@ void main() {
           connectionDomain: connectionDomain,
         );
 
-        expect(options.storage, storage);
+        expect(options.repository, storage);
         expect(options.connectionDomain, connectionDomain);
       });
     });
@@ -52,7 +56,7 @@ void main() {
     group('ServerDomain Status Update Tests', () {
       test('updateServerStatus updates existing server status', () async {
         // Mock storage for server creation
-        when(storage.createServer(any)).thenAnswer((_) async {});
+        when(storage.create(any)).thenAnswer((_) async {});
 
         // Add a server first
         final server = Server(
@@ -82,7 +86,7 @@ void main() {
     group('ServerDomain Check All Servers Tests', () {
       test('checkAllServerStatuses calls callback for each server', () async {
         // Mock storage to return some servers
-        when(storage.listServers()).thenAnswer(
+        when(storage.getAll()).thenAnswer(
           (_) async => [
             Server(id: '1', name: 'Server 1', address: 'https://server1.com'),
             Server(id: '2', name: 'Server 2', address: 'https://server2.com'),
@@ -92,12 +96,12 @@ void main() {
         // Mock connection domain to return true (servers available)
         when(
           connectionDomain.checkServerAvailability(any),
-        ).thenAnswer((_) async => true);
+        ).thenAnswer((_) async => Result.success(true));
 
         // Mock storage protect method
-        when(storage.createServer(any)).thenAnswer((_) async {});
-        when(storage.updateServer(any)).thenAnswer((_) async {});
-        when(storage.deleteServer(any)).thenAnswer((_) async {});
+        when(storage.create(any)).thenAnswer((_) async {});
+        when(storage.update(any)).thenAnswer((_) async {});
+        when(storage.delete(any)).thenAnswer((_) async {});
 
         // Initialize service
         await service.initialize();
@@ -118,7 +122,7 @@ void main() {
         'checkAllServerStatuses handles exception in server check',
         () async {
           // Mock storage to return a server
-          when(storage.listServers()).thenAnswer(
+          when(storage.getAll()).thenAnswer(
             (_) async => [
               Server(
                 id: 'exception-server',
@@ -134,9 +138,9 @@ void main() {
           ).thenThrow(Exception('Network error'));
 
           // Mock storage protect method
-          when(storage.createServer(any)).thenAnswer((_) async {});
-          when(storage.updateServer(any)).thenAnswer((_) async {});
-          when(storage.deleteServer(any)).thenAnswer((_) async {});
+          when(storage.create(argThat(anything))).thenAnswer((_) async {});
+          when(storage.update(argThat(anything))).thenAnswer((_) async {});
+          when(storage.delete(argThat(anything))).thenAnswer((_) async {});
 
           // Initialize service
           await service.initialize();
@@ -167,7 +171,8 @@ void main() {
           address: 'https://external.com',
         );
 
-        expect(() => validateServerConfiguration(server), returnsNormally);
+        final result = validateServerConfiguration(server);
+        expect(result.isSuccess, isTrue);
       });
 
       test('validateServerConfiguration allows HTTP local servers', () {
@@ -177,7 +182,8 @@ void main() {
           address: 'http://localhost:8080',
         );
 
-        expect(() => validateServerConfiguration(server), returnsNormally);
+        final result = validateServerConfiguration(server);
+        expect(result.isSuccess, isTrue);
       });
 
       test('validateServerConfiguration rejects HTTP external servers', () {
@@ -187,16 +193,9 @@ void main() {
           address: 'http://external.com',
         );
 
-        expect(
-          () => validateServerConfiguration(server),
-          throwsA(
-            predicate(
-              (e) =>
-                  e is ArgumentError &&
-                  e.message.contains('HTTPS must be used'),
-            ),
-          ),
-        );
+        final result = validateServerConfiguration(server);
+        expect(result.isSuccess, isFalse);
+        expect(result.error, 'HTTPS must be used for external servers');
       });
     });
   });

@@ -3,10 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 
 import 'utils.dart' as utils;
+import 'components/loading_dialog.dart';
+import 'components/server_card.dart';
+import 'components/empty_state.dart';
+import 'utils/context_menu_utils.dart';
 
 class ServerListPage extends StatefulWidget {
   final ServerDomain serverDomain;
@@ -162,37 +167,10 @@ class _ServerListPageState extends State<ServerListPage> {
     Server server,
     Offset position,
   ) async {
-    final result = await showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        position.dx,
-        position.dy,
-        MediaQuery.of(context).size.width - position.dx,
-        MediaQuery.of(context).size.height - position.dy,
-      ),
-      items: [
-        PopupMenuItem(
-          value: 'edit',
-          child: Row(
-            children: [
-              const Icon(Icons.edit, size: 20),
-              const SizedBox(width: 8),
-              const Text('Edit'),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'delete',
-          child: Row(
-            children: [
-              const Icon(Icons.delete, size: 20, color: Colors.red),
-              const SizedBox(width: 8),
-              const Text('Delete', style: TextStyle(color: Colors.red)),
-            ],
-          ),
-        ),
-      ],
-    );
+    final result = await showContextMenu(context, position, [
+      buildEditMenuItem(),
+      buildDeleteMenuItem(),
+    ]);
 
     switch (result) {
       case 'edit':
@@ -318,7 +296,98 @@ class _ServerListPageState extends State<ServerListPage> {
                               color: Colors.white,
                             ),
                           ),
-                          child: _buildServerCard(context, server),
+                          child: ServerCard(
+                            server: server,
+                            isDeleting: _deletingServers.contains(server.id),
+                            isHttps: server.address.startsWith('https'),
+                            onTap: () async {
+                              // Show a loading dialog immediately while obtaining CSRF token in background
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) {
+                                  return LoadingDialog(
+                                    message: 'Preparing secure connection...',
+                                  );
+                                },
+                              );
+
+                              try {
+                                final Result<void> result = await widget
+                                    .connectionDomain
+                                    .obtainCsrfTokenForServer(server);
+
+                                // Close the dialog
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                }
+
+                                // Check if the operation was successful
+                                if (result.isSuccess) {
+                                  // Check if there's a persistent session before navigating to login
+                                  if (await widget.connectionDomain
+                                      .hasPersistentSession(server)) {
+                                    // Skip login and go directly to connect page
+                                    if (context.mounted) {
+                                      router.go(
+                                        Uri(
+                                          path: '/servers/connect/${server.id}',
+                                          queryParameters: {
+                                            'backUrl': '/servers',
+                                          },
+                                        ).toString(),
+                                      );
+                                    }
+                                  } else {
+                                    // Navigate to login page with back URL as query parameter
+                                    if (context.mounted) {
+                                      router.go(
+                                        Uri(
+                                          path: '/servers/login/${server.id}',
+                                          queryParameters: {
+                                            'backUrl': '/servers',
+                                          },
+                                        ).toString(),
+                                      );
+                                    }
+                                  }
+                                } else {
+                                  // Show error if CSRF token retrieval failed
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          _getUserFriendlyErrorMessage(
+                                            result.error ?? 'Operation failed',
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                }
+                              } catch (e) {
+                                // Close the dialog
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                }
+
+                                // Show error if an exception occurred
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        _getUserFriendlyErrorMessage(
+                                          e.toString(),
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                          ),
                         ),
                       ),
                     );
@@ -330,232 +399,17 @@ class _ServerListPageState extends State<ServerListPage> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(48.0),
-      child: Column(
-        key: ValueKey('noServers'),
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.storage_outlined,
-            size: 64,
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
-          ),
-          const SizedBox(height: 32),
-          Text(
-            'No servers configured',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Add your first server to get started',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 40),
-          ElevatedButton.icon(
-            onPressed: _addServer,
-            key: ValueKey('addServerButton'),
-            icon: const Icon(Icons.add),
-            label: const Text('Add Server'),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildServerCard(BuildContext context, Server server) {
-    final isDeleting = _deletingServers.contains(server.id);
-    final isHttps = server.address.startsWith('https');
-
-    // Determine status icon and color
-    IconData statusIcon;
-    Color statusColor;
-
-    switch (server.status) {
-      case ServerStatus.loading:
-        statusIcon = Icons.hourglass_bottom;
-        statusColor = Colors.orange;
-        break;
-      case ServerStatus.online:
-        statusIcon = Icons.circle;
-        statusColor = Colors.green;
-        break;
-      case ServerStatus.offline:
-        statusIcon = Icons.circle;
-        statusColor = Colors.red;
-        break;
-    }
-
-    return Card(
-      margin: EdgeInsets.zero,
-      child: ListTile(
-        leading: Stack(
-          alignment: Alignment.center,
-          children: [
-            CircleAvatar(
-              backgroundColor: isHttps ? Colors.grey[700] : Colors.grey[500],
-              child: Icon(
-                isHttps ? Icons.lock : Icons.lock_open,
-                color: Colors.white,
-              ),
-            ),
-            // Status indicator overlay
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(statusIcon, color: statusColor, size: 16),
-              ),
-            ),
-          ],
-        ),
-        title: Text(
-          server.name,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        subtitle: Text(
-          server.address,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        trailing: isDeleting
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : const Icon(Icons.arrow_forward, size: 16, color: Colors.grey),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
-        onTap: () async {
-          // Show a loading dialog immediately while obtaining CSRF token in background
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) {
-              return const Dialog(
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(width: 20),
-                      Text('Preparing secure connection...'),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-
-          try {
-            final result = await widget.connectionDomain
-                .obtainCsrfTokenForServer(server);
-
-            // Close the dialog
-            if (context.mounted) {
-              Navigator.of(context).pop();
-            }
-
-            // Check if the operation was successful
-            if (result.isSuccess) {
-              // Check if there's a persistent session before navigating to login
-              if (await widget.connectionDomain.hasPersistentSession(server)) {
-                // Skip login and go directly to connect page
-                if (context.mounted) {
-                  router.go(
-                    Uri(
-                      path: '/servers/connect/${server.id}',
-                      queryParameters: {'backUrl': '/servers'},
-                    ).toString(),
-                  );
-                }
-              } else {
-                // Navigate to login page with back URL as query parameter
-                if (context.mounted) {
-                  router.go(
-                    Uri(
-                      path: '/servers/login/${server.id}',
-                      queryParameters: {'backUrl': '/servers'},
-                    ).toString(),
-                  );
-                }
-              }
-            } else {
-              // Show error if CSRF token retrieval failed
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      _getUserFriendlyErrorMessage(result.errorMessage),
-                    ),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            }
-          } catch (e) {
-            // Close the dialog
-            if (context.mounted) {
-              Navigator.of(context).pop();
-            }
-
-            // Show error if an exception occurred
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(_getUserFriendlyErrorMessage(e.toString())),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          }
-        },
-      ),
+    return EmptyState(
+      title: 'No servers configured',
+      message: 'Add your first server to get started',
+      buttonText: 'Add Server',
+      onButtonPressed: _addServer,
+      icon: Icons.storage_outlined,
     );
   }
 
   /// Converts technical error messages to user-friendly messages
   String _getUserFriendlyErrorMessage(String? technicalMessage) {
-    if (technicalMessage == null || technicalMessage.isEmpty) {
-      return 'Failed to prepare secure connection. Please try again.';
-    }
-
-    // Handle common network errors
-    if (technicalMessage.contains('SocketException') ||
-        technicalMessage.contains('Connection refused') ||
-        technicalMessage.contains('Failed host lookup')) {
-      return 'Unable to connect to the server. Please check your network connection and try again.';
-    }
-
-    // Handle timeout errors
-    if (technicalMessage.contains('timeout') ||
-        technicalMessage.contains('timed out')) {
-      return 'Connection timed out. The server may be busy or unreachable. Please try again.';
-    }
-
-    // Handle certificate errors
-    if (technicalMessage.contains('CERTIFICATE_VERIFY_FAILED') ||
-        technicalMessage.contains('HandshakeException')) {
-      return 'Security certificate verification failed. Please check that the server\'s SSL/TLS certificate is valid.';
-    }
-
-    // Handle general HTTP errors
-    if (technicalMessage.contains('HTTP status error')) {
-      return 'Server responded with an error. Please check that the server is running and accessible.';
-    }
-
-    // Default fallback message
-    return 'Failed to prepare secure connection. Please try again.';
+    return utils.getUserFriendlyErrorMessage(technicalMessage);
   }
 }
