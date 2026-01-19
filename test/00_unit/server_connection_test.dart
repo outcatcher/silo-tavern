@@ -3,16 +3,12 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
-import 'package:silo_tavern/domain/servers/repository.dart';
 
-import 'server_connection_test.mocks.dart';
+import 'mocks.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerRepository>(), MockSpec<ConnectionDomain>()])
 void main() {
   group('ServerConnection Tests', () {
     late MockServerRepository repository;

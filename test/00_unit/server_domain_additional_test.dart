@@ -4,24 +4,13 @@ library;
 
 import 'package:flutter/material.dart' show debugPrint;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
-import 'package:silo_tavern/domain/connection/domain.dart';
-import 'package:silo_tavern/services/servers/storage.dart';
 import 'package:silo_tavern/domain/result.dart';
 
-import 'server_domain_additional_test.mocks.dart';
+import 'mocks.mocks.dart';
 
-@GenerateNiceMocks([
-  MockSpec<ServerStorage>(),
-  MockSpec<ConnectionDomain>(),
-  MockSpec<SharedPreferencesAsync>(),
-  MockSpec<FlutterSecureStorage>()
-])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   // Provide dummy value for Result<bool> to avoid Mockito errors
@@ -113,13 +102,13 @@ void main() {
         final errorStorage = MockServerStorage();
         final connectionDomain = MockConnectionDomain();
         when(errorStorage.getAll()).thenThrow(Exception('Storage error'));
-        
+
         final errorService = ServerDomain(
           ServerOptions(errorStorage, connectionDomain: connectionDomain),
         );
 
         final result = await errorService.initialize();
-		verify(errorStorage.getAll()).called(1);
+        verify(errorStorage.getAll()).called(1);
         expect(result.isSuccess, isFalse);
         expect(result.error, contains('Storage error'));
       });
@@ -129,7 +118,7 @@ void main() {
         final errorStorage = MockServerStorage();
         final connectionDomain = MockConnectionDomain();
         when(errorStorage.getAll()).thenThrow(Exception('Storage error'));
-        
+
         final errorService = ServerDomain(
           ServerOptions(errorStorage, connectionDomain: connectionDomain),
         );
@@ -142,11 +131,11 @@ void main() {
       });
 
       test('addServer handles repository error correctly', () async {
-        // Create mocks 
+        // Create mocks
         final errorStorage = MockServerStorage();
         final connectionDomain = MockConnectionDomain();
         when(errorStorage.create(any)).thenThrow(Exception('Create error'));
-        
+
         final errorService = ServerDomain(
           ServerOptions(errorStorage, connectionDomain: connectionDomain),
         );
@@ -160,7 +149,7 @@ void main() {
         final result = await errorService.addServer(server);
         expect(result.isSuccess, false);
         expect(result.error, contains('Create error'));
-        
+
         // Server will still be in the map due to the implementation design
         expect(errorService.findServerById('error-server'), isNotNull);
       });
@@ -172,11 +161,11 @@ void main() {
         when(errorStorage.create(any)).thenAnswer((_) async {});
         when(errorStorage.update(any)).thenThrow(Exception('Update error'));
         when(errorStorage.getAll()).thenAnswer((_) async => []);
-        
+
         final errorService = ServerDomain(
           ServerOptions(errorStorage, connectionDomain: connectionDomain),
         );
-        
+
         // Initialize the service
         await errorService.initialize();
 
@@ -186,7 +175,7 @@ void main() {
           name: 'Update Server',
           address: 'https://update.example.com',
         );
-        
+
         final addResult = await errorService.addServer(server);
         expect(addResult.isSuccess, true);
         expect(errorService.findServerById('update-server'), isNotNull);
@@ -204,7 +193,7 @@ void main() {
         final result = await errorService.updateServer(updatedServer);
         expect(result.isSuccess, false);
         expect(result.error, contains('Update error'));
-        
+
         // Server will still be updated in the map due to the implementation design
         final existingServer = errorService.findServerById('update-server');
         expect(existingServer, isNotNull);
@@ -219,11 +208,11 @@ void main() {
         when(errorStorage.create(any)).thenAnswer((_) async {});
         when(errorStorage.delete(any)).thenThrow(Exception('Delete error'));
         when(errorStorage.getAll()).thenAnswer((_) async => []);
-        
+
         final errorService = ServerDomain(
           ServerOptions(errorStorage, connectionDomain: connectionDomain),
         );
-        
+
         // Initialize the service
         await errorService.initialize();
 
@@ -233,7 +222,7 @@ void main() {
           name: 'Delete Server',
           address: 'https://delete.example.com',
         );
-        
+
         final addResult = await errorService.addServer(server);
         expect(addResult.isSuccess, true);
         expect(errorService.findServerById('delete-server'), isNotNull);
@@ -242,7 +231,7 @@ void main() {
         final result = await errorService.removeServer('delete-server');
         expect(result.isSuccess, false);
         expect(result.error, contains('Delete error'));
-        
+
         // Server will still be removed from the map due to the implementation design
         expect(errorService.findServerById('delete-server'), isNull);
       });
@@ -326,116 +315,124 @@ void main() {
           expect(updatedServer?.status, ServerStatus.offline);
         },
       );
-      
-      test('checkAllServerStatuses handles connection domain error result', () async {
-        // Mock storage to return a server
-        when(storage.getAll()).thenAnswer(
-          (_) async => [
-            Server(
-              id: 'result-error-server',
-              name: 'Result Error Server',
-              address: 'https://result-error.com',
-            ),
-          ],
-        );
 
-        // Mock connection domain to return failure result
-        when(
-          connectionDomain.checkServerAvailability(any),
-        ).thenAnswer((_) async => Result.failure('Connection failed'));
+      test(
+        'checkAllServerStatuses handles connection domain error result',
+        () async {
+          // Mock storage to return a server
+          when(storage.getAll()).thenAnswer(
+            (_) async => [
+              Server(
+                id: 'result-error-server',
+                name: 'Result Error Server',
+                address: 'https://result-error.com',
+              ),
+            ],
+          );
 
-        // Mock storage protect method
-        when(storage.create(argThat(anything))).thenAnswer((_) async {});
-        when(storage.update(argThat(anything))).thenAnswer((_) async {});
-        when(storage.delete(argThat(anything))).thenAnswer((_) async {});
+          // Mock connection domain to return failure result
+          when(
+            connectionDomain.checkServerAvailability(any),
+          ).thenAnswer((_) async => Result.failure('Connection failed'));
 
-        // Initialize service
-        await service.initialize();
+          // Mock storage protect method
+          when(storage.create(argThat(anything))).thenAnswer((_) async {});
+          when(storage.update(argThat(anything))).thenAnswer((_) async {});
+          when(storage.delete(argThat(anything))).thenAnswer((_) async {});
 
-        final callbackServers = <Server>[];
+          // Initialize service
+          await service.initialize();
 
-        // Capture debug print calls
-        final debugPrints = <String>[];
-        final originalDebugPrint = debugPrint;
-        debugPrint = (String? message, {int? wrapWidth}) {
-          if (message != null) debugPrints.add(message);
-        };
+          final callbackServers = <Server>[];
 
-        // Check all server statuses
-        await service.checkAllServerStatuses((server) {
-          callbackServers.add(server);
-        });
+          // Capture debug print calls
+          final debugPrints = <String>[];
+          final originalDebugPrint = debugPrint;
+          debugPrint = (String? message, {int? wrapWidth}) {
+            if (message != null) debugPrints.add(message);
+          };
 
-        // Restore debugPrint
-        debugPrint = originalDebugPrint;
+          // Check all server statuses
+          await service.checkAllServerStatuses((server) {
+            callbackServers.add(server);
+          });
 
-        // Verify callback was called
-        expect(callbackServers, hasLength(1));
-        expect(callbackServers[0].id, 'result-error-server');
+          // Restore debugPrint
+          debugPrint = originalDebugPrint;
 
-        // Verify server status was set to offline due to error result
-        final updatedServer = service.findServerById('result-error-server');
-        expect(updatedServer?.status, ServerStatus.offline);
-        
-        // Verify debug print was called
-        expect(debugPrints, isNotEmpty);
-        expect(debugPrints.first, contains('Failed to check status'));
-      });
-      
-      test('checkAllServerStatuses handles exception in _checkServerStatus', () async {
-        // Mock storage to return a server
-        when(storage.getAll()).thenAnswer(
-          (_) async => [
-            Server(
-              id: 'check-exception-server',
-              name: 'Check Exception Server',
-              address: 'https://check-exception.com',
-            ),
-          ],
-        );
+          // Verify callback was called
+          expect(callbackServers, hasLength(1));
+          expect(callbackServers[0].id, 'result-error-server');
 
-        // Mock connection domain to throw an exception
-        when(
-          connectionDomain.checkServerAvailability(any),
-        ).thenThrow(Exception('Network error'));
+          // Verify server status was set to offline due to error result
+          final updatedServer = service.findServerById('result-error-server');
+          expect(updatedServer?.status, ServerStatus.offline);
 
-        // Mock storage protect method
-        when(storage.create(argThat(anything))).thenAnswer((_) async {});
-        when(storage.update(argThat(anything))).thenAnswer((_) async {});
-        when(storage.delete(argThat(anything))).thenAnswer((_) async {});
+          // Verify debug print was called
+          expect(debugPrints, isNotEmpty);
+          expect(debugPrints.first, contains('Failed to check status'));
+        },
+      );
 
-        // Initialize service
-        await service.initialize();
+      test(
+        'checkAllServerStatuses handles exception in _checkServerStatus',
+        () async {
+          // Mock storage to return a server
+          when(storage.getAll()).thenAnswer(
+            (_) async => [
+              Server(
+                id: 'check-exception-server',
+                name: 'Check Exception Server',
+                address: 'https://check-exception.com',
+              ),
+            ],
+          );
 
-        final callbackServers = <Server>[];
+          // Mock connection domain to throw an exception
+          when(
+            connectionDomain.checkServerAvailability(any),
+          ).thenThrow(Exception('Network error'));
 
-        // Capture debug print calls
-        final debugPrints = <String>[];
-        final originalDebugPrint = debugPrint;
-        debugPrint = (String? message, {int? wrapWidth}) {
-          if (message != null) debugPrints.add(message);
-        };
+          // Mock storage protect method
+          when(storage.create(argThat(anything))).thenAnswer((_) async {});
+          when(storage.update(argThat(anything))).thenAnswer((_) async {});
+          when(storage.delete(argThat(anything))).thenAnswer((_) async {});
 
-        // Check all server statuses
-        await service.checkAllServerStatuses((server) {
-          callbackServers.add(server);
-        });
+          // Initialize service
+          await service.initialize();
 
-        // Restore debugPrint
-        debugPrint = originalDebugPrint;
+          final callbackServers = <Server>[];
 
-        // Verify callback was called
-        expect(callbackServers, hasLength(1));
-        expect(callbackServers[0].id, 'check-exception-server');
+          // Capture debug print calls
+          final debugPrints = <String>[];
+          final originalDebugPrint = debugPrint;
+          debugPrint = (String? message, {int? wrapWidth}) {
+            if (message != null) debugPrints.add(message);
+          };
 
-        // Verify server status was set to offline due to exception
-        final updatedServer = service.findServerById('check-exception-server');
-        expect(updatedServer?.status, ServerStatus.offline);
-        
-        // Verify debug print was called
-        expect(debugPrints, isNotEmpty);
-        expect(debugPrints.first, contains('Exception during status check'));
-      });
+          // Check all server statuses
+          await service.checkAllServerStatuses((server) {
+            callbackServers.add(server);
+          });
+
+          // Restore debugPrint
+          debugPrint = originalDebugPrint;
+
+          // Verify callback was called
+          expect(callbackServers, hasLength(1));
+          expect(callbackServers[0].id, 'check-exception-server');
+
+          // Verify server status was set to offline due to exception
+          final updatedServer = service.findServerById(
+            'check-exception-server',
+          );
+          expect(updatedServer?.status, ServerStatus.offline);
+
+          // Verify debug print was called
+          expect(debugPrints, isNotEmpty);
+          expect(debugPrints.first, contains('Exception during status check'));
+        },
+      );
     });
 
     group('validateServerConfiguration Tests', () {

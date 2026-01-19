@@ -3,16 +3,12 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
-import 'package:silo_tavern/domain/connection/domain.dart';
-import 'package:silo_tavern/services/servers/storage.dart';
 
-import 'server_service_test.mocks.dart';
+import 'mocks.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
 void main() {
   group('ServerService Tests', () {
     late MockServerStorage storage;
