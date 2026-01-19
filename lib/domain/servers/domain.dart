@@ -52,24 +52,18 @@ class ServerDomain {
   }
 
   // Load servers from persistent storage
-  Future<Result<void>> _reLoadServers() async {
-    try {
-      _serversMap.clear();
+  Future<void> _reLoadServers() async {
+    _serversMap.clear();
 
-      await _serverListLocker.protect(() async {
-        final servers = await _repository.getAll();
+    await _serverListLocker.protect(() async {
+      final servers = await _repository.getAll();
 
-        // Initialize all loaded servers with 'offline' status
-        for (var server in servers) {
-          server.updateStatus(ServerStatus.offline);
-          _serversMap[server.id] = server;
-        }
-      });
-
-      return Result.success(null);
-    } catch (e) {
-      return Result.failure(e.toString());
-    }
+      // Initialize all loaded servers with 'offline' status
+      for (var server in servers) {
+        server.updateStatus(ServerStatus.offline);
+        _serversMap[server.id] = server;
+      }
+    });
   }
 
   // Getter for servers list
