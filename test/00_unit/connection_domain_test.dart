@@ -5,17 +5,15 @@ library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/connection/models.dart';
 import 'package:silo_tavern/domain/servers/models.dart' as server_models;
 
 import 'package:silo_tavern/services/connection/network.dart';
-import 'package:silo_tavern/services/connection/storage.dart';
 import 'package:silo_tavern/services/connection/models/models.dart';
 
-import 'connection_domain_test.mocks.dart';
+import 'mocks.mocks.dart';
 
 class FakeSessionFactory implements ConnectionSessionFactory {
   final Map<String, ConnectionSessionInterface> sessions = {};
@@ -29,10 +27,6 @@ class FakeSessionFactory implements ConnectionSessionFactory {
   }
 }
 
-@GenerateNiceMocks([
-  MockSpec<ConnectionStorage>(),
-  MockSpec<ConnectionSessionInterface>(),
-])
 void main() {
   group('ConnectionDomain Tests', () {
     late MockConnectionStorage secureStorage;

@@ -3,19 +3,12 @@
 library;
 
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/services/connection/storage.dart';
-import 'package:silo_tavern/common/app_storage.dart';
 
-import 'connection_storage_test.mocks.dart';
+import 'mocks.mocks.dart';
 
-@GenerateNiceMocks([
-  MockSpec<JsonSecureStorage>(),
-  MockSpec<FlutterSecureStorage>(),
-])
 void main() {
   group('ConnectionStorage Tests', () {
     late MockJsonSecureStorage mockSecureStorage;

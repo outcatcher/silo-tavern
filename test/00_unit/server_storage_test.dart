@@ -5,20 +5,13 @@ library;
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 
 import 'package:silo_tavern/services/servers/storage.dart';
 
-import 'server_storage_test.mocks.dart';
+import 'mocks.mocks.dart';
 
-@GenerateNiceMocks([
-  MockSpec<SharedPreferencesAsync>(),
-  MockSpec<FlutterSecureStorage>(),
-])
 void main() {
   group('ServerStorage API Tests', () {
     test('ServerStorage can be instantiated', () {

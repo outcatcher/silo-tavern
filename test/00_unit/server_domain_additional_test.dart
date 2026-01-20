@@ -180,9 +180,6 @@ void main() {
         expect(addResult.isSuccess, true);
         expect(errorService.findServerById('update-server'), isNotNull);
 
-        // Store the original server for comparison
-        final originalServer = errorService.findServerById('update-server');
-
         // Try to update the server - this should fail
         final updatedServer = Server(
           id: 'update-server',

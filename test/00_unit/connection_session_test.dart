@@ -4,18 +4,12 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/services/connection/models/models.dart';
 import 'package:silo_tavern/services/connection/network.dart';
 
-import 'connection_session_test.mocks.dart';
+import 'mocks.mocks.dart';
 
-@GenerateNiceMocks([
-  MockSpec<Dio>(),
-  MockSpec<Response>(),
-  MockSpec<BaseOptions>(),
-])
 void main() {
   group('ConnectionSession Tests', () {
     late MockDio mockDio;

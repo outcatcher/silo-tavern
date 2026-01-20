@@ -2,22 +2,12 @@
 @Tags(['unit', 'connection'])
 library;
 
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/services/connection/debug_logger.dart';
 
-import 'debug_logger_test.mocks.dart';
+import 'mocks.mocks.dart';
 
-@GenerateNiceMocks([
-  MockSpec<RequestOptions>(),
-  MockSpec<Response>(),
-  MockSpec<DioException>(),
-  MockSpec<RequestInterceptorHandler>(),
-  MockSpec<ResponseInterceptorHandler>(),
-  MockSpec<ErrorInterceptorHandler>(),
-])
 void main() {
   group('DebugLogger Tests', () {
     late DebugLogger logger;

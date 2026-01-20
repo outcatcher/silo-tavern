@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:silo_tavern/common/app_storage.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/repository.dart';
+import 'package:silo_tavern/services/connection/network.dart';
 import 'package:silo_tavern/services/connection/storage.dart';
 import 'package:silo_tavern/services/servers/storage.dart';
 
@@ -19,11 +20,16 @@ import 'package:silo_tavern/services/servers/storage.dart';
 
   // Domain mocks
   MockSpec<ConnectionDomain>(),
+  MockSpec<ConnectionSessionInterface>(),
 
   // Network mocks
   MockSpec<Dio>(),
   MockSpec<Response>(),
   MockSpec<BaseOptions>(),
   MockSpec<DioException>(),
+  MockSpec<RequestOptions>(),
+  MockSpec<RequestInterceptorHandler>(),
+  MockSpec<ResponseInterceptorHandler>(),
+  MockSpec<ErrorInterceptorHandler>(),
 ])
 void main() {}
