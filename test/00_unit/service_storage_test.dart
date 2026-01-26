@@ -2,19 +2,12 @@
 @Tags(['unit', 'storage'])
 library;
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:silo_tavern/utils/app_storage.dart';
+import 'package:silo_tavern/common/app_storage.dart';
 
-import 'server_storage_test.mocks.dart';
+import 'mocks.mocks.dart';
 
-@GenerateNiceMocks([
-  MockSpec<SharedPreferencesAsync>(),
-  MockSpec<FlutterSecureStorage>(),
-])
 void main() {
   group('JsonStorage tests', () {
     late MockSharedPreferencesAsync mockPrefs;

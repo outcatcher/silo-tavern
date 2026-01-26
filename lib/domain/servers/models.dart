@@ -27,17 +27,3 @@ enum ServerStatus {
   /// Server is offline or unreachable
   offline,
 }
-
-/// Result of a server connection attempt
-class ServerConnectionResult {
-  final bool isSuccess;
-  final Server server;
-  final String? errorMessage;
-
-  ServerConnectionResult.success(this.server)
-    : isSuccess = true,
-      errorMessage = null;
-
-  ServerConnectionResult.failure(this.server, this.errorMessage)
-    : isSuccess = false;
-}

@@ -96,6 +96,7 @@ task build:linux
 2. **Immutability**: Data models use final fields where possible
 3. **Named Constructors**: Used for creating objects with different configurations (e.g., `AuthenticationInfo.none()` and `AuthenticationInfo.credentials()`)
 4. **Const Constructors**: Used where possible for performance optimization
+5. **Result Pattern**: Domain methods that can throw exceptions MUST use the `Result<T>` pattern to handle errors gracefully instead of throwing exceptions directly. Repository interfaces SHOULD NOT use Result types - they should throw exceptions which are then caught and wrapped in Result types by the domain layer.
 
 ### Testing Approach
 

@@ -1,46 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/services/connection/models/models.dart';
 import 'package:silo_tavern/ui/utils.dart' as utils;
-
-/// Converts technical authentication error messages to user-friendly messages
-String getFriendlyAuthErrorMessage(String? technicalMessage) {
-  if (technicalMessage == null || technicalMessage.isEmpty) {
-    return 'Authentication failed. Please check your credentials and try again.';
-  }
-
-  // Handle common authentication errors
-  if (technicalMessage.contains('401') ||
-      technicalMessage.contains('Unauthorized') ||
-      technicalMessage.contains('invalid credentials') ||
-      technicalMessage.contains('Invalid credentials')) {
-    return 'Invalid username or password. Please check your credentials and try again.';
-  }
-
-  // Handle network connectivity issues
-  if (technicalMessage.contains('SocketException') ||
-      technicalMessage.contains('Connection refused') ||
-      technicalMessage.contains('Failed host lookup')) {
-    return 'Unable to connect to the server. Please check your network connection and try again.';
-  }
-
-  // Handle timeout errors
-  if (technicalMessage.contains('timeout') ||
-      technicalMessage.contains('timed out')) {
-    return 'Connection timed out. The server may be busy or unreachable. Please try again.';
-  }
-
-  // Handle certificate errors
-  if (technicalMessage.contains('CERTIFICATE_VERIFY_FAILED') ||
-      technicalMessage.contains('HandshakeException')) {
-    return 'Security certificate verification failed. Please check that the server\'s SSL/TLS certificate is valid.';
-  }
-
-  // Default fallback message
-  return 'Authentication failed. Please check your credentials and try again.';
-}
+import 'package:silo_tavern/ui/utils/form_validators.dart';
 
 /// Page for authenticating with a server
 ///
@@ -133,10 +98,7 @@ class _LoginPageState extends State<LoginPage> {
               FocusScope.of(context).nextFocus();
             },
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your username';
-              }
-              return null;
+              return FormValidators.validUsername(value);
             },
           ),
           const SizedBox(height: 16),
@@ -162,17 +124,14 @@ class _LoginPageState extends State<LoginPage> {
                 _password = value;
               });
             },
-            onFieldSubmitted: (_) {
+            onFieldSubmitted: (_) async {
               // Trigger login when Enter is pressed in password field
               if (!_isAuthenticating) {
-                _handleLogin();
+                await _handleLogin();
               }
             },
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your password';
-              }
-              return null;
+              return FormValidators.validPassword(value);
             },
           ),
           const SizedBox(height: 16),
@@ -211,69 +170,56 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _handleLogin() async {
+  Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isAuthenticating = true;
       });
+      // Create credentials from form data
+      final credentials = ConnectionCredentials(
+        handle: _username,
+        password: _password,
+      );
 
-      try {
-        // Create credentials from form data
-        final credentials = ConnectionCredentials(
-          handle: _username,
-          password: _password,
+      // Authenticate with the server
+      final Result<void> result = await widget.connectionDomain
+          .authenticateWithServer(
+            widget.server,
+            credentials,
+            rememberMe: _rememberMe,
+          );
+
+      if (result.isSuccess) {
+        // Authentication successful - navigate to connect page
+        router.go(
+          Uri(
+            path: '/servers/connect/${widget.server.id}',
+            queryParameters: {'backUrl': widget.backUrl ?? utils.defaultPage},
+          ).toString(),
         );
-
-        // Authenticate with the server
-        final result = await widget.connectionDomain.authenticateWithServer(
-          widget.server,
-          credentials,
-          rememberMe: _rememberMe,
-        );
-
-        if (result.isSuccess) {
-          // Authentication successful - navigate to connect page
-          if (context.mounted) {
-            router.go(
-              Uri(
-                path: '/servers/connect/${widget.server.id}',
-                queryParameters: {
-                  'backUrl': widget.backUrl ?? utils.defaultPage,
-                },
-              ).toString(),
-            );
-          }
-        } else {
-          // Authentication failed - show error
-          if (mounted) {
-            utils.showErrorDialog(
-              context,
-              _getUserFriendlyAuthErrorMessage(result.errorMessage),
-              title: 'Login Failed',
-            );
-          }
-        }
-      } catch (e) {
-        // Unexpected error
+      } else {
+        // Authentication failed - show error
         if (mounted) {
           utils.showErrorDialog(
             context,
-            _getUserFriendlyAuthErrorMessage(e.toString()),
-            title: 'Login Error',
+            _getUserFriendlyAuthErrorMessage(
+              result.error ?? 'Authentication failed',
+            ),
+            title: 'Login Failed',
           );
         }
-      } finally {
-        if (context.mounted) {
-          setState(() {
-            _isAuthenticating = false;
-          });
-        }
+      }
+      // Reset authenticating state so user can try again
+      if (mounted) {
+        setState(() {
+          _isAuthenticating = false;
+        });
       }
     }
   }
 
   /// Converts technical authentication error messages to user-friendly messages
   String _getUserFriendlyAuthErrorMessage(String? technicalMessage) {
-    return getFriendlyAuthErrorMessage(technicalMessage);
+    return utils.getFriendlyAuthErrorMessage(technicalMessage);
   }
 }

@@ -3,25 +3,25 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i14;
+import 'dart:async' as _i13;
 
 import 'package:flutter/widgets.dart' as _i4;
 import 'package:go_router/src/configuration.dart' as _i3;
 import 'package:go_router/src/delegate.dart' as _i5;
 import 'package:go_router/src/information_provider.dart' as _i6;
-import 'package:go_router/src/match.dart' as _i13;
+import 'package:go_router/src/match.dart' as _i12;
 import 'package:go_router/src/parser.dart' as _i7;
-import 'package:go_router/src/router.dart' as _i11;
+import 'package:go_router/src/router.dart' as _i10;
 import 'package:go_router/src/state.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i12;
+import 'package:mockito/src/dummies.dart' as _i11;
 import 'package:silo_tavern/domain/connection/domain.dart' as _i8;
 import 'package:silo_tavern/domain/connection/models.dart' as _i9;
-import 'package:silo_tavern/domain/servers/domain.dart' as _i15;
-import 'package:silo_tavern/domain/servers/models.dart' as _i16;
+import 'package:silo_tavern/domain/result.dart' as _i16;
+import 'package:silo_tavern/domain/servers/domain.dart' as _i14;
+import 'package:silo_tavern/domain/servers/models.dart' as _i15;
 import 'package:silo_tavern/services/connection/models/models.dart' as _i18;
 import 'package:silo_tavern/services/connection/network.dart' as _i17;
-import 'package:silo_tavern/services/connection/storage.dart' as _i10;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -85,22 +85,10 @@ class _FakeConnectionSessionFactory_7 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeConnectionStorage_8 extends _i1.SmartFake
-    implements _i10.ConnectionStorage {
-  _FakeConnectionStorage_8(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeConnectionResult_9 extends _i1.SmartFake
-    implements _i9.ConnectionResult {
-  _FakeConnectionResult_9(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
 /// A class which mocks [GoRouter].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockGoRouter extends _i1.Mock implements _i11.GoRouter {
+class MockGoRouter extends _i1.Mock implements _i10.GoRouter {
   @override
   _i2.GoRouterState get state =>
       (super.noSuchMethod(
@@ -249,7 +237,7 @@ class MockGoRouter extends _i1.Mock implements _i11.GoRouter {
                 #fragment: fragment,
               },
             ),
-            returnValue: _i12.dummyValue<String>(
+            returnValue: _i11.dummyValue<String>(
               this,
               Invocation.method(
                 #namedLocation,
@@ -261,7 +249,7 @@ class MockGoRouter extends _i1.Mock implements _i11.GoRouter {
                 },
               ),
             ),
-            returnValueForMissingStub: _i12.dummyValue<String>(
+            returnValueForMissingStub: _i11.dummyValue<String>(
               this,
               Invocation.method(
                 #namedLocation,
@@ -283,7 +271,7 @@ class MockGoRouter extends _i1.Mock implements _i11.GoRouter {
   );
 
   @override
-  void restore(_i13.RouteMatchList? matchList) => super.noSuchMethod(
+  void restore(_i12.RouteMatchList? matchList) => super.noSuchMethod(
     Invocation.method(#restore, [matchList]),
     returnValueForMissingStub: null,
   );
@@ -310,16 +298,16 @@ class MockGoRouter extends _i1.Mock implements _i11.GoRouter {
   );
 
   @override
-  _i14.Future<T?> push<T extends Object?>(String? location, {Object? extra}) =>
+  _i13.Future<T?> push<T extends Object?>(String? location, {Object? extra}) =>
       (super.noSuchMethod(
             Invocation.method(#push, [location], {#extra: extra}),
-            returnValue: _i14.Future<T?>.value(),
-            returnValueForMissingStub: _i14.Future<T?>.value(),
+            returnValue: _i13.Future<T?>.value(),
+            returnValueForMissingStub: _i13.Future<T?>.value(),
           )
-          as _i14.Future<T?>);
+          as _i13.Future<T?>);
 
   @override
-  _i14.Future<T?> pushNamed<T extends Object?>(
+  _i13.Future<T?> pushNamed<T extends Object?>(
     String? name, {
     Map<String, String>? pathParameters = const {},
     Map<String, dynamic>? queryParameters = const {},
@@ -335,25 +323,25 @@ class MockGoRouter extends _i1.Mock implements _i11.GoRouter {
                 #extra: extra,
               },
             ),
-            returnValue: _i14.Future<T?>.value(),
-            returnValueForMissingStub: _i14.Future<T?>.value(),
+            returnValue: _i13.Future<T?>.value(),
+            returnValueForMissingStub: _i13.Future<T?>.value(),
           )
-          as _i14.Future<T?>);
+          as _i13.Future<T?>);
 
   @override
-  _i14.Future<T?> pushReplacement<T extends Object?>(
+  _i13.Future<T?> pushReplacement<T extends Object?>(
     String? location, {
     Object? extra,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#pushReplacement, [location], {#extra: extra}),
-            returnValue: _i14.Future<T?>.value(),
-            returnValueForMissingStub: _i14.Future<T?>.value(),
+            returnValue: _i13.Future<T?>.value(),
+            returnValueForMissingStub: _i13.Future<T?>.value(),
           )
-          as _i14.Future<T?>);
+          as _i13.Future<T?>);
 
   @override
-  _i14.Future<T?> pushReplacementNamed<T extends Object?>(
+  _i13.Future<T?> pushReplacementNamed<T extends Object?>(
     String? name, {
     Map<String, String>? pathParameters = const {},
     Map<String, dynamic>? queryParameters = const {},
@@ -369,22 +357,22 @@ class MockGoRouter extends _i1.Mock implements _i11.GoRouter {
                 #extra: extra,
               },
             ),
-            returnValue: _i14.Future<T?>.value(),
-            returnValueForMissingStub: _i14.Future<T?>.value(),
+            returnValue: _i13.Future<T?>.value(),
+            returnValueForMissingStub: _i13.Future<T?>.value(),
           )
-          as _i14.Future<T?>);
+          as _i13.Future<T?>);
 
   @override
-  _i14.Future<T?> replace<T>(String? location, {Object? extra}) =>
+  _i13.Future<T?> replace<T>(String? location, {Object? extra}) =>
       (super.noSuchMethod(
             Invocation.method(#replace, [location], {#extra: extra}),
-            returnValue: _i14.Future<T?>.value(),
-            returnValueForMissingStub: _i14.Future<T?>.value(),
+            returnValue: _i13.Future<T?>.value(),
+            returnValueForMissingStub: _i13.Future<T?>.value(),
           )
-          as _i14.Future<T?>);
+          as _i13.Future<T?>);
 
   @override
-  _i14.Future<T?> replaceNamed<T>(
+  _i13.Future<T?> replaceNamed<T>(
     String? name, {
     Map<String, String>? pathParameters = const {},
     Map<String, dynamic>? queryParameters = const {},
@@ -400,10 +388,10 @@ class MockGoRouter extends _i1.Mock implements _i11.GoRouter {
                 #extra: extra,
               },
             ),
-            returnValue: _i14.Future<T?>.value(),
-            returnValueForMissingStub: _i14.Future<T?>.value(),
+            returnValue: _i13.Future<T?>.value(),
+            returnValueForMissingStub: _i13.Future<T?>.value(),
           )
-          as _i14.Future<T?>);
+          as _i13.Future<T?>);
 
   @override
   void pop<T extends Object?>([T? result]) => super.noSuchMethod(
@@ -427,7 +415,7 @@ class MockGoRouter extends _i1.Mock implements _i11.GoRouter {
 /// A class which mocks [ServerDomain].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockServerDomain extends _i1.Mock implements _i15.ServerDomain {
+class MockServerDomain extends _i1.Mock implements _i14.ServerDomain {
   @override
   _i8.ConnectionDomain get connectionDomain =>
       (super.noSuchMethod(
@@ -444,13 +432,13 @@ class MockServerDomain extends _i1.Mock implements _i15.ServerDomain {
           as _i8.ConnectionDomain);
 
   @override
-  List<_i16.Server> get servers =>
+  List<_i15.Server> get servers =>
       (super.noSuchMethod(
             Invocation.getter(#servers),
-            returnValue: <_i16.Server>[],
-            returnValueForMissingStub: <_i16.Server>[],
+            returnValue: <_i15.Server>[],
+            returnValueForMissingStub: <_i15.Server>[],
           )
-          as List<_i16.Server>);
+          as List<_i15.Server>);
 
   @override
   int get serverCount =>
@@ -462,66 +450,106 @@ class MockServerDomain extends _i1.Mock implements _i15.ServerDomain {
           as int);
 
   @override
-  _i14.Future<void> initialize() =>
+  _i13.Future<_i16.Result<void>> initialize() =>
       (super.noSuchMethod(
             Invocation.method(#initialize, []),
-            returnValue: _i14.Future<void>.value(),
-            returnValueForMissingStub: _i14.Future<void>.value(),
+            returnValue: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
+                this,
+                Invocation.method(#initialize, []),
+              ),
+            ),
+            returnValueForMissingStub: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
+                this,
+                Invocation.method(#initialize, []),
+              ),
+            ),
           )
-          as _i14.Future<void>);
+          as _i13.Future<_i16.Result<void>>);
 
   @override
-  _i14.Future<void> addServer(_i16.Server? server) =>
+  _i13.Future<_i16.Result<void>> addServer(_i15.Server? server) =>
       (super.noSuchMethod(
             Invocation.method(#addServer, [server]),
-            returnValue: _i14.Future<void>.value(),
-            returnValueForMissingStub: _i14.Future<void>.value(),
+            returnValue: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
+                this,
+                Invocation.method(#addServer, [server]),
+              ),
+            ),
+            returnValueForMissingStub: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
+                this,
+                Invocation.method(#addServer, [server]),
+              ),
+            ),
           )
-          as _i14.Future<void>);
+          as _i13.Future<_i16.Result<void>>);
 
   @override
-  _i14.Future<void> updateServer(_i16.Server? updatedServer) =>
+  _i13.Future<_i16.Result<void>> updateServer(_i15.Server? updatedServer) =>
       (super.noSuchMethod(
             Invocation.method(#updateServer, [updatedServer]),
-            returnValue: _i14.Future<void>.value(),
-            returnValueForMissingStub: _i14.Future<void>.value(),
+            returnValue: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
+                this,
+                Invocation.method(#updateServer, [updatedServer]),
+              ),
+            ),
+            returnValueForMissingStub: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
+                this,
+                Invocation.method(#updateServer, [updatedServer]),
+              ),
+            ),
           )
-          as _i14.Future<void>);
+          as _i13.Future<_i16.Result<void>>);
 
   @override
-  _i14.Future<void> removeServer(String? id) =>
+  _i13.Future<_i16.Result<void>> removeServer(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#removeServer, [id]),
-            returnValue: _i14.Future<void>.value(),
-            returnValueForMissingStub: _i14.Future<void>.value(),
+            returnValue: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
+                this,
+                Invocation.method(#removeServer, [id]),
+              ),
+            ),
+            returnValueForMissingStub: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
+                this,
+                Invocation.method(#removeServer, [id]),
+              ),
+            ),
           )
-          as _i14.Future<void>);
+          as _i13.Future<_i16.Result<void>>);
 
   @override
-  _i16.Server? findServerById(String? id) =>
+  _i15.Server? findServerById(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#findServerById, [id]),
             returnValueForMissingStub: null,
           )
-          as _i16.Server?);
+          as _i15.Server?);
 
   @override
-  void updateServerStatus(String? serverId, _i16.ServerStatus? status) =>
+  void updateServerStatus(String? serverId, _i15.ServerStatus? status) =>
       super.noSuchMethod(
         Invocation.method(#updateServerStatus, [serverId, status]),
         returnValueForMissingStub: null,
       );
 
   @override
-  _i14.Future<void> checkAllServerStatuses(
-    void Function(_i16.Server)? serverUpdateCallback,
+  _i13.Future<void> checkAllServerStatuses(
+    void Function(_i15.Server)? serverUpdateCallback,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#checkAllServerStatuses, [serverUpdateCallback]),
-            returnValue: _i14.Future<void>.value(),
-            returnValueForMissingStub: _i14.Future<void>.value(),
+            returnValue: _i13.Future<void>.value(),
+            returnValueForMissingStub: _i13.Future<void>.value(),
           )
-          as _i14.Future<void>);
+          as _i13.Future<void>);
 }
 
 /// A class which mocks [ConnectionDomain].
@@ -544,21 +572,6 @@ class MockConnectionDomain extends _i1.Mock implements _i8.ConnectionDomain {
           as _i9.ConnectionSessionFactory);
 
   @override
-  _i10.ConnectionStorage get secureStorage =>
-      (super.noSuchMethod(
-            Invocation.getter(#secureStorage),
-            returnValue: _FakeConnectionStorage_8(
-              this,
-              Invocation.getter(#secureStorage),
-            ),
-            returnValueForMissingStub: _FakeConnectionStorage_8(
-              this,
-              Invocation.getter(#secureStorage),
-            ),
-          )
-          as _i10.ConnectionStorage);
-
-  @override
   _i17.ConnectionSessionInterface? getClient(String? serverId) =>
       (super.noSuchMethod(
             Invocation.method(#getClient, [serverId]),
@@ -567,8 +580,8 @@ class MockConnectionDomain extends _i1.Mock implements _i8.ConnectionDomain {
           as _i17.ConnectionSessionInterface?);
 
   @override
-  _i14.Future<_i9.ConnectionResult> authenticateWithServer(
-    _i16.Server? server,
+  _i13.Future<_i16.Result<void>> authenticateWithServer(
+    _i15.Server? server,
     _i18.ConnectionCredentials? credentials, {
     bool? rememberMe = false,
   }) =>
@@ -578,8 +591,8 @@ class MockConnectionDomain extends _i1.Mock implements _i8.ConnectionDomain {
               [server, credentials],
               {#rememberMe: rememberMe},
             ),
-            returnValue: _i14.Future<_i9.ConnectionResult>.value(
-              _FakeConnectionResult_9(
+            returnValue: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
                 this,
                 Invocation.method(
                   #authenticateWithServer,
@@ -588,8 +601,8 @@ class MockConnectionDomain extends _i1.Mock implements _i8.ConnectionDomain {
                 ),
               ),
             ),
-            returnValueForMissingStub: _i14.Future<_i9.ConnectionResult>.value(
-              _FakeConnectionResult_9(
+            returnValueForMissingStub: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
                 this,
                 Invocation.method(
                   #authenticateWithServer,
@@ -599,40 +612,50 @@ class MockConnectionDomain extends _i1.Mock implements _i8.ConnectionDomain {
               ),
             ),
           )
-          as _i14.Future<_i9.ConnectionResult>);
+          as _i13.Future<_i16.Result<void>>);
 
   @override
-  _i14.Future<_i9.ConnectionResult> obtainCsrfTokenForServer(
-    _i16.Server? server,
+  _i13.Future<_i16.Result<void>> obtainCsrfTokenForServer(
+    _i15.Server? server,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#obtainCsrfTokenForServer, [server]),
-            returnValue: _i14.Future<_i9.ConnectionResult>.value(
-              _FakeConnectionResult_9(
+            returnValue: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
                 this,
                 Invocation.method(#obtainCsrfTokenForServer, [server]),
               ),
             ),
-            returnValueForMissingStub: _i14.Future<_i9.ConnectionResult>.value(
-              _FakeConnectionResult_9(
+            returnValueForMissingStub: _i13.Future<_i16.Result<void>>.value(
+              _i11.dummyValue<_i16.Result<void>>(
                 this,
                 Invocation.method(#obtainCsrfTokenForServer, [server]),
               ),
             ),
           )
-          as _i14.Future<_i9.ConnectionResult>);
+          as _i13.Future<_i16.Result<void>>);
 
   @override
-  _i14.Future<bool> checkServerAvailability(_i16.Server? server) =>
+  _i13.Future<_i16.Result<bool>> checkServerAvailability(_i15.Server? server) =>
       (super.noSuchMethod(
             Invocation.method(#checkServerAvailability, [server]),
-            returnValue: _i14.Future<bool>.value(false),
-            returnValueForMissingStub: _i14.Future<bool>.value(false),
+            returnValue: _i13.Future<_i16.Result<bool>>.value(
+              _i11.dummyValue<_i16.Result<bool>>(
+                this,
+                Invocation.method(#checkServerAvailability, [server]),
+              ),
+            ),
+            returnValueForMissingStub: _i13.Future<_i16.Result<bool>>.value(
+              _i11.dummyValue<_i16.Result<bool>>(
+                this,
+                Invocation.method(#checkServerAvailability, [server]),
+              ),
+            ),
           )
-          as _i14.Future<bool>);
+          as _i13.Future<_i16.Result<bool>>);
 
   @override
-  bool hasExistingSession(_i16.Server? server) =>
+  bool hasExistingSession(_i15.Server? server) =>
       (super.noSuchMethod(
             Invocation.method(#hasExistingSession, [server]),
             returnValue: false,
@@ -641,13 +664,13 @@ class MockConnectionDomain extends _i1.Mock implements _i8.ConnectionDomain {
           as bool);
 
   @override
-  _i14.Future<bool> hasPersistentSession(_i16.Server? server) =>
+  _i13.Future<bool> hasPersistentSession(_i15.Server? server) =>
       (super.noSuchMethod(
             Invocation.method(#hasPersistentSession, [server]),
-            returnValue: _i14.Future<bool>.value(false),
-            returnValueForMissingStub: _i14.Future<bool>.value(false),
+            returnValue: _i13.Future<bool>.value(false),
+            returnValueForMissingStub: _i13.Future<bool>.value(false),
           )
-          as _i14.Future<bool>);
+          as _i13.Future<bool>);
 
   @override
   void testOnlyAddSession(

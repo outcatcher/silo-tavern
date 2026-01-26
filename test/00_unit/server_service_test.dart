@@ -3,16 +3,12 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
-import 'package:silo_tavern/domain/connection/domain.dart';
-import 'package:silo_tavern/services/servers/storage.dart';
 
-import 'server_service_test.mocks.dart';
+import 'mocks.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerStorage>(), MockSpec<ConnectionDomain>()])
 void main() {
   group('ServerService Tests', () {
     late MockServerStorage storage;
@@ -24,7 +20,7 @@ void main() {
       connectionDomain = MockConnectionDomain();
 
       // Mock the storage methods to return some initial servers
-      when(storage.listServers()).thenAnswer(
+      when(storage.getAll()).thenAnswer(
         (_) async => [
           Server(
             id: '1',
@@ -38,16 +34,16 @@ void main() {
           ),
         ],
       );
-      when(storage.getServer(any)).thenAnswer(
+      when(storage.getById(any)).thenAnswer(
         (_) async => Server(
           id: '1',
           name: 'Test Server 1',
           address: 'https://test1.example.com',
         ),
       );
-      when(storage.createServer(any)).thenAnswer((_) async {});
-      when(storage.updateServer(any)).thenAnswer((_) async {});
-      when(storage.deleteServer(any)).thenAnswer((_) async {});
+      when(storage.create(any)).thenAnswer((_) async {});
+      when(storage.update(any)).thenAnswer((_) async {});
+      when(storage.delete(any)).thenAnswer((_) async {});
 
       service = ServerDomain(
         ServerOptions(storage, connectionDomain: connectionDomain),
@@ -130,7 +126,7 @@ void main() {
       expect(foundServer, isNull);
     });
 
-    test('Update non-existent server throws exception', () async {
+    test('Update non-existent server returns failure result', () async {
       final initialCount = service.serverCount;
       final fakeServer = Server(
         id: 'fake-id',
@@ -138,14 +134,9 @@ void main() {
         address: 'https://fake.example.com',
       );
 
-      expect(
-        () => service.updateServer(fakeServer),
-        throwsA(
-          predicate(
-            (e) => e is ArgumentError && e.message.contains('does\'t exist'),
-          ),
-        ),
-      );
+      final result = await service.updateServer(fakeServer);
+      expect(result.isSuccess, isFalse);
+      expect(result.error, contains('does\'t exist'));
 
       expect(service.serverCount, initialCount); // No change
     });
@@ -168,10 +159,9 @@ void main() {
           address: 'http://external.com',
         );
 
-        expect(
-          () => service.updateServer(invalidServer),
-          throwsA(isA<ArgumentError>()),
-        );
+        final result = await service.updateServer(invalidServer);
+        expect(result.isSuccess, isFalse);
+        expect(result.error, 'HTTPS must be used for external servers');
 
         // Original server should still exist
         expect(service.findServerById('valid-server'), isNotNull);
@@ -195,11 +185,14 @@ void main() {
         );
 
         // First server should be added successfully
-        expect(() => service.addServer(server1), returnsNormally);
+        final result1 = await service.addServer(server1);
+        expect(result1.isSuccess, isTrue);
         expect(service.findServerById('duplicate-id'), isNotNull);
 
         // Second server with same ID should fail
-        expect(() => service.addServer(server2), throwsA(isA<ArgumentError>()));
+        final result2 = await service.addServer(server2);
+        expect(result2.isSuccess, isFalse);
+        expect(result2.error, contains('already exists'));
 
         // Original server should still exist
         expect(service.findServerById('duplicate-id'), isNotNull);
@@ -236,18 +229,9 @@ void main() {
             address: 'http://external.com',
           );
 
-          expect(
-            () => service.updateServer(invalidServer),
-            throwsA(
-              predicate(
-                (e) =>
-                    e is ArgumentError &&
-                    e.message.contains(
-                      'HTTPS must be used for external servers',
-                    ),
-              ),
-            ),
-          );
+          final result = await service.updateServer(invalidServer);
+          expect(result.isSuccess, isFalse);
+          expect(result.error, 'HTTPS must be used for external servers');
         },
       );
     });

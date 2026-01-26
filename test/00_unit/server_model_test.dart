@@ -81,33 +81,4 @@ void main() {
       expect(ServerStatus.offline.toString(), 'ServerStatus.offline');
     });
   });
-
-  group('ServerConnectionResult Tests', () {
-    late Server testServer;
-
-    setUp(() {
-      testServer = Server(
-        id: '1',
-        name: 'Test Server',
-        address: 'https://test.example.com',
-      );
-    });
-
-    test('ServerConnectionResult.success creates correct result', () {
-      final result = ServerConnectionResult.success(testServer);
-
-      expect(result.isSuccess, isTrue);
-      expect(result.server, testServer);
-      expect(result.errorMessage, isNull);
-    });
-
-    test('ServerConnectionResult.failure creates correct result', () {
-      const errorMessage = 'Connection failed';
-      final result = ServerConnectionResult.failure(testServer, errorMessage);
-
-      expect(result.isSuccess, isFalse);
-      expect(result.server, testServer);
-      expect(result.errorMessage, errorMessage);
-    });
-  });
 }

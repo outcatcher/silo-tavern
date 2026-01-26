@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:silo_tavern/ui/login_page.dart';
+import 'package:silo_tavern/ui/utils.dart';
 
 void main() {
   group('Login Error Message Tests:', () {

@@ -1,13 +1,14 @@
 library;
 
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../domain/servers/models.dart';
-import '../../utils/app_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:silo_tavern/common/app_storage.dart';
+import 'package:silo_tavern/domain/servers/models.dart';
+import 'package:silo_tavern/domain/servers/repository.dart';
 
 part 'models.dart';
 
-class ServerStorage {
+class ServerStorage implements ServerRepository {
   static const String _serversKeyPrefix = 'servers';
 
   final JsonStorage _storage;
@@ -28,7 +29,8 @@ class ServerStorage {
   }
 
   /// Load all servers from persistent storage
-  Future<List<Server>> listServers() async {
+  @override
+  Future<List<Server>> getAll() async {
     final serversData = await _storage.list();
 
     final List<Server> servers = [];
@@ -42,7 +44,8 @@ class ServerStorage {
   }
 
   /// Get a specific server by ID
-  Future<Server?> getServer(String id) async {
+  @override
+  Future<Server?> getById(String id) async {
     final serverData = await _storage.get(id);
     if (serverData == null) {
       return null;
@@ -53,10 +56,11 @@ class ServerStorage {
   }
 
   /// Create a new server
-  Future<void> createServer(Server server) async {
+  @override
+  Future<void> create(Server server) async {
     final existing = await _storage.get(server.id);
     if (existing != null) {
-      throw Exception('Server with ID ${server.id} already exists');
+      throw ArgumentError('Server with ID ${server.id} already exists');
     }
 
     final serviceServer = _ServiceServer.fromDomain(server);
@@ -64,10 +68,11 @@ class ServerStorage {
   }
 
   /// Update an existing server
-  Future<void> updateServer(Server server) async {
+  @override
+  Future<void> update(Server server) async {
     final existing = await _storage.get(server.id);
     if (existing == null) {
-      throw Exception('Server with ID ${server.id} not found');
+      throw ArgumentError('Server with ID ${server.id} not found');
     }
 
     final serviceServer = _ServiceServer.fromDomain(server);
@@ -75,7 +80,8 @@ class ServerStorage {
   }
 
   /// Delete a server and its credentials from storage
-  Future<void> deleteServer(String serverId) async {
+  @override
+  Future<void> delete(String serverId) async {
     await _storage.delete(serverId);
     await _secureStorage.delete(serverId);
   }

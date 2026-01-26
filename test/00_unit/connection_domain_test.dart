@@ -5,17 +5,15 @@ library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/connection/models.dart';
 import 'package:silo_tavern/domain/servers/models.dart' as server_models;
 
 import 'package:silo_tavern/services/connection/network.dart';
-import 'package:silo_tavern/services/connection/storage.dart';
 import 'package:silo_tavern/services/connection/models/models.dart';
 
-import 'connection_domain_test.mocks.dart';
+import 'mocks.mocks.dart';
 
 class FakeSessionFactory implements ConnectionSessionFactory {
   final Map<String, ConnectionSessionInterface> sessions = {};
@@ -29,10 +27,6 @@ class FakeSessionFactory implements ConnectionSessionFactory {
   }
 }
 
-@GenerateNiceMocks([
-  MockSpec<ConnectionStorage>(),
-  MockSpec<ConnectionSessionInterface>(),
-])
 void main() {
   group('ConnectionDomain Tests', () {
     late MockConnectionStorage secureStorage;
@@ -44,7 +38,7 @@ void main() {
       sessionFactory = FakeSessionFactory();
       domain = ConnectionDomain(
         sessionFactory: sessionFactory,
-        secureStorage: secureStorage,
+        repository: secureStorage,
       );
     });
 
@@ -100,7 +94,7 @@ void main() {
 
       // Assert
       expect(result.isSuccess, isTrue);
-      expect(result.errorMessage, isNull);
+      expect(result.error, isNull);
       verify(session.authenticate(credentials)).called(1);
     });
 
@@ -131,7 +125,7 @@ void main() {
 
         // Assert
         expect(result.isSuccess, isFalse);
-        expect(result.errorMessage, isNotNull);
+        expect(result.error, isNotNull);
         verify(session.authenticate(credentials)).called(1);
       },
     );
@@ -155,7 +149,7 @@ void main() {
 
       // Assert
       expect(result.isSuccess, isTrue);
-      expect(result.errorMessage, isNull);
+      expect(result.error, isNull);
       verify(session.obtainCsrfToken()).called(1);
       verify(session.getCsrfToken()).called(1);
       verify(secureStorage.saveCsrfToken('1', 'test-csrf-token')).called(1);
@@ -181,7 +175,7 @@ void main() {
 
         // Assert
         expect(result.isSuccess, isFalse);
-        expect(result.errorMessage, isNotNull);
+        expect(result.error, isNotNull);
         verify(session.obtainCsrfToken()).called(1);
         verifyNever(secureStorage.saveCsrfToken(any, any));
       },
@@ -203,10 +197,11 @@ void main() {
         when(session.checkServerAvailability()).thenAnswer((_) async => true);
 
         // Act
-        final isAvailable = await domain.checkServerAvailability(server);
+        final result = await domain.checkServerAvailability(server);
 
         // Assert
-        expect(isAvailable, isTrue);
+        expect(result.isSuccess, isTrue);
+        expect(result.value, isTrue);
         verify(session.checkServerAvailability()).called(1);
       },
     );
@@ -229,10 +224,11 @@ void main() {
         ).thenThrow(Exception('Unavailable'));
 
         // Act
-        final isAvailable = await domain.checkServerAvailability(server);
+        final result = await domain.checkServerAvailability(server);
 
         // Assert
-        expect(isAvailable, isFalse);
+        expect(result.isSuccess, isFalse);
+        expect(result.error, isNotNull);
       },
     );
 
@@ -469,7 +465,7 @@ void main() {
 
         // Assert
         expect(result.isSuccess, isFalse);
-        expect(result.errorMessage, contains('Failed to get cookies'));
+        expect(result.error, contains('Failed to get cookies'));
         verify(session.authenticate(credentials)).called(1);
         verify(session.getSessionCookies()).called(1);
         verifyNever(secureStorage.saveSessionCookies(any, any));

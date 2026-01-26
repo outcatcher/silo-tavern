@@ -5,25 +5,32 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:silo_tavern/domain/repositories.dart';
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/domain/servers/models.dart' as server_models;
 import 'package:silo_tavern/services/connection/models/models.dart';
 import 'package:silo_tavern/services/connection/network.dart';
 import 'package:silo_tavern/services/connection/storage.dart';
 
 import 'models.dart';
+import 'repository.dart';
 
 class ConnectionDomain {
   final ConnectionSessionFactory sessionFactory;
-  final ConnectionStorage secureStorage;
+  final ConnectionRepository _repository;
 
   final Map<String, ConnectionSessionInterface> _sessions = {};
 
-  ConnectionDomain({required this.sessionFactory, required this.secureStorage});
+  ConnectionDomain({
+    required this.sessionFactory,
+    required ConnectionRepository repository,
+  }) : _repository = repository;
 
   factory ConnectionDomain.defaultInstance(FlutterSecureStorage sec) {
+    final storage = ConnectionStorage.defaultInstance(sec);
     return ConnectionDomain(
       sessionFactory: DefaultConnectionFactory(),
-      secureStorage: ConnectionStorage.defaultInstance(sec),
+      repository: storage,
     );
   }
 
@@ -33,7 +40,7 @@ class ConnectionDomain {
   }
 
   /// Authenticate with a server using the provided credentials
-  Future<ConnectionResult> authenticateWithServer(
+  Future<Result<void>> authenticateWithServer(
     server_models.Server server,
     ConnectionCredentials credentials, {
     bool rememberMe = false,
@@ -50,21 +57,21 @@ class ConnectionDomain {
       // If rememberMe is true, save session cookies to secure storage
       if (rememberMe) {
         final cookies = await session.getSessionCookies();
-        await secureStorage.saveSessionCookies(server.id, cookies);
+        await _repository.saveSessionCookies(server.id, cookies);
       }
 
       // Authentication successful
-      return ConnectionResult.success();
+      return Result.success(null);
     } catch (e) {
       debugPrint(
         'ConnectionDomain: Failed to authenticate with server ${server.id}: $e',
       );
-      return ConnectionResult.failure(e.toString());
+      return Result.failure(e.toString());
     }
   }
 
   /// Obtain a CSRF token for a server
-  Future<ConnectionResult> obtainCsrfTokenForServer(
+  Future<Result<void>> obtainCsrfTokenForServer(
     server_models.Server server,
   ) async {
     try {
@@ -79,27 +86,30 @@ class ConnectionDomain {
       // Save the obtained CSRF token
       final token = session.getCsrfToken();
       if (token != null) {
-        await secureStorage.saveCsrfToken(server.id, token);
+        await _repository.saveCsrfToken(server.id, token);
       }
 
-      return ConnectionResult.success();
+      return Result.success(null);
     } catch (e) {
       debugPrint(
         'ConnectionDomain: Failed to obtain CSRF token for server ${server.id}: $e',
       );
-      return ConnectionResult.failure(e.toString());
+      return Result.failure(e.toString());
     }
   }
 
   /// Check if a server is available by making a GET request to the root path
-  Future<bool> checkServerAvailability(server_models.Server server) async {
+  Future<Result<bool>> checkServerAvailability(
+    server_models.Server server,
+  ) async {
     try {
       // Create a temporary session to check availability
       final session = sessionFactory.create(server.address);
-      return await session.checkServerAvailability();
+      final isAvailable = await session.checkServerAvailability();
+      return Result.success(isAvailable);
     } catch (e) {
       debugPrint('Failed to check server availability for ${server.id}: $e');
-      return false;
+      return Result.failure(e.toString());
     }
   }
 
@@ -111,7 +121,7 @@ class ConnectionDomain {
   /// Check if a server has a persistent session
   Future<bool> hasPersistentSession(server_models.Server server) async {
     try {
-      final cookies = await secureStorage.loadSessionCookies(server.id);
+      final cookies = await _repository.loadSessionCookies(server.id);
       return cookies != null && cookies.isNotEmpty;
     } catch (e) {
       debugPrint(

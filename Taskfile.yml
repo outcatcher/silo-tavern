@@ -32,7 +32,7 @@ tasks:
       - "echo Following files are excluded from coverage: {{ .lcov_exclude }}"
       - lcov --remove {{ .coverage_file }} {{ .lcov_exclude }} -o {{ .coverage_filtered_file }}
       - genhtml {{ .coverage_filtered_file }} -o coverage/html
-      - echo "Coverage report generated at coverage/html/index.html"
+      - echo "Coverage report generated at file://coverage/html/index.html"
 
   .path-test:
     internal: true
@@ -82,7 +82,7 @@ tasks:
       - task: test:unit
       - task: test:widget
       - genhtml $(ls $(find . -name 'lcov.*.filtered.info')) -o coverage/html
-      - echo "Coverage report generated at coverage/html/index.html"
+      - echo "Coverage report generated at file://coverage/html/index.html"
 
   lint:
     desc: Run linter
