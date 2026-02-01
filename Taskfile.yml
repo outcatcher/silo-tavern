@@ -6,14 +6,12 @@ dotenv:
 env:
   lcov_exclude: >-
     '**/*.g.dart'
-    '**/*.freezed.dart'
-    '**/*.gen.dart'
 
 tasks:
   setup:
     desc: Enable builds
     cmds:
-      - flutter config --enable-linux-desktop --enable-web
+      - flutter config --enable-linux-desktop --enable-web --enable-android
 
   generate:
     desc: Generate mocks
