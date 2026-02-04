@@ -52,7 +52,7 @@ dev_dependencies:
   mockito: ^5.6.3
   build_runner: ^2.10.5
   json_serializable: ^6.11.4
-  freezed: ^3.2.4
+  freezed: ^3.2.5
   integration_test:
     sdk: flutter
 
