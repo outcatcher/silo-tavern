@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
-import 'package:silo_tavern/router.dart';
+import 'package:silo_tavern/router/router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

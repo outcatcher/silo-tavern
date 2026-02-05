@@ -329,7 +329,9 @@ class _ServerListPageState extends State<ServerListPage> {
                                       .hasPersistentSession(server)) {
                                     // Skip login and go directly to dashboard
                                     if (context.mounted) {
-                                      router.go('/servers/${server.id}/dashboard');
+                                      router.go(
+                                        '/servers/${server.id}/dashboard',
+                                      );
                                     }
                                   } else {
                                     // Navigate to login page with back URL as query parameter

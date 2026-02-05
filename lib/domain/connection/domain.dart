@@ -142,10 +142,10 @@ class ConnectionDomain {
     try {
       // Remove session from memory
       _sessions.remove(server.id);
-      
+
       // Delete persistent session cookies
       await _repository.deleteSessionCookies(server.id);
-      
+
       // Delete CSRF token
       await _repository.deleteCsrfToken(server.id);
     } catch (e) {

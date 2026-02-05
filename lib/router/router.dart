@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
+import 'package:silo_tavern/router/auth_guard.dart';
 import 'package:silo_tavern/ui/login_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
-import 'package:silo_tavern/ui/server_dashboard_wrapper.dart';
+import 'package:silo_tavern/ui/server_dashboard_page.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/ui/under_construction_page.dart';
 import 'package:silo_tavern/ui/utils.dart';
@@ -105,6 +106,14 @@ GoRouter appRouter(Domains domains) {
       GoRoute(
         path: '/servers/:id/dashboard',
         name: 'serverDashboard',
+        redirect: (context, state) async {
+          return await serverAuthGuard(
+            context: context,
+            state: state,
+            serverDomain: domains.servers,
+            connectionDomain: domains.connections,
+          );
+        },
         builder: (context, state) {
           final serverId = state.pathParameters['id']!;
           final server = domains.servers.findServerById(serverId);
@@ -117,12 +126,12 @@ GoRouter appRouter(Domains domains) {
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          
-          return ServerDashboardWrapper(
-            server: server,
+
+          return ServerDashboardPage(
+            serverId: server.id,
+            serverName: server.name,
             connectionDomain: domains.connections,
             serverDomain: domains.servers,
-            router: GoRouter.of(context),
           );
         },
       ),
@@ -130,12 +139,10 @@ GoRouter appRouter(Domains domains) {
         path: '/under-construction',
         name: 'underConstruction',
         builder: (context, state) {
-          final title = state.uri.queryParameters['title'] ?? 'Under Construction';
+          final title =
+              state.uri.queryParameters['title'] ?? 'Under Construction';
           final backUrl = state.uri.queryParameters['backUrl'];
-          return UnderConstructionPage(
-            title: title,
-            backUrl: backUrl,
-          );
+          return UnderConstructionPage(title: title, backUrl: backUrl);
         },
       ),
     ],

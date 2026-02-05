@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
+import 'package:silo_tavern/router/auth_guard.dart';
 
 /// Server dashboard page shown after successful server authentication
 ///
@@ -93,8 +94,7 @@ class ServerDashboardPage extends StatelessWidget {
 
   /// Builds a menu button with consistent styling
   Widget _buildMenuButton(
-    BuildContext context,
-    {
+    BuildContext context, {
     required String title,
     required IconData icon,
     required VoidCallback onTap,
@@ -103,18 +103,13 @@ class ServerDashboardPage extends StatelessWidget {
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.all(24),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: Row(
         children: [
           Icon(icon, size: 32),
           const SizedBox(width: 16),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 20),
-          ),
+          Text(title, style: const TextStyle(fontSize: 20)),
           const Spacer(),
           const Icon(Icons.arrow_forward_ios),
         ],
@@ -141,9 +136,11 @@ class ServerDashboardPage extends StatelessWidget {
         final server = serverDomain!.findServerById(serverId);
         if (server != null) {
           await connectionDomain!.logoutFromServer(server);
+          // Clear auth cache for this server
+          clearAuthCache();
         }
       }
-      
+
       // Navigate to server list
       routerInstance.go('/');
     });

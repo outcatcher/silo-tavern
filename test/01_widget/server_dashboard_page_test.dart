@@ -38,7 +38,7 @@ void main() {
       expect(find.text('Test Server'), findsOneWidget);
       expect(find.byIcon(Icons.arrow_back), findsOneWidget);
       expect(find.byIcon(Icons.logout), findsOneWidget);
-      
+
       // Verify menu buttons
       expect(find.text('Personas'), findsOneWidget);
       expect(find.text('Characters'), findsOneWidget);

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
-import 'package:silo_tavern/router.dart';
+import 'package:silo_tavern/router/router.dart';
+import 'package:silo_tavern/router/auth_guard.dart';
 import 'package:silo_tavern/ui/server_dashboard_page.dart';
 
 import '../01_widget/router_test.mocks.dart';
@@ -19,10 +20,12 @@ void main() {
 
     tearDown(() {
       resetMockitoState();
+      clearAuthCacheForTesting();
     });
 
-    testWidgets('Redirects to dashboard when server has persistent session',
-        (tester) async {
+    testWidgets('Redirects to dashboard when server has persistent session', (
+      tester,
+    ) async {
       // Arrange
       final testServer = Server(
         id: 'test-server',
@@ -30,12 +33,15 @@ void main() {
         address: 'https://test.example.com',
       );
 
-      when(mockServerDomain.findServerById('test-server'))
-          .thenReturn(testServer);
-      when(mockConnectionDomain.hasExistingSession(testServer))
-          .thenReturn(false);
-      when(mockConnectionDomain.hasPersistentSession(testServer))
-          .thenAnswer((_) async => true);
+      when(
+        mockServerDomain.findServerById('test-server'),
+      ).thenReturn(testServer);
+      when(
+        mockConnectionDomain.hasExistingSession(testServer),
+      ).thenReturn(false);
+      when(
+        mockConnectionDomain.hasPersistentSession(testServer),
+      ).thenAnswer((_) async => true);
 
       final domains = Domains(
         servers: mockServerDomain,
@@ -46,10 +52,10 @@ void main() {
       // Act
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       router.go('/servers/test-server/dashboard');
-      
+
       // Pump once to trigger the initial build
       await tester.pump();
-      
+
       // Wait for async operations
       await tester.pump(Duration(milliseconds: 100));
       await tester.pumpAndSettle();
@@ -60,8 +66,9 @@ void main() {
       expect(find.byType(ServerDashboardPage), findsOneWidget);
     });
 
-    testWidgets('Redirects to server list when no valid session exists',
-        (tester) async {
+    testWidgets('Redirects to server list when no valid session exists', (
+      tester,
+    ) async {
       // Arrange
       final testServer = Server(
         id: 'test-server',
@@ -69,12 +76,15 @@ void main() {
         address: 'https://test.example.com',
       );
 
-      when(mockServerDomain.findServerById('test-server'))
-          .thenReturn(testServer);
-      when(mockConnectionDomain.hasExistingSession(testServer))
-          .thenReturn(false);
-      when(mockConnectionDomain.hasPersistentSession(testServer))
-          .thenAnswer((_) async => false);
+      when(
+        mockServerDomain.findServerById('test-server'),
+      ).thenReturn(testServer);
+      when(
+        mockConnectionDomain.hasExistingSession(testServer),
+      ).thenReturn(false);
+      when(
+        mockConnectionDomain.hasPersistentSession(testServer),
+      ).thenAnswer((_) async => false);
 
       final domains = Domains(
         servers: mockServerDomain,
@@ -91,6 +101,8 @@ void main() {
       // Should redirect to server list (root route redirects to /servers)
       expect(find.text('Checking authentication'), findsNothing);
       expect(find.byType(ServerDashboardPage), findsNothing);
+      // Should be on the server list page now
+      expect(find.text('SiloTavern - Servers'), findsWidgets);
     });
   });
 }
