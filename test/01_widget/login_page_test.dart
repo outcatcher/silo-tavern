@@ -228,7 +228,7 @@ void main() {
       expect(find.text('Please enter your password'), findsOneWidget);
     });
 
-    testWidgets('Successful login navigates to connect page', (tester) async {
+    testWidgets('Successful login navigates to dashboard', (tester) async {
       final server = Server(
         id: '1',
         name: 'Test Server',
@@ -272,9 +272,9 @@ void main() {
       await tester.tap(loginButton);
       await tester.pumpAndSettle();
 
-      // Should authenticate and navigate
+      // Should authenticate and navigate to dashboard
       verify(connectionDomain.authenticateWithServer(any, any)).called(1);
-      verify(router.go(any)).called(1);
+      verify(router.go('/servers/1/dashboard')).called(1);
     });
 
     testWidgets('Login shows error dialog on authentication failure', (

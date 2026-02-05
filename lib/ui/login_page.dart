@@ -190,13 +190,8 @@ class _LoginPageState extends State<LoginPage> {
           );
 
       if (result.isSuccess) {
-        // Authentication successful - navigate to connect page
-        router.go(
-          Uri(
-            path: '/servers/connect/${widget.server.id}',
-            queryParameters: {'backUrl': widget.backUrl ?? utils.defaultPage},
-          ).toString(),
-        );
+        // Authentication successful - navigate to dashboard
+        router.go('/servers/${widget.server.id}/dashboard');
       } else {
         // Authentication failed - show error
         if (mounted) {

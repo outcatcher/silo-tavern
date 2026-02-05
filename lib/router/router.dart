@@ -56,29 +56,7 @@ GoRouter appRouter(Domains domains) {
           );
         },
       ),
-      GoRoute(
-        path: '/servers/connect/:id',
-        name: 'serverConnect',
-        builder: (context, state) {
-          final serverId = state.pathParameters['id']!;
-          final server = domains.servers.findServerById(serverId);
-          if (server == null) {
-            // Navigate back if server not found
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.go(defaultPage);
-            });
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          // Get back URL from query parameters or default to '/servers'
-          final backUrl = state.uri.queryParameters['backUrl'] ?? defaultPage;
-          return UnderConstructionPage(
-            title: 'Connect to Server',
-            backUrl: backUrl,
-          );
-        },
-      ),
+      
       GoRoute(
         path: '/servers/login/:id',
         name: 'serverLogin',

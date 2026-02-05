@@ -9,7 +9,6 @@ import 'package:silo_tavern/router/router.dart';
 import 'package:silo_tavern/ui/login_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
-import 'package:silo_tavern/ui/under_construction_page.dart';
 
 import 'router_test.mocks.dart';
 
@@ -73,31 +72,7 @@ void main() {
       expect(find.byType(ServerCreationPage), findsOneWidget);
     });
 
-    testWidgets('Server connect route shows under construction page', (
-      tester,
-    ) async {
-      // Mock the findServerById method to return a server
-      final server = Server(
-        id: 'test',
-        name: 'Test Server',
-        address: 'https://test.com',
-      );
-      when(mockServerDomain.findServerById('test')).thenReturn(server);
-
-      final domains = Domains(
-        servers: mockServerDomain,
-        connections: mockConnectionDomain,
-      );
-      final router = appRouter(domains);
-
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
-      router.go('/servers/connect/test');
-
-      await tester.pumpAndSettle();
-
-      expect(find.byType(UnderConstructionPage), findsOneWidget);
-      expect(find.text('Connect to Server'), findsOneWidget);
-    });
+    
 
     testWidgets('Server login route shows login page', (tester) async {
       // Mock the findServerById method to return a server
