@@ -51,7 +51,7 @@ The dashboard SHALL properly handle server ID route parameters and validate serv
 - **Then** the user should see an appropriate error message
 - **And** should be redirected to the server list page
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Navigation Stack Management
 The navigation system SHALL maintain proper history stack for dashboard navigation.

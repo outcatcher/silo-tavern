@@ -41,7 +41,7 @@ The under-construction page SHALL properly handle and utilize the backUrl parame
 - **Then** the user should be navigated using default back behavior
 - **And** should return to the previous page in navigation history
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Under Construction Page Enhancement
 The under-construction page SHALL be enhanced to support backUrl parameter and contextual display.
