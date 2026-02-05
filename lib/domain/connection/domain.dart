@@ -138,7 +138,7 @@ class ConnectionDomain {
   }
 
   /// Logout from a server and clear all associated tokens and cookies
-  Future<void> logoutFromServer(server_models.Server server) async {
+  Future<Result<void>> logoutFromServer(server_models.Server server) async {
     try {
       // Remove session from memory
       _sessions.remove(server.id);
@@ -148,11 +148,14 @@ class ConnectionDomain {
 
       // Delete CSRF token
       await _repository.deleteCsrfToken(server.id);
+
+      // Logout successful
+      return Result.success(null);
     } catch (e) {
       debugPrint(
         'ConnectionDomain: Failed to logout from server ${server.id}: $e',
       );
-      rethrow;
+      return Result.failure(e.toString());
     }
   }
 }

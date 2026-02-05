@@ -925,13 +925,23 @@ class MockConnectionDomain extends _i1.Mock implements _i14.ConnectionDomain {
   );
 
   @override
-  _i7.Future<void> logoutFromServer(_i8.Server? server) =>
+  _i7.Future<_i16.Result<void>> logoutFromServer(_i8.Server? server) =>
       (super.noSuchMethod(
             Invocation.method(#logoutFromServer, [server]),
-            returnValue: _i7.Future<void>.value(),
-            returnValueForMissingStub: _i7.Future<void>.value(),
+            returnValue: _i7.Future<_i16.Result<void>>.value(
+              _i18.dummyValue<_i16.Result<void>>(
+                this,
+                Invocation.method(#logoutFromServer, [server]),
+              ),
+            ),
+            returnValueForMissingStub: _i7.Future<_i16.Result<void>>.value(
+              _i18.dummyValue<_i16.Result<void>>(
+                this,
+                Invocation.method(#logoutFromServer, [server]),
+              ),
+            ),
           )
-          as _i7.Future<void>);
+          as _i7.Future<_i16.Result<void>>);
 }
 
 /// A class which mocks [ConnectionSessionInterface].

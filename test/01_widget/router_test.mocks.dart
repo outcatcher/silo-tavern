@@ -310,11 +310,21 @@ class MockConnectionDomain extends _i1.Mock implements _i2.ConnectionDomain {
   );
 
   @override
-  _i6.Future<void> logoutFromServer(_i5.Server? server) =>
+  _i6.Future<_i7.Result<void>> logoutFromServer(_i5.Server? server) =>
       (super.noSuchMethod(
             Invocation.method(#logoutFromServer, [server]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i6.Future<_i7.Result<void>>.value(
+              _i8.dummyValue<_i7.Result<void>>(
+                this,
+                Invocation.method(#logoutFromServer, [server]),
+              ),
+            ),
+            returnValueForMissingStub: _i6.Future<_i7.Result<void>>.value(
+              _i8.dummyValue<_i7.Result<void>>(
+                this,
+                Invocation.method(#logoutFromServer, [server]),
+              ),
+            ),
           )
-          as _i6.Future<void>);
+          as _i6.Future<_i7.Result<void>>);
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:silo_tavern/domain/result.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/router/router.dart';
 import 'package:silo_tavern/ui/server_dashboard_page.dart';
@@ -16,6 +17,7 @@ void main() {
     setUp(() {
       mockServerDomain = MockServerDomain();
       mockConnectionDomain = MockConnectionDomain();
+      provideDummy<Result<void>>(Result.success(null));
     });
 
     tearDown(() {
@@ -197,7 +199,7 @@ void main() {
       ).thenReturn(true);
       when(
         mockConnectionDomain.logoutFromServer(testServer),
-      ).thenAnswer((_) async {});
+      ).thenAnswer((_) async => Result.success(null));
 
       final domains = Domains(
         servers: mockServerDomain,
