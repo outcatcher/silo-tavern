@@ -4,6 +4,7 @@ import 'package:silo_tavern/domain/connection/domain.dart';
 import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/ui/login_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
+import 'package:silo_tavern/ui/server_dashboard_wrapper.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 import 'package:silo_tavern/ui/under_construction_page.dart';
 import 'package:silo_tavern/ui/utils.dart';
@@ -98,6 +99,42 @@ GoRouter appRouter(Domains domains) {
             server: server,
             backUrl: backUrl,
             connectionDomain: domains.connections,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/servers/:id/dashboard',
+        name: 'serverDashboard',
+        builder: (context, state) {
+          final serverId = state.pathParameters['id']!;
+          final server = domains.servers.findServerById(serverId);
+          if (server == null) {
+            // Navigate back if server not found
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.go(defaultPage);
+            });
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          
+          return ServerDashboardWrapper(
+            server: server,
+            connectionDomain: domains.connections,
+            serverDomain: domains.servers,
+            router: GoRouter.of(context),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/under-construction',
+        name: 'underConstruction',
+        builder: (context, state) {
+          final title = state.uri.queryParameters['title'] ?? 'Under Construction';
+          final backUrl = state.uri.queryParameters['backUrl'];
+          return UnderConstructionPage(
+            title: title,
+            backUrl: backUrl,
           );
         },
       ),

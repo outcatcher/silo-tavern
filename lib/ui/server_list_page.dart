@@ -324,19 +324,12 @@ class _ServerListPageState extends State<ServerListPage> {
 
                                 // Check if the operation was successful
                                 if (result.isSuccess) {
-                                  // Check if there's a persistent session before navigating to login
+                                  // Check if there's a persistent session before navigating
                                   if (await widget.connectionDomain
                                       .hasPersistentSession(server)) {
-                                    // Skip login and go directly to connect page
+                                    // Skip login and go directly to dashboard
                                     if (context.mounted) {
-                                      router.go(
-                                        Uri(
-                                          path: '/servers/connect/${server.id}',
-                                          queryParameters: {
-                                            'backUrl': '/servers',
-                                          },
-                                        ).toString(),
-                                      );
+                                      router.go('/servers/${server.id}/dashboard');
                                     }
                                   } else {
                                     // Navigate to login page with back URL as query parameter

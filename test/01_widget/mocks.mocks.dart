@@ -680,4 +680,13 @@ class MockConnectionDomain extends _i1.Mock implements _i8.ConnectionDomain {
     Invocation.method(#testOnlyAddSession, [serverId, session]),
     returnValueForMissingStub: null,
   );
+
+  @override
+  _i13.Future<void> logoutFromServer(_i15.Server? server) =>
+      (super.noSuchMethod(
+            Invocation.method(#logoutFromServer, [server]),
+            returnValue: _i13.Future<void>.value(),
+            returnValueForMissingStub: _i13.Future<void>.value(),
+          )
+          as _i13.Future<void>);
 }

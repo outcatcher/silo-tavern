@@ -269,6 +269,15 @@ class MockConnectionStorage extends _i1.Mock implements _i6.ConnectionStorage {
           as _i7.Future<List<_i10.Cookie>?>);
 
   @override
+  _i7.Future<void> deleteSessionCookies(String? serverId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteSessionCookies, [serverId]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
   _i7.Future<void> saveCsrfToken(String? serverId, String? token) =>
       (super.noSuchMethod(
             Invocation.method(#saveCsrfToken, [serverId, token]),
@@ -914,6 +923,15 @@ class MockConnectionDomain extends _i1.Mock implements _i14.ConnectionDomain {
     Invocation.method(#testOnlyAddSession, [serverId, session]),
     returnValueForMissingStub: null,
   );
+
+  @override
+  _i7.Future<void> logoutFromServer(_i8.Server? server) =>
+      (super.noSuchMethod(
+            Invocation.method(#logoutFromServer, [server]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
 }
 
 /// A class which mocks [ConnectionSessionInterface].

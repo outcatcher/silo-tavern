@@ -136,4 +136,23 @@ class ConnectionDomain {
   void testOnlyAddSession(String serverId, ConnectionSessionInterface session) {
     _sessions[serverId] = session;
   }
+
+  /// Logout from a server and clear all associated tokens and cookies
+  Future<void> logoutFromServer(server_models.Server server) async {
+    try {
+      // Remove session from memory
+      _sessions.remove(server.id);
+      
+      // Delete persistent session cookies
+      await _repository.deleteSessionCookies(server.id);
+      
+      // Delete CSRF token
+      await _repository.deleteCsrfToken(server.id);
+    } catch (e) {
+      debugPrint(
+        'ConnectionDomain: Failed to logout from server ${server.id}: $e',
+      );
+      rethrow;
+    }
+  }
 }
