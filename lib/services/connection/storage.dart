@@ -70,6 +70,17 @@ class ConnectionStorage implements ConnectionRepository {
   }
 
   @override
+  Future<void> deleteSessionCookies(String serverId) async {
+    try {
+      await _secureStorage.delete(serverId);
+    } catch (e) {
+      // Rethrow storage exceptions as expected by tests
+      debugPrint('Failed to delete session cookies for server $serverId: $e');
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> saveCsrfToken(String serverId, String token) async {
     try {
       final key = '$serverId$_csrfTokenKeySuffix';

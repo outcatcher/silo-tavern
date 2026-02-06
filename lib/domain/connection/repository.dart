@@ -9,6 +9,9 @@ abstract class ConnectionRepository {
   /// Load session cookies for a server
   Future<List<Cookie>?> loadSessionCookies(String serverId);
 
+  /// Delete session cookies for a server
+  Future<void> deleteSessionCookies(String serverId);
+
   /// Save CSRF token for a server
   Future<void> saveCsrfToken(String serverId, String token);
 
