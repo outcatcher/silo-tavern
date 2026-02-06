@@ -68,8 +68,6 @@ void main() {
       expect(find.byType(ServerCreationPage), findsOneWidget);
     });
 
-    
-
     testWidgets('Server login route shows login page', (tester) async {
       // Mock the findServerById method to return a server
       final server = Server(

@@ -56,7 +56,7 @@ GoRouter appRouter(Domains domains) {
           );
         },
       ),
-      
+
       GoRoute(
         path: '/servers/login/:id',
         name: 'serverLogin',

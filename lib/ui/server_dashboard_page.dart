@@ -138,7 +138,7 @@ class ServerDashboardPage extends StatelessWidget {
           final result = await connectionDomain!.logoutFromServer(server);
           // Clear auth cache for this server regardless of result
           clearAuthCache();
-          
+
           // Handle potential errors
           if (result.isFailure) {
             debugPrint('Logout failed: ${result.error}');
