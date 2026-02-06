@@ -6,7 +6,7 @@ import 'package:silo_tavern/router/router.dart';
 import 'package:silo_tavern/router/auth_guard.dart';
 import 'package:silo_tavern/ui/server_dashboard_page.dart';
 
-import '../01_widget/router_test.mocks.dart';
+import 'mocks.mocks.dart';
 
 void main() {
   group('Server Dashboard Route Tests:', () {

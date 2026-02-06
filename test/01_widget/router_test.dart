@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:silo_tavern/domain/connection/domain.dart';
-import 'package:silo_tavern/domain/servers/domain.dart';
 import 'package:silo_tavern/domain/servers/models.dart';
 import 'package:silo_tavern/router/router.dart';
 import 'package:silo_tavern/ui/login_page.dart';
 import 'package:silo_tavern/ui/server_creation_page.dart';
 import 'package:silo_tavern/ui/server_list_page.dart';
 
-import 'router_test.mocks.dart';
+import 'mocks.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ServerDomain>(), MockSpec<ConnectionDomain>()])
 void main() {
   group('Router Tests:', () {
     late MockServerDomain mockServerDomain;
